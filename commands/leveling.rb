@@ -61,9 +61,13 @@ bot.message do |event|
       end
     end
 
-    config = DB.get_levelup_config(sid)
+    config = DB.get_levelup_config(sid) || {}
 
-    if config['enabled'] == true || config['enabled'] == 1
+    enabled_val = config['enabled'] || config[:enabled]
+    
+    is_enabled = enabled_val.nil? ? true : [true, 1, "true", "1"].include?(enabled_val)
+
+    if is_enabled
       embed = Discordrb::Webhooks::Embed.new(
         title: "🎉 Level Up!",
         description: "Congratulations #{event.user.mention}! You just advanced to **Level #{new_level}**!",
@@ -73,8 +77,11 @@ bot.message do |event|
       embed.add_field(name: 'XP Remaining', value: "#{new_xp}/#{new_level * 100}", inline: true)
       embed.add_field(name: 'Coins', value: "#{DB.get_coins(uid)} #{EMOJIS['s_coin']}", inline: true)
 
-      if config['channel_id'] && config['channel_id'] > 0
-        target_channel = event.bot.channel(config['channel_id'])
+      chan_id = config['channel_id'] || config[:channel_id] || config['channel'] || config[:channel]
+
+      if chan_id && chan_id.to_i > 0
+        target_channel = event.bot.channel(chan_id.to_i, event.server)
+        
         if target_channel
           target_channel.send_message(nil, false, embed)
         else
