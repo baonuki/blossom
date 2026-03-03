@@ -1,19 +1,9 @@
 require 'discordrb'
 require 'dotenv/load'
-require 'ffi'
 
-LIB_DIR = File.join(__dir__, 'lib')
-ENV['PATH'] = "#{LIB_DIR};#{ENV['PATH']}"
-
-module RbNaCl
-  module Sodium
-    extend FFI::Library
-    ffi_lib File.join(LIB_DIR, 'sodium.dll')
-    attach_function :sodium_init, [], :int
-  end
-end
-
-RbNaCl::Sodium.sodium_init
+# =========================
+# BOT SETUP
+# =========================
 
 puts "[SYSTEM] Checking voice engine..."
 begin
