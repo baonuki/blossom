@@ -37,7 +37,7 @@ COMMAND_CATEGORIES = {
   'Arcade'    => [:coinflip, :slots, :roulette, :scratch, :dice, :cups],
   'Fun'       => [:kettle, :level, :leaderboard, :hug, :slap, :interactions],
   'Utility'   => [:ping, :help, :about, :support, :premium, :call, :dismiss],
-  'Admin'   => [:setlevel, :enablebombs, :disablebombs, :levelup, :addxp, :bomb, :giveaway],
+  'Admin'     => [:setlevel, :enablebombs, :disablebombs, :levelup, :addxp, :bomb, :giveaway],
   'Developer' => [:addcoins, :setcoins, :blacklist, :card, :backup, :givepremium, :removepremium]
 }.freeze
 
@@ -368,6 +368,7 @@ bot = Discordrb::Commands::CommandBot.new(
   prefix: PREFIX,
   intents: [:servers, :server_messages, :server_members, :server_voice_states]
 )
+
 # =========================
 # LOAD COMMANDS
 # =========================
@@ -395,6 +396,7 @@ eval(File.read(File.join(__dir__, 'events/basic.rb')), binding)
 bot.ready do
   puts "Blossom is connected and live!"
   
+  # 1. Automated Backup Thread
   Thread.new do
     storage_server_id  = 1475696989059420162
     storage_channel_id = 1476943608702832680
@@ -424,17 +426,24 @@ bot.ready do
     end
   end
 
-  loop do
-      bot.playing = "#{PREFIX}help in the Arcade 🕹️"
-      sleep 15
+  # 2. Crash-Proof Status Thread
+  Thread.new do
+    loop do
+      begin
+        bot.playing = "#{PREFIX}help in the Arcade 🕹️"
+        sleep 15
 
-      server_count = bot.servers.size
-      total_members = bot.servers.values.sum { |server| server.member_count }
-      bot.playing = "with #{total_members} chatters in #{server_count} servers 🔴| b!"
-      sleep 15
+        server_count = bot.servers.size
+        total_members = bot.servers.values.sum { |server| server.member_count }
+        bot.playing = "with #{total_members} chatters in #{server_count} servers 🔴| b!"
+        sleep 15
+      rescue => e
+        sleep 5 
+      end
     end
   end
 
+  # 3. Giveaway Manager Thread
   Thread.new do
     loop do
       sleep 10 
@@ -477,8 +486,10 @@ bot.ready do
     end
   end
 
-DB.get_blacklist.each do |uid|
-  bot.ignore_user(uid)
+  # 4. Load blacklisted users inside the ready block!
+  DB.get_blacklist.each do |uid|
+    bot.ignore_user(uid)
+  end
 end
 
 puts "Starting bot with prefix #{PREFIX.inspect}..."
