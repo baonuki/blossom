@@ -233,24 +233,18 @@ class BotDatabase
   # SERVER SETTINGS
   # =========================
 
-  def levelup_enabled?(sid)
-    row = @db.get_first_row("SELECT levelup_enabled FROM server_settings WHERE server_id = ?", [sid])
-    row ? row['levelup_enabled'] == 1 : GLOBAL_LEVELUP_ENABLED
-  end
-
-  def set_levelup(sid, enabled)
-    val = enabled ? 1 : 0
-    @db.execute("INSERT INTO server_settings (server_id, levelup_enabled) VALUES (?, ?) ON CONFLICT(server_id) DO UPDATE SET levelup_enabled = ?", [sid, val, val])
-  end
-
-  def set_levelup_config(server_id, channel_id, enabled = true)
-    @db.execute("INSERT OR REPLACE INTO server_configs (server_id, levelup_channel, levelup_enabled) VALUES (?, ?, ?)", [server_id, channel_id, enabled ? 1 : 0])
-  end
-
   def get_levelup_config(server_id)
-    result = @db.execute("SELECT levelup_channel, levelup_enabled FROM server_configs WHERE server_id = ?", [server_id]).first
-    return { channel: nil, enabled: true } unless result
-    { channel: result[0], enabled: result[1] == 1 }
+    row = @db.get_first_row("SELECT levelup_channel, levelup_enabled FROM server_configs WHERE server_id = ?", [server_id])
+    if row
+      { channel: row['levelup_channel'], enabled: row['levelup_enabled'] == 1 }
+    else
+      { channel: nil, enabled: GLOBAL_LEVELUP_ENABLED }
+    end
+  end
+
+  def set_levelup_config(server_id, channel_id, enabled)
+    val = enabled ? 1 : 0
+    @db.execute("INSERT OR REPLACE INTO server_configs (server_id, levelup_channel, levelup_enabled) VALUES (?, ?, ?)", [server_id, channel_id, val])
   end
 
   # =========================

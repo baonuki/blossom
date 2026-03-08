@@ -67,11 +67,14 @@ bot.command(:levelup, description: 'Configure where level-up messages go (Admin 
     next
   end
 
+  config = DB.get_levelup_config(event.server.id)
+  current_channel = config[:channel]
+
   if arg.nil? || arg.downcase == 'on'
-    DB.set_levelup_config(event.server.id, nil, true)
-    send_embed(event, title: "✅ Level-Ups Enabled", description: "Level-up messages will now be sent as a direct reply to the user.")
+    DB.set_levelup_config(event.server.id, current_channel, true)
+    send_embed(event, title: "✅ Level-Ups Enabled", description: "Level-up messages are now turned ON.")
   elsif arg.downcase == 'off'
-    DB.set_levelup_config(event.server.id, nil, false)
+    DB.set_levelup_config(event.server.id, current_channel, false)
     send_embed(event, title: "🔇 Level-Ups Disabled", description: "Level-up messages have been completely turned off for this server.")
   elsif arg =~ /<#(\d+)>/
     channel_id = $1.to_i
@@ -84,7 +87,7 @@ bot.command(:levelup, description: 'Configure where level-up messages go (Admin 
       send_embed(event, title: "⚠️ Error", description: "I couldn't find that channel in this server.")
     end
   else
-    send_embed(event, title: "⚠️ Invalid Usage", description: "Usage:\n`#{PREFIX}levelup #channel` - Send to a specific channel\n`#{PREFIX}levelup off` - Turn off completely\n`#{PREFIX}levelup on` - Default replies")
+    send_embed(event, title: "⚠️ Invalid Usage", description: "Usage:\n`#{PREFIX}levelup #channel` - Send to a specific channel\n`#{PREFIX}levelup off` - Turn off completely\n`#{PREFIX}levelup on` - Turn on")
   end
   nil
 end

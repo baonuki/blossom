@@ -1,5 +1,5 @@
 # =========================
-# CORE LEVELING
+# CORE LEVELING ENGINE (EVENTS)
 # =========================
 
 bot.message do |event|
@@ -61,8 +61,10 @@ bot.message do |event|
       end
     end
 
-    if DB.levelup_enabled?(sid)
-      config = DB.get_levelup_config(sid)
+    # --- UNIFIED LEVEL UP MESSAGE LOGIC ---
+    config = DB.get_levelup_config(sid)
+    
+    if config[:enabled]
       chan_id = config[:channel]
 
       if chan_id && chan_id.to_i > 0
