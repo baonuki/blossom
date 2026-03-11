@@ -145,7 +145,8 @@ CHARACTER_POOLS = {
         { name: 'Michi Mochivee', gif: 'https://media.discordapp.net/attachments/1477495373449658458/1477505109641658520/Michi_Aishite_Aishite_Aishite_Art_2.webp?ex=69a652dc&is=69a5015c&hm=3dc880e052ff5b94ecfda89ca66884065c4f6087cf7526e039c239bf7c15aa9a&=&format=webp&width=1527&height=856' }
       ],
       goddess: [
-        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69a0c36c&is=699f71ec&hm=5af61e417f6aaf02cb938034e5bac0a05492d588ed12d9bcc4073f81ee3d404f&=&format=webp&quality=lossless&width=747&height=960' }
+        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69a0c36c&is=699f71ec&hm=5af61e417f6aaf02cb938034e5bac0a05492d588ed12d9bcc4073f81ee3d404f&=&format=webp&quality=lossless&width=747&height=960' },
+        { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' }
       ]
     }
   }
