@@ -38,7 +38,7 @@ bot.message do |event|
   next if event.author.bot_account?
 
   sid = event.server.id
-  config = server_bomb_configs[sid]
+  config = SERVER_BOMB_CONFIGS[sid]
   next unless config && config['enabled']
 
   uid = event.author.id

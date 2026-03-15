@@ -137,7 +137,7 @@ def execute_enablebombs(event, channel_id)
   sid = event.server.id
   threshold = rand(BOMB_MIN_MESSAGES..BOMB_MAX_MESSAGES)
 
-  server_bomb_configs[sid] = {
+  SERVER_BOMB_CONFIGS[sid] = {
     'enabled' => true,
     'channel_id' => channel_id,
     'message_count' => 0,
@@ -160,10 +160,16 @@ end
 
 def execute_disablebombs(event)
   sid = event.server.id
-  if server_bomb_configs[sid]
-    server_bomb_configs[sid]['enabled'] = false
-    DB.save_bomb_config(sid, false, server_bomb_configs[sid]['channel_id'], 0, 0)
-    event.respond "💣 Bomb drops disabled for this server."
+  
+  if SERVER_BOMB_CONFIGS[sid]
+    SERVER_BOMB_CONFIGS[sid]['enabled'] = false
+    DB.save_bomb_config(sid, false, SERVER_BOMB_CONFIGS[sid]['channel_id'], 0, 0)
+    
+    if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
+      event.respond(content: "💣 Bomb drops disabled for this server.")
+    else
+      event.respond("💣 Bomb drops disabled for this server.")
+    end
   end
 end
 

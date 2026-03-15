@@ -26,7 +26,7 @@ require_relative 'data/database'
 # =========================
 # DATA STRUCTURES
 # =========================
-server_bomb_configs = DB.load_all_bomb_configs
+SERVER_BOMB_CONFIGS = DB.load_all_bomb_configs
 ACTIVE_BOMBS       = {} 
 ACTIVE_COLLABS     = {}
 ACTIVE_TRADES      = {}
