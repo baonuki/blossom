@@ -367,7 +367,7 @@ def execute_coinlb(event)
   else
     desc = active_humans.each_with_index.map do |row, index|
       user_obj = event.bot.user(row['user_id'])
-      name = user_obj ? user_obj.display_name : "User #{row['user_id']}"
+      name = user_obj ? user_obj.username : "User #{row['user_id']}"
       "##{index + 1} — **#{name}**: **#{row['coins']}** #{EMOJIS['s_coin']}"
     end.join("\n")
 
