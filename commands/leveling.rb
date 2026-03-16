@@ -15,63 +15,19 @@ def execute_level(event, target_user)
   uid  = target_user.id
   user = DB.get_user_xp(sid, uid)
   needed = user['level'] * 100
-  coins = DB.get_coins(uid)
 
-  dev_badge = (uid == DEV_ID) ? "\n#{EMOJIS['developer']} **Verified Bot Developer**" : ""
-  msg_content = "#{EMOJIS['crown']} **#{target_user.display_name}'s Level Card**#{dev_badge}"
+  dev_badge = (uid == DEV_ID) ? "#{EMOJIS['developer']} **Verified Bot Developer**" : ""
 
-  if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
-    event.defer
-  end
-
-  raw_avatar = target_user.avatar_url(format: 'png') || target_user.default_avatar_url
-  clean_avatar = raw_avatar.split('?').first
-  
-  username = CGI.escape(target_user.display_name)
-  avatar = CGI.escape(clean_avatar)
-  bg_image = CGI.escape("https://i.imgur.com/QJf5Xv6.png") 
-
-  text2 = CGI.escape("Level #{user['level']}")
-  text3 = CGI.escape("XP: #{user['xp']}/#{needed} | Coins: #{coins}")
-
-  api_url = "https://api.popcat.xyz/welcomecard?background=#{bg_image}&text1=#{username}&text2=#{text2}&text3=#{text3}&avatar=#{avatar}"
-  
-  puts "🔗 Generating Level Card: #{api_url}"
-
-  begin
-    image_data = URI.open(api_url, "User-Agent" => "Mozilla/5.0").read
-    
-    temp_filename = "level_#{uid}.png"
-    File.open(temp_filename, 'wb') do |file|
-      file.write(image_data)
-    end
-
-    File.open(temp_filename, 'r') do |file|
-      if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
-        event.edit_response(content: msg_content)
-        event.channel.send_file(file)
-      else
-        event.respond(msg_content)
-        event.channel.send_file(file)
-      end
-    end
-
-    File.delete(temp_filename) if File.exist?(temp_filename)
-
-  rescue StandardError => e
-    puts "⚠️ LEVEL CARD ERROR: #{e.message}"
-    error_msg = "#{EMOJIS['x_']} *Oops! My image generator is taking a little nap. Try again in a second!*"
-    
-    if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
-      begin
-        event.edit_response(content: error_msg)
-      rescue
-        event.channel.send_message(error_msg)
-      end
-    else
-      event.respond(error_msg)
-    end
-  end
+  send_embed(
+    event,
+    title: "#{EMOJIS['crown']} #{target_user.display_name}'s Server Level",
+    description: dev_badge, 
+    fields: [
+      { name: 'Level', value: user['level'].to_s, inline: true },
+      { name: 'XP', value: "#{user['xp']}/#{needed}", inline: true },
+      { name: 'Coins', value: "#{DB.get_coins(uid)} #{EMOJIS['s_coin']}", inline: true }
+    ]
+  )
 end
 
 bot.command(:level, description: 'Show a user\'s level and XP for this server', category: 'Fun') do |event|
