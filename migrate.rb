@@ -3,7 +3,7 @@ require 'pg'
 require 'dotenv/load'
 
 puts "🌸 Connecting to databases..."
-sqlite = SQLite3::Database.new("blossom.db")
+sqlite = SQLite3::Database.new("blossom.db", readonly: true)
 pg = PG.connect(ENV['DATABASE_URL'])
 
 puts "🏗️ Building empty Postgres tables..."

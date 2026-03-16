@@ -8,12 +8,12 @@ require 'dotenv/load'
 puts "[SYSTEM] Checking voice engine..."
 begin
   if defined?(Discordrb::Voice)
-    puts "✅ Voice Engine: Ready"
+    puts "✅  Voice Engine: Ready"
   else
-    puts "❌ Voice Engine: Missing (libsodium/sodium.dll not found)"
+    puts "❌  Voice Engine: Missing (libsodium/sodium.dll not found)"
   end
 rescue LoadError => e
-  puts "❌ Voice Engine: Load Error - #{e.message}"
+  puts "❌  Voice Engine: Load Error - #{e.message}"
 end
 
 # =========================
