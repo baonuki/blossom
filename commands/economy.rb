@@ -4,89 +4,26 @@
 
 def execute_balance(event, target_user)
   uid = target_user.id
+  coins = DB.get_coins(uid)
 
-  if uid == event.bot.profile.id
-    setup_text = ""
-    consumables_text = ""
+  embed = Discordrb::Webhooks::Embed.new(
+    title: "🌸 #{target_user.display_name}'s Balance",
+    description: "**Coins:** #{coins} #{EMOJIS['s_coin']}\n\n*Click the buttons below to view your items and VTubers!*",
+    color: 0xFFB6C1
+  )
 
-    BLACK_MARKET_ITEMS.each do |key, data|
-      if data[:type] == 'upgrade'
-        setup_text += "#{data[:name]} (x7)\n"
-      elsif data[:type] == 'consumable'
-        consumables_text += "#{data[:name]} (x7)\n"
-      end
-    end
-
-    fields = [
-      { name: "#{EMOJIS['rich']} Bank Account", value: "**7,777,777** #{EMOJIS['s_coin']}", inline: false },
-      { name: '🖥️ Stream Setup', value: setup_text, inline: true },
-      { name: '🎒 Consumables', value: consumables_text, inline: true },
-      { name: "\u200B", value: "\u200B", inline: false }, 
-      { name: '⭐ Commons', value: "Owned: **All / #{TOTAL_UNIQUE_CHARS['common']}**\nAscended: **All** #{EMOJIS['neonsparkle']}", inline: true },
-      { name: '✨ Rares', value: "Owned: **All / #{TOTAL_UNIQUE_CHARS['rare']}**\nAscended: **All** #{EMOJIS['neonsparkle']}", inline: true },
-      { name: "\u200B", value: "\u200B", inline: false }, 
-      { name: '🌟 Legendaries', value: "Owned: **All / #{TOTAL_UNIQUE_CHARS['legendary']}**\nAscended: **All** #{EMOJIS['neonsparkle']}", inline: true }
-    ]
-    
-    if TOTAL_UNIQUE_CHARS['goddess'] && TOTAL_UNIQUE_CHARS['goddess'] > 0
-      fields << { name: '💎 Goddess', value: "Owned: **All / #{TOTAL_UNIQUE_CHARS['goddess']}**\nAscended: **All** #{EMOJIS['neonsparkle']}", inline: true }
-    end
-
-    return send_embed(event, title: "🌸 Blossom's Admin Profile", description: "Wait, you're checking *my* pockets? I'm the one running the arcade! I have exactly 7 of every item and a fully maxed out, shiny character collection... don't ask why.", fields: fields)
+  view = Discordrb::Components::View.new
+  view.row do |r|
+    r.button(custom_id: "menu_home_#{uid}", label: 'Balance', style: :secondary, emoji: '💰', disabled: true)
+    r.button(custom_id: "menu_inv_#{uid}", label: 'Inventory', style: :primary, emoji: '🎒')
+    r.button(custom_id: "menu_vtubers_#{uid}", label: 'VTuber Totals', style: :success, emoji: '🌟')
   end
 
-  user_collection = DB.get_collection(uid)
-  
-  common_owned    = user_collection.values.count { |c| c['rarity'] == 'common' && (c['count'] > 0 || c['ascended'] > 0) }
-  rare_owned      = user_collection.values.count { |c| c['rarity'] == 'rare' && (c['count'] > 0 || c['ascended'] > 0) }
-  legendary_owned = user_collection.values.count { |c| c['rarity'] == 'legendary' && (c['count'] > 0 || c['ascended'] > 0) }
-  goddess_owned   = user_collection.values.count { |c| c['rarity'] == 'goddess' && (c['count'] > 0 || c['ascended'] > 0) }
-
-  common_asc      = user_collection.values.count { |c| c['rarity'] == 'common' && c['ascended'] > 0 }
-  rare_asc        = user_collection.values.count { |c| c['rarity'] == 'rare' && c['ascended'] > 0 }
-  legendary_asc   = user_collection.values.count { |c| c['rarity'] == 'legendary' && c['ascended'] > 0 }
-  goddess_asc     = user_collection.values.count { |c| c['rarity'] == 'goddess' && c['ascended'] > 0 }
-
-  user_inv = DB.get_inventory(uid)
-  
-  setup_text = ""
-  ['headset', 'keyboard', 'mic', 'neon sign', 'gacha pass'].each do |item_key|
-    if user_inv[item_key] && user_inv[item_key] > 0
-      setup_text += "#{BLACK_MARKET_ITEMS[item_key][:name]}\n"
-    end
+  if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
+    event.respond(embeds: [embed], components: view)
+  else
+    event.channel.send_message(nil, false, embed, nil, nil, nil, view)
   end
-  setup_text = "None" if setup_text.empty?
-
-  consumables_text = ""
-  ['rng manipulator', 'gamer fuel', 'stamina pill'].each do |item_key|
-    if user_inv[item_key] && user_inv[item_key] > 0
-      consumables_text += "#{BLACK_MARKET_ITEMS[item_key][:name]} (x#{user_inv[item_key]})\n"
-    end
-  end
-  consumables_text = "None" if consumables_text.empty?
-
-  fields = [
-    { name: "#{EMOJIS['rich']} Bank Account", value: "**#{DB.get_coins(uid)}** #{EMOJIS['s_coin']}", inline: false },
-    { name: '🖥️ Stream Setup', value: setup_text, inline: true },
-    { name: '🎒 Consumables', value: consumables_text, inline: true },
-    { name: "\u200B", value: "\u200B", inline: false }, 
-    { name: '⭐ Commons', value: "Owned: **#{common_owned} / #{TOTAL_UNIQUE_CHARS['common']}**\nAscended: **#{common_asc}** #{EMOJIS['neonsparkle']}", inline: true },
-    { name: '✨ Rares', value: "Owned: **#{rare_owned} / #{TOTAL_UNIQUE_CHARS['rare']}**\nAscended: **#{rare_asc}** #{EMOJIS['neonsparkle']}", inline: true },
-    { name: "\u200B", value: "\u200B", inline: false }, 
-    { name: '🌟 Legendaries', value: "Owned: **#{legendary_owned} / #{TOTAL_UNIQUE_CHARS['legendary']}**\nAscended: **#{legendary_asc}** #{EMOJIS['neonsparkle']}", inline: true }
-  ]
-
-  if TOTAL_UNIQUE_CHARS['goddess'] && TOTAL_UNIQUE_CHARS['goddess'] > 0
-    fields << { name: '💎 Goddess', value: "Owned: **#{goddess_owned} / #{TOTAL_UNIQUE_CHARS['goddess']}**\nAscended: **#{goddess_asc}** #{EMOJIS['neonsparkle']}", inline: true }
-  end
-
-  is_sub = is_premium?(event.bot, uid)
-  
-  badges = ""
-  badges += "\n\n#{EMOJIS['developer']} **Verified Bot Developer**" if uid == DEV_ID
-  badges += "#{(uid == DEV_ID) ? "\n" : "\n\n"}💎 **Active Subscriber**" if is_sub
-
-  send_embed(event, title: "#{target_user.display_name}'s Profile", description: "Here are #{target_user.display_name}'s current economy and gacha stats!#{badges}", fields: fields)
 end
 
 bot.command(:balance, description: 'Show a user\'s coin balance, gacha stats, and inventory', category: 'Economy') do |event|

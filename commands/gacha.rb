@@ -141,28 +141,99 @@ end
 bot.command(:summon, description: 'Roll the gacha!', category: 'Gacha') { |e| execute_summon(e); nil }
 bot.application_command(:summon) { |e| execute_summon(e) }
 
-def execute_collection(event, target_user)
+# This helper does all the heavy lifting for generating the UI
+def build_collection_page(event, target_user, col, current_rarity, page, is_edit: false)
   uid = target_user.id
-  title = "📚 #{target_user.display_name}'s Character Collection"
-  pages = get_collection_pages(uid)
-  rarity_names = ["Commons", "Rares", "Legendaries", "Goddess"]
+  username = target_user.display_name
 
+  # Pre-sort to keep your exact market rarity order
+  rarity_order = ['common', 'rare', 'legendary', 'goddess']
+  
+  # Find which rarities the user actually owns, in the correct order
+  owned_rarities = rarity_order.select { |r| col.values.any? { |d| d['rarity'].downcase == r } }
+  other_rarities = col.values.map { |d| d['rarity'].downcase }.uniq - rarity_order
+  all_owned_rarities = owned_rarities + other_rarities
+
+  # Grab only the VTubers for the currently selected rarity
+  items_in_rarity = col.select { |_, data| data['rarity'].downcase == current_rarity }
+  sorted_items = items_in_rarity.sort_by { |name, _| name }
+
+  # Math for the 10-per-page limit
+  items_per_page = 10
+  total_pages = (sorted_items.size / items_per_page.to_f).ceil
+  total_pages = 1 if total_pages < 1
+  
+  page = 1 if page < 1
+  page = total_pages if page > total_pages
+
+  start_idx = (page - 1) * items_per_page
+  page_items = sorted_items[start_idx, items_per_page]
+
+  # Build the beautiful embed
   embed = Discordrb::Webhooks::Embed.new(
-    title: title, description: pages[0], color: NEON_COLORS.sample,
-    footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{rarity_names[0]} | Page 1 of #{pages.size}")
+    title: "🌟 #{username}'s VTubers: #{current_rarity.capitalize}",
+    color: 0xFFB6C1
   )
 
-  view = Discordrb::Components::View.new
-  view.row do |r|
-    r.button(custom_id: "col_#{uid}_-1", label: "◀ Prev", style: :secondary, disabled: true)
-    r.button(custom_id: "col_#{uid}_1", label: "Next ▶", style: :secondary, disabled: pages.size <= 1)
+  desc = ""
+  page_items.each do |name, data|
+    count = data['count']
+    asc = data['ascended']
+    asc_text = asc > 0 ? " | 🔥 Ascended: #{asc}" : ""
+    desc += "**#{name}** - x#{count}#{asc_text}\n"
   end
 
-  if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
+  embed.description = desc.empty? ? "*No VTubers found.*" : desc
+  embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "Page #{page}/#{total_pages} • Total #{current_rarity.capitalize}: #{items_in_rarity.size}")
+
+  # Build the Interactive Components
+  view = Discordrb::Components::View.new
+
+  # 1. The Select Menu (Dropdown)
+  view.row do |r|
+    r.select_menu(custom_id: "colsel_#{uid}", placeholder: "Select Rarity...", max_values: 1) do |s|
+      all_owned_rarities.each do |rarity|
+        # Marks the rarity they are currently looking at as the default/selected one
+        s.option(label: rarity.capitalize, value: rarity, default: rarity == current_rarity)
+      end
+    end
+  end
+
+  # 2. The Pagination Buttons (Only show if there are multiple pages!)
+  if total_pages > 1
+    view.row do |r|
+      r.button(custom_id: "colbtn_#{uid}_#{page - 1}_#{current_rarity}", label: '◀ Prev', style: :secondary, disabled: page <= 1)
+      r.button(custom_id: "colbtn_#{uid}_#{page + 1}_#{current_rarity}", label: 'Next ▶', style: :secondary, disabled: page >= total_pages)
+    end
+  end
+
+  # Send or Edit the message based on who called this method
+  if is_edit
+    event.update_message(embeds: [embed], components: view)
+  elsif event.is_a?(Discordrb::Events::ApplicationCommandEvent)
     event.respond(embeds: [embed], components: view)
   else
-    event.channel.send_message(nil, false, embed, nil, { replied_user: false }, event.message, view)
+    event.channel.send_message(nil, false, embed, nil, nil, nil, view)
   end
+end
+
+# The actual command users type
+def execute_collection(event, target_user)
+  uid = target_user.id
+  col = DB.get_collection(uid)
+
+  if col.empty?
+    error_msg = "🌸 *#{target_user.display_name} hasn't pulled any VTubers yet!*"
+    return event.is_a?(Discordrb::Events::ApplicationCommandEvent) ? event.respond(content: error_msg) : event.respond(error_msg)
+  end
+
+  # Start them on the lowest rarity they actually own
+  rarity_order = ['common', 'rare', 'legendary', 'goddess']
+  owned_rarities = rarity_order.select { |r| col.values.any? { |d| d['rarity'].downcase == r } }
+  other_rarities = col.values.map { |d| d['rarity'].downcase }.uniq - rarity_order
+  starting_rarity = (owned_rarities + other_rarities).first
+
+  build_collection_page(event, target_user, col, starting_rarity, 1, is_edit: false)
 end
 
 bot.command(:collection, description: 'View all the characters you own', category: 'Gacha') do |event|

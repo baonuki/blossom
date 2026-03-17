@@ -1,7 +1,5 @@
 require 'discordrb'
 require 'dotenv/load'
-require 'open-uri'
-require 'cgi'
 
 # =========================
 # BOT SETUP
@@ -373,6 +371,127 @@ bot = Discordrb::Commands::CommandBot.new(
   prefix: PREFIX,
   intents: [:servers, :server_messages, :server_members, :server_voice_states]
 )
+
+bot.button(custom_id: /^menu_/) do |event|
+  _, action, owner_id = event.custom_id.split('_')
+
+  if event.user.id.to_s != owner_id
+    event.respond(content: "🌸 *This isn't your menu! Run your own balance command to see your stats.*", ephemeral: true)
+    next
+  end
+
+  uid = event.user.id
+  username = event.user.display_name
+
+  new_embed = Discordrb::Webhooks::Embed.new(color: 0xFFB6C1)
+  view = Discordrb::Components::View.new
+
+  case action
+  when 'home'
+    coins = DB.get_coins(uid)
+    new_embed.title = "🌸 #{username}'s Balance"
+    new_embed.description = "**Coins:** #{coins} #{EMOJIS['s_coin']}\n\n*Click the buttons below to view your items and VTubers!*"
+    
+    view.row do |r|
+      r.button(custom_id: "menu_home_#{uid}", label: 'Balance', style: :secondary, emoji: '💰', disabled: true)
+      r.button(custom_id: "menu_inv_#{uid}", label: 'Inventory', style: :primary, emoji: '🎒')
+      r.button(custom_id: "menu_vtubers_#{uid}", label: 'VTuber Totals', style: :success, emoji: '🌟')
+    end
+
+  when 'inv'
+    inv = DB.get_inventory(uid)
+    new_embed.title = "🎒 #{username}'s Inventory"
+
+    if inv.empty?
+      new_embed.description = "*Your inventory is completely empty!*"
+    else
+      upgrades = []
+      consumables = []
+
+      # Exact matches from your Stream Upgrades market list
+      upgrade_keywords = ['headset', 'keyboard', 'mic', 'neon sign', 'gacha pass']
+
+      inv.each do |item, count|
+        is_upgrade = upgrade_keywords.any? { |kw| item.downcase.include?(kw) }
+        if is_upgrade
+          upgrades << "**#{item}**: #{count}"
+        else
+          consumables << "**#{item}**: #{count}"
+        end
+      end
+
+      desc = ""
+      unless upgrades.empty?
+        desc += "🎙️ **Stream Upgrades (Permanent)**\n" + upgrades.join("\n") + "\n\n"
+      end
+      unless consumables.empty?
+        desc += "💊 **Consumables (One-Time Use)**\n" + consumables.join("\n")
+      end
+
+      new_embed.description = desc.strip
+    end
+
+    view.row do |r|
+      r.button(custom_id: "menu_home_#{uid}", label: 'Balance', style: :secondary, emoji: '💰')
+      r.button(custom_id: "menu_inv_#{uid}", label: 'Inventory', style: :primary, emoji: '🎒', disabled: true)
+      r.button(custom_id: "menu_vtubers_#{uid}", label: 'VTuber Totals', style: :success, emoji: '🌟')
+    end
+
+  when 'vtubers', 'cards' # Catches 'cards' just in case old buttons are still in chat!
+    col = DB.get_collection(uid)
+    new_embed.title = "🌟 #{username}'s VTuber Collection"
+
+    if col.empty?
+      new_embed.description = "*You haven't pulled any VTubers yet!*"
+    else
+      unique_vtubers = col.keys.size
+      unique_ascended = 0
+
+      rarity_counts = Hash.new(0)
+      ascended_rarity_counts = Hash.new(0)
+
+      col.each do |name, data|
+        r = data['rarity']
+        count = data['count']
+        ascended = data['ascended']
+
+        rarity_counts[r] += count
+        if ascended > 0
+          unique_ascended += 1
+          ascended_rarity_counts[r] += ascended
+        end
+      end
+
+      # THE FIX: This array forces Ruby to sort in this exact order!
+      rarity_order = ['common', 'rare', 'legendary', 'goddess']
+      
+      # Any rarity not in the list gets pushed to the bottom (index 99)
+      sorted_rarity = rarity_counts.sort_by { |r, _| rarity_order.index(r.downcase) || 99 }
+      sorted_ascended = ascended_rarity_counts.sort_by { |r, _| rarity_order.index(r.downcase) || 99 }
+
+      desc = "✨ **Unique VTubers:** #{unique_vtubers}\n"
+      desc += "🌟 **Unique Ascended:** #{unique_ascended}\n\n"
+
+      desc += "📊 **Total by Rarity:**\n"
+      sorted_rarity.each { |r, c| desc += "• #{r.capitalize}: **#{c}**\n" }
+
+      if sorted_ascended.any?
+        desc += "\n🔥 **Ascended by Rarity:**\n"
+        sorted_ascended.each { |r, c| desc += "• #{r.capitalize}: **#{c}**\n" }
+      end
+
+      new_embed.description = desc.strip
+    end
+
+    view.row do |r|
+      r.button(custom_id: "menu_home_#{uid}", label: 'Balance', style: :secondary, emoji: '💰')
+      r.button(custom_id: "menu_inv_#{uid}", label: 'Inventory', style: :primary, emoji: '🎒')
+      r.button(custom_id: "menu_vtubers_#{uid}", label: 'VTuber Totals', style: :success, emoji: '🌟', disabled: true)
+    end
+  end
+
+  event.update_message(embeds: [new_embed], components: view)
+end
 
 # =========================
 # LOAD COMMANDS

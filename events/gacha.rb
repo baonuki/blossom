@@ -93,32 +93,30 @@ end
 # COLLECTION PAGINATION LISTENER
 # =========================
 
-bot.button(custom_id: /^col_/) do |event|
-  _, uid_str, page_str = event.custom_id.split('_')
-  uid = uid_str.to_i
-  target_page = page_str.to_i
-  
-  title = event.message.embeds.first.title
-  
-  pages = get_collection_pages(uid)
-  
-  target_page = 0 if target_page < 0
-  target_page = pages.size - 1 if target_page >= pages.size
+bot.select_menu(custom_id: /^colsel_/) do |event|
+  _, owner_id = event.custom_id.split('_')
 
-  rarity_names = ["Commons", "Rares", "Legendaries", "Goddess"]
-
-  embed = Discordrb::Webhooks::Embed.new(
-    title: title,
-    description: pages[target_page],
-    color: NEON_COLORS.sample,
-    footer: Discordrb::Webhooks::EmbedFooter.new(text: "#{rarity_names[target_page]} | Page #{target_page + 1} of #{pages.size}")
-  )
-
-  view = Discordrb::Components::View.new
-  view.row do |r|
-    r.button(custom_id: "col_#{uid}_#{target_page - 1}", label: "◀ Prev", style: :secondary, disabled: target_page <= 0)
-    r.button(custom_id: "col_#{uid}_#{target_page + 1}", label: "Next ▶", style: :secondary, disabled: target_page >= (pages.size - 1))
+  if event.user.id.to_s != owner_id
+    event.respond(content: "🌸 *This isn't your collection!*", ephemeral: true)
+    next
   end
 
-  event.update_message(content: nil, embeds: [embed], components: view)
+  selected_rarity = event.values.first 
+  col = DB.get_collection(event.user.id)
+
+  build_collection_page(event, event.user, col, selected_rarity, 1, is_edit: true)
+end
+
+bot.button(custom_id: /^colbtn_/) do |event|
+  _, owner_id, page_str, rarity = event.custom_id.split('_', 4)
+
+  if event.user.id.to_s != owner_id
+    event.respond(content: "🌸 *This isn't your collection!*", ephemeral: true)
+    next
+  end
+
+  target_page = page_str.to_i
+  col = DB.get_collection(event.user.id)
+
+  build_collection_page(event, event.user, col, rarity, target_page, is_edit: true)
 end
