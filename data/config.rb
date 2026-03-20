@@ -73,8 +73,8 @@ BLACK_MARKET_ITEMS = {
 # =========================
 # EVENT & ARCADE SETTINGS
 # =========================
-BOMB_MIN_MESSAGES = 10
-BOMB_MAX_MESSAGES = 20
+BOMB_MIN_MESSAGES = 100
+BOMB_MAX_MESSAGES = 300
 
 # =========================
 # AESTHETICS & EMOJIS
