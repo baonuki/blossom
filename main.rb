@@ -805,44 +805,44 @@ puts "Registering slash commands to Discord API..."
 
 # NOT LIVE YET
 
-#bot.register_application_command(:givecoins, 'Give your coins to another user') do |cmd|
- # cmd.user('user', 'Who?', required: true)
- # cmd.integer('amount', 'How much?', required: true)
-#end
+bot.register_application_command(:givecoins, 'Give your coins to another user') do |cmd|
+  cmd.user('user', 'Who?', required: true)
+  cmd.integer('amount', 'How much?', required: true)
+end
 
-#bot.register_application_command(:serverinfo, 'Displays information about the current server')
+bot.register_application_command(:serverinfo, 'Displays information about the current server')
 
-#bot.register_application_command(:givecard, 'Give a VTuber card to another user') do |cmd|
- # cmd.user('user', 'The user you want to give the card to', required: true)
- # cmd.string('character', 'The name of the character', required: true)
-#end
+bot.register_application_command(:givecard, 'Give a VTuber card to another user') do |cmd|
+  cmd.user('user', 'The user you want to give the card to', required: true)
+  cmd.string('character', 'The name of the character', required: true)
+end
 
-#bot.register_application_command(:sell, 'Sell your duplicate VTuber cards for coins') do |cmd|
-  #cmd.string('filter', 'How do you want to sell?', required: true, choices: { 
-  #  'All Dupes (Keep 1 of each)' => 'all', 
-  #  'Over 5 (Save copies for ascending)' => 'over5', 
-  #  'Specific Rarity' => 'rarity' 
-  #})
-  #cmd.string('rarity', 'If filtering by rarity, which one?', required: false, choices: { 
-  #  'Common' => 'common', 
-  #  'Rare' => 'rare', 
-  #  'Legendary' => 'legendary', 
-  #  'Goddess' => 'goddess' 
- # })
-#end
+bot.register_application_command(:sell, 'Sell your duplicate VTuber cards for coins') do |cmd|
+  cmd.string('filter', 'How do you want to sell?', required: true, choices: { 
+    'All Dupes (Keep 1 of each)' => 'all', 
+    'Over 5 (Save copies for ascending)' => 'over5', 
+    'Specific Rarity' => 'rarity' 
+  })
+  cmd.string('rarity', 'If filtering by rarity, which one?', required: false, choices: { 
+    'Common' => 'common', 
+    'Rare' => 'rare', 
+    'Legendary' => 'legendary', 
+    'Goddess' => 'goddess' 
+  })
+end
 
-#bot.register_application_command(:logsetup, 'Set the channel for server logs (Admin Only)') do |cmd|
- # cmd.channel('channel', 'The channel to send logs to', required: true)
-#end
+bot.register_application_command(:logsetup, 'Set the channel for server logs (Admin Only)') do |cmd|
+  cmd.channel('channel', 'The channel to send logs to', required: true)
+end
 
-#bot.register_application_command(:logtoggle, 'Toggle logging for specific events (Admin Only)') do |cmd|
- # cmd.string('type', 'What to toggle', required: true, choices: { 'Message Deletes' => 'deletes', 'Message Edits' => 'edits', 'Mod Actions' => 'mod' })
-#end
+bot.register_application_command(:logtoggle, 'Toggle logging for specific events (Admin Only)') do |cmd|
+  cmd.string('type', 'What to toggle', required: true, choices: { 'Message Deletes' => 'deletes', 'Message Edits' => 'edits', 'Mod Actions' => 'mod' })
+end
 
-#bot.register_application_command(:kick, 'Kicks a user from the server (Admin only)') do |cmd|
- # cmd.user('user', 'The user to kick', required: true)
- # cmd.string('reason', 'Why are they being kicked?', required: false)
-#end
+bot.register_application_command(:kick, 'Kicks a user from the server (Admin only)') do |cmd|
+  cmd.user('user', 'The user to kick', required: true)
+  cmd.string('reason', 'Why are they being kicked?', required: false)
+end
 
 bot.register_application_command(:removecoins, 'Remove coins from a user (Dev Only)') do |cmd|
   cmd.user('user', 'Who?', required: true)
