@@ -5,10 +5,18 @@
 def execute_balance(event, target_user)
   uid = target_user.id
   coins = DB.get_coins(uid)
+  is_sub = is_premium?(event.bot, uid)
+  daily_info = DB.get_daily_info(uid)
+
+  badges = []
+  badges << "#{EMOJIS['developer']} **Bot Developer**" if uid == DEV_ID
+  badges << "💎 **Premium**" if is_sub
+  
+  header = badges.empty? ? "" : badges.join(" | ") + "\n\n"
 
   embed = Discordrb::Webhooks::Embed.new(
     title: "🌸 #{target_user.display_name}'s Balance",
-    description: "**Coins:** #{coins} #{EMOJIS['s_coin']}\n\n*Click the buttons below to view your items and VTubers!*",
+    description: "#{header}**Coins:** #{coins} #{EMOJIS['s_coin']}\n🔥 **Daily Streak:** #{daily_info['streak']} Days\n\n*Click the buttons below to view your items and VTubers!*",
     color: 0xFFB6C1
   )
 
@@ -40,32 +48,63 @@ end
 def execute_daily(event)
   uid = event.user.id
   now = Time.now
-  last_used = DB.get_cooldown(uid, 'daily')
   is_sub = is_premium?(event.bot, uid)
+  
+  daily_info = DB.get_daily_info(uid)
+  last_used = daily_info['at']
+  current_streak = daily_info['streak']
 
   if last_used && (now - last_used) < DAILY_COOLDOWN
     remaining = DAILY_COOLDOWN - (now - last_used)
-    send_embed(event, title: "#{EMOJIS['coin']} Daily Reward", description: "You already claimed your daily #{EMOJIS['worktired']}\nTry again in **#{format_time_delta(remaining)}**.")
-  else
-    reward = DAILY_REWARD
-    bonus_text = ""
-    inv = DB.get_inventory(uid)
-    
-    if inv['neon sign'] && inv['neon sign'] > 0
-      reward *= 2
-      bonus_text += "\n*(✨ Neon Sign Boost: x2 Payout!)*"
-    end
-
-    bonus_text += "\n*(💎 Subscriber Bonus: +10%)*" if is_sub
-
-    final_reward = award_coins(event.bot, uid, reward)
-    DB.set_cooldown(uid, 'daily', now)
-    send_embed(event, title: "#{EMOJIS['coin']} Daily Reward", description: "You claimed **#{final_reward}** #{EMOJIS['s_coin']}!#{bonus_text}\nNew balance: **#{DB.get_coins(uid)}**.")
+    return send_embed(event, title: "#{EMOJIS['coin']} Daily Reward", description: "You already claimed your daily #{EMOJIS['worktired']}\nTry again in **#{format_time_delta(remaining)}**.")
   end
+
+  if last_used.nil? || (now - last_used) > (DAILY_COOLDOWN * 2)
+    new_streak = 1
+    streak_msg = "\n*(Streak reset! Claim within 48h to build it up!)*"
+  else
+    new_streak = current_streak + 1
+    streak_msg = "\n🔥 **Streak:** #{new_streak} days!"
+  end
+
+  reward = DAILY_REWARD + (new_streak * 50) 
+  bonus_text = streak_msg
+  
+  inv = DB.get_inventory(uid)
+  if inv['neon sign'] && inv['neon sign'] > 0
+    reward *= 2
+    bonus_text += "\n*(✨ Neon Sign Boost: x2 Payout!)*"
+  end
+
+  bonus_text += "\n*(💎 Subscriber Bonus: +10%)*" if is_sub
+
+  final_reward = award_coins(event.bot, uid, reward)
+  DB.update_daily_claim(uid, new_streak, now)
+  
+  send_embed(event, title: "#{EMOJIS['coin']} Daily Reward", description: "You claimed **#{final_reward}** #{EMOJIS['s_coin']}!#{bonus_text}\nNew balance: **#{DB.get_coins(uid)}**.")
 end
 
 bot.command(:daily, description: 'Claim your daily coin reward', category: 'Economy') { |e| execute_daily(e); nil }
 bot.application_command(:daily) { |e| execute_daily(e) }
+
+def execute_remindme(event)
+  uid = event.user.id
+  channel_id = event.channel.id
+  
+  daily_info = DB.get_daily_info(uid)
+  is_currently_on = !daily_info['channel'].nil?
+  
+  if is_currently_on
+    DB.toggle_daily_reminder(uid, nil)
+    send_embed(event, title: "🔔 Daily Reminder", description: "I have turned **OFF** your daily reminder!")
+  else
+    DB.toggle_daily_reminder(uid, channel_id)
+    send_embed(event, title: "🔔 Daily Reminder", description: "I have turned **ON** your daily reminder! 🌸\nI will ping you right here in #{event.channel.mention} when your next daily is ready.")
+  end
+end
+
+bot.command(:remindme, description: 'Toggle your daily reward reminder', category: 'Economy') { |e| execute_remindme(e); nil }
+bot.application_command(:remindme) { |e| execute_remindme(e) }
 
 def execute_work(event)
   uid = event.user.id
@@ -216,9 +255,10 @@ def execute_cooldowns(event)
   uid = event.user.id
   inv = DB.get_inventory(uid)
   is_sub = is_premium?(event.bot, uid)
+  daily_info = DB.get_daily_info(uid)
   
-  check_cd = ->(type, cooldown_duration) do
-    last_used = DB.get_cooldown(uid, type)
+  check_cd = ->(type, cooldown_duration, last_used_override = nil) do
+    last_used = last_used_override || DB.get_cooldown(uid, type)
     if last_used && (Time.now - last_used) < cooldown_duration
       ready_time = last_used + cooldown_duration
       "Ready <t:#{ready_time.to_i}:R>"
@@ -233,7 +273,7 @@ def execute_cooldowns(event)
   summon_duration = (inv['gacha pass'] && inv['gacha pass'] > 0) ? 300 : 600
 
   cd_fields = [
-    { name: 'daily', value: check_cd.call('daily', DAILY_COOLDOWN), inline: true },
+    { name: 'daily', value: check_cd.call('daily', DAILY_COOLDOWN, daily_info['at']), inline: true },
     { name: 'work', value: check_cd.call('work', work_cd), inline: true },
     { name: 'stream', value: check_cd.call('stream', stream_cd), inline: true },
     { name: 'post', value: check_cd.call('post', post_cd), inline: true },
@@ -241,7 +281,15 @@ def execute_cooldowns(event)
     { name: 'summon', value: check_cd.call('summon', summon_duration), inline: true } 
   ]
 
-  send_embed(event, title: "#{EMOJIS['info']} #{event.user.display_name}'s Cooldowns", description: "Here are your current economy timers:", fields: cd_fields)
+  streak_text = daily_info['streak'] > 0 ? "\n🔥 **Daily Streak:** #{daily_info['streak']} Days" : ""
+  reminder_text = daily_info['channel'] ? "\n🔔 **Auto-Reminder:** ON" : ""
+
+  send_embed(
+    event, 
+    title: "#{EMOJIS['info']} #{event.user.display_name}'s Cooldowns", 
+    description: "Here are your current economy timers:#{streak_text}#{reminder_text}", 
+    fields: cd_fields
+  )
 end
 
 bot.command(:cooldowns, description: 'Check your active timers for economy commands', category: 'Developer') { |e| execute_cooldowns(e); nil }

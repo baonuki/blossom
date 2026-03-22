@@ -139,3 +139,32 @@ Thread.new do
     end
   end
 end
+
+# =========================
+# DAILY REMINDER PING
+# =========================
+
+Thread.new do
+  loop do
+    sleep(60)
+    begin
+      pending_reminders = DB.get_pending_daily_reminders
+      
+      pending_reminders.each do |row|
+        uid = row['user_id'].to_i
+        chan_id = row['reminder_channel'].to_i
+        
+        channel = bot.channel(chan_id)
+        if channel
+          begin
+            channel.send_message("🔔 <@#{uid}>, your `#{PREFIX}daily` is ready! Don't lose your streak! 🌸")
+          rescue
+          end
+        end
+        DB.mark_reminder_sent(uid) 
+      end
+    rescue => e
+      puts "[REMINDER ERROR] #{e.message}"
+    end
+  end
+end

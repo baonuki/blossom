@@ -389,8 +389,17 @@ bot.button(custom_id: /^menu_/) do |event|
   case action
   when 'home'
     coins = DB.get_coins(uid)
+    is_sub = is_premium?(event.bot, uid)
+    daily_info = DB.get_daily_info(uid)
+
+    badges = []
+    badges << "#{EMOJIS['developer']} **Bot Developer**" if uid == DEV_ID
+    badges << "💎 **Premium**" if is_sub
+    
+    header = badges.empty? ? "" : badges.join(" | ") + "\n\n"
+
     new_embed.title = "🌸 #{username}'s Balance"
-    new_embed.description = "**Coins:** #{coins} #{EMOJIS['s_coin']}\n\n*Click the buttons below to view your items and VTubers!*"
+    new_embed.description = "#{header}**Coins:** #{coins} #{EMOJIS['s_coin']}\n🔥 **Daily Streak:** #{daily_info['streak']} Days\n\n*Click the buttons below to view your items and VTubers!*"
     
     view.row do |r|
       r.button(custom_id: "menu_home_#{uid}", label: 'Balance', style: :secondary, emoji: '💰', disabled: true)
@@ -799,7 +808,9 @@ puts "Registering slash commands to Discord API..."
  # cmd.integer('tickets', 'How many 1000-coin tickets to buy', required: false)
 #end
 
-bot.register_application_command(:lotteryinfo, 'View current lottery stats and your tickets')
+#bot.register_application_command(:lotteryinfo, 'View current lottery stats and your tickets')
+
+bot.register_application_command(:remindme, 'Toggle your daily reward reminder ping')
 
 # ------------------------------------
 

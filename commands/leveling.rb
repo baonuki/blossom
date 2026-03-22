@@ -15,17 +15,25 @@ def execute_level(event, target_user)
   uid  = target_user.id
   user = DB.get_user_xp(sid, uid)
   needed = user['level'] * 100
+  
+  daily_info = DB.get_daily_info(uid)
+  is_sub = is_premium?(event.bot, uid)
 
-  dev_badge = (uid == DEV_ID) ? "#{EMOJIS['developer']} **Verified Bot Developer**" : ""
+  badges = []
+  badges << "#{EMOJIS['developer']} **Verified Bot Developer**" if uid == DEV_ID
+  badges << "💎 **Blossom Premium**" if is_sub
+  
+  desc = badges.empty? ? "" : badges.join("\n") + "\n\n"
 
   send_embed(
     event,
-    title: "#{EMOJIS['crown']} #{target_user.display_name}'s Server Level",
-    description: dev_badge, 
+    title: "#{EMOJIS['crown']} #{target_user.display_name}'s Profile",
+    description: desc, 
     fields: [
       { name: 'Level', value: user['level'].to_s, inline: true },
-      { name: 'XP', value: "#{user['xp']}/#{needed}", inline: true },
-      { name: 'Coins', value: "#{DB.get_coins(uid)} #{EMOJIS['s_coin']}", inline: true }
+      { name: 'XP', value: "#{user['xp']} / #{needed}", inline: true },
+      { name: 'Coins', value: "#{DB.get_coins(uid)} #{EMOJIS['s_coin']}", inline: true },
+      { name: 'Daily Streak', value: "🔥 #{daily_info['streak']} Days", inline: true }
     ]
   )
 end
