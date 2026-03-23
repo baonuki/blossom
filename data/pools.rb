@@ -45,6 +45,7 @@ CHARACTER_POOLS = {
       ],
       goddess: [
         { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69a0c36c&is=699f71ec&hm=5af61e417f6aaf02cb938034e5bac0a05492d588ed12d9bcc4073f81ee3d404f&=&format=webp&quality=lossless&width=747&height=960' },
+        { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' }
       ]
     }
@@ -93,6 +94,7 @@ CHARACTER_POOLS = {
       ],
       goddess: [
         { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69a0c36c&is=699f71ec&hm=5af61e417f6aaf02cb938034e5bac0a05492d588ed12d9bcc4073f81ee3d404f&=&format=webp&quality=lossless&width=747&height=960' },
+        { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' }
       ]
     }
@@ -136,6 +138,7 @@ CHARACTER_POOLS = {
       ],
       goddess: [
         { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69a0c36c&is=699f71ec&hm=5af61e417f6aaf02cb938034e5bac0a05492d588ed12d9bcc4073f81ee3d404f&=&format=webp&quality=lossless&width=747&height=960' },
+        { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' }
       ]
     }
@@ -185,6 +188,7 @@ CHARACTER_POOLS = {
       ],
       goddess: [
         { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69a0c36c&is=699f71ec&hm=5af61e417f6aaf02cb938034e5bac0a05492d588ed12d9bcc4073f81ee3d404f&=&format=webp&quality=lossless&width=747&height=960' },
+        { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' }
       ]
     }
