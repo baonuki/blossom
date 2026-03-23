@@ -32,13 +32,13 @@ ACTIVE_COLLABS     = {}
 ACTIVE_TRADES      = {}
 
 COMMAND_CATEGORIES = {
-  'Economy'   => [:balance, :daily, :work, :stream, :post, :collab, :cooldowns, :coinlb],
-  'Gacha'     => [:summon, :collection, :banner, :shop, :buy, :view, :ascend, :trade],
+  'Economy'   => [:balance, :daily, :work, :stream, :post, :collab, :cooldowns, :coinlb, :lottery, :lotteryinfo, :givecoins, :remindme],
+  'Gacha'     => [:summon, :collection, :banner, :shop, :buy, :view, :ascend, :trade, :givecard, :sell],
   'Arcade'    => [:coinflip, :slots, :roulette, :scratch, :dice, :cups],
   'Fun'       => [:kettle, :level, :leaderboard, :hug, :slap, :interactions],
-  'Utility'   => [:ping, :help, :about, :support, :premium, :call, :dismiss],
-  'Admin'     => [:setlevel, :enablebombs, :disablebombs, :levelup, :addxp, :bomb, :giveaway],
-  'Developer' => [:addcoins, :setcoins, :blacklist, :card, :backup, :givepremium, :removepremium]
+  'Utility'   => [:ping, :help, :about, :support, :premium, :call, :dismiss, :serverinfo, :suggest],
+  'Admin'     => [:setlevel, :enablebombs, :disablebombs, :levelup, :addxp, :giveaway, :logsetup, :logtoggle, :purge, :kick, :ban, :timeout, :verifysetup],
+  'Developer' => [:addcoins, :removecoins, :setcoins, :blacklist, :card, :backup, :givepremium, :removepremium, :bomb]
 }.freeze
 
 def get_cmd_category(cmd_name)
@@ -191,47 +191,58 @@ def collection_view(target_uid, current_page)
   end
 end
 
-def generate_help_page(bot, user_obj, page_number)
-  grouped_commands = bot.commands.values.group_by { |cmd| get_cmd_category(cmd.name) }
-  
-  category_order = (COMMAND_CATEGORIES.keys + ['Uncategorized']) - ['Developer']
-  
-  pages = []
-  category_order.each do |category|
-    next unless grouped_commands[category]
-    cmds = grouped_commands[category].sort_by(&:name)
-    cmds.each_slice(10).with_index do |slice, index|
-      pages << { category: category, commands: slice, part: index + 1, total_parts: (cmds.size / 10.0).ceil }
+def generate_category_embed(bot, user_obj, category)
+  embed = Discordrb::Webhooks::Embed.new
+  embed.color = NEON_COLORS.sample
+  embed.timestamp = Time.now
+  embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "Requested by #{user_obj.display_name}", icon_url: user_obj.avatar_url)
+
+  if category == 'Home'
+    embed.title = "#{EMOJIS['info'] || 'ℹ️'} Blossom Help Menu"
+    embed.description = "Welcome to Blossom's help menu! 🌸\n\n" \
+                        "**Prefix:** `#{PREFIX}`\n" \
+                        "*All commands listed can be used as both Slash Commands (`/`) and Prefix Commands!* \n\n" \
+                        "Use the dropdown menu below to explore the different categories."
+  else
+    embed.title = "🌸 Help Category: #{category}"
+    embed.description = "**Prefix:** `#{PREFIX}` | **Slash:** `/`\n\n"
+    
+    if COMMAND_CATEGORIES[category]
+      cmd_list = COMMAND_CATEGORIES[category].map do |cmd_sym|
+        cmd = bot.commands[cmd_sym]
+        desc = cmd ? (cmd.attributes[:description] || 'No description provided.') : 'No description provided.'
+        # We only list the raw name in backticks now!
+        "`#{cmd_sym}` - #{desc}"
+      end
+      embed.description += cmd_list.join("\n")
+    else
+      embed.description += "*No commands found in this category.*"
     end
   end
-
-  total_pages = pages.size
-  total_pages = 1 if total_pages < 1
-  page_number = 1 if page_number < 1
-  page_number = total_pages if page_number > total_pages
-
-  active_page = pages[page_number - 1]
-  command_lines = active_page[:commands].map { |cmd| "> `#{PREFIX}#{cmd.name}` - #{cmd.attributes[:description] || 'No description provided.'}" }
-
-  cat_name = active_page[:category]
-  cat_name += " (Pt. #{active_page[:part]})" if active_page[:total_parts] > 1
-
-  embed = Discordrb::Webhooks::Embed.new
-  embed.title = "#{EMOJIS['info']} Bot Help Menu - #{cat_name}"
-  embed.description = "Use `#{PREFIX}` before any command!\n\n**Menu Page #{page_number} of #{total_pages}**"
-  embed.color = NEON_COLORS.sample
-  embed.add_field(name: '📜 Commands', value: command_lines.join("\n"), inline: false)
-  embed.timestamp = Time.now
-  embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "Requested by #{user_obj.display_name}")
-
-  [embed, total_pages, page_number]
+  embed
 end
 
-def help_view(target_uid, current_page, total_pages)
+def help_select_menu(user_id)
   Discordrb::Components::View.new do |v|
     v.row do |r|
-      r.button(custom_id: "helpnav_#{target_uid}_#{current_page - 1}", label: 'Previous', style: :primary, emoji: '◀️', disabled: current_page <= 1)
-      r.button(custom_id: "helpnav_#{target_uid}_#{current_page + 1}", label: 'Next', style: :primary, emoji: '▶️', disabled: current_page >= total_pages)
+      r.select_menu(custom_id: "help_menu_#{user_id}", placeholder: 'Select a category to explore...', max_values: 1) do |s|
+        s.option(label: 'Home', value: 'Home', emoji: '🏠', description: 'Return to the main menu')
+        
+        emoji_map = {
+          'Economy' => '💰',
+          'Gacha'   => '🌟',
+          'Arcade'  => '🕹️',
+          'Fun'     => '🎉',
+          'Utility' => '🔧',
+          'Admin'   => '🛡️'
+        }
+        
+        visible_categories = COMMAND_CATEGORIES.keys - ['Developer']
+        
+        visible_categories.each do |cat|
+          s.option(label: cat, value: cat, emoji: emoji_map[cat] || '🌸')
+        end
+      end
     end
   end
 end
@@ -518,6 +529,73 @@ bot.button(custom_id: /^menu_/) do |event|
   end
 
   event.update_message(embeds: [new_embed], components: view)
+end
+
+bot.select_menu(custom_id: /^help_menu_/) do |event|
+  owner_id = event.custom_id.split('_').last
+
+  if event.user.id.to_s != owner_id
+    event.respond(content: "🌸 *This isn't your menu! Run your own `#{PREFIX}help` command to explore.*", ephemeral: true)
+    next
+  end
+
+  selected_category = event.values.first
+  new_embed = generate_category_embed(event.bot, event.user, selected_category)
+  view = help_select_menu(owner_id) 
+
+  event.update_message(embeds: [new_embed], components: view)
+end
+
+# =========================
+# VERIFICATION SYSTEM
+# =========================
+
+bot.button(custom_id: 'verify_start') do |event|
+  role_id = DB.get_verify_role(event.server.id)
+  
+  if role_id.nil?
+    event.respond(content: "⚠️ Verification hasn't been fully configured yet!", ephemeral: true)
+    next
+  end
+
+  emojis = ['🍎', '🍉', '🍇', '🍓', '🍒', '🍑', '🍍', '🥝', '🍅', '🥥', '🍔', '🍕', '🍩', '🍦', '🍪', '🍯', '🍩', '🥞', '🥐']
+  selected_emojis = emojis.sample(9).shuffle
+  correct_emoji = selected_emojis.sample
+
+  view = Discordrb::Components::View.new
+  selected_emojis.each_slice(3) do |row_emojis|
+    view.row do |r|
+      row_emojis.each do |emoji|
+        if emoji == correct_emoji
+          r.button(custom_id: "verify_pass_#{role_id}", style: :secondary, emoji: emoji)
+        else
+          r.button(custom_id: "verify_fail_#{rand(10000)}", style: :secondary, emoji: emoji)
+        end
+      end
+    end
+  end
+
+  event.respond(content: "🤖 **Human Check!**\nTo gain access to the server, please click on the **#{correct_emoji}** from the buttons below!", ephemeral: true, components: view)
+end
+
+bot.button(custom_id: /^verify_pass_/) do |event|
+  role_id = event.custom_id.split('_').last.to_i
+  role = event.server.role(role_id)
+  
+  if role
+    begin
+      event.user.add_role(role)
+      event.update_message(content: "✅ **Verification successful!** Welcome to the server! 🌸", components: [])
+    rescue => e
+      event.update_message(content: "❌ I don't have permission to give you the role! Please tell an Admin to move my bot role higher up in the settings.", components: [])
+    end
+  else
+    event.update_message(content: "❌ The verification role no longer exists! An Admin needs to run `#{PREFIX}verifysetup` again.", components: [])
+  end
+end
+
+bot.button(custom_id: /^verify_fail_/) do |event|
+  event.update_message(content: "❌ **Incorrect!** That was the wrong emoji. Please dismiss this message and click the 'Start Verification' button to try again.", components: [])
 end
 
 # =========================
@@ -851,6 +929,15 @@ bot.register_application_command(:removecoins, 'Remove coins from a user (Dev On
 end
 
 =end
+
+bot.register_application_command(:verifysetup, 'Set up a verification panel (Admin Only)') do |cmd|
+  cmd.channel('channel', 'The channel to send the panel to', required: true)
+  cmd.role('role', 'The role to give verified members', required: true)
+end
+
+bot.register_application_command(:suggest, 'Send a suggestion directly to the developer!') do |cmd|
+  cmd.string('suggestion', 'What would you like to see added or changed?', required: true)
+end
 
 # ------------------------------------
 

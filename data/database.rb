@@ -129,6 +129,9 @@ class BotDatabase
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN reminder_channel BIGINT"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN reminder_sent INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE server_logs ADD COLUMN dm_mods INTEGER DEFAULT 1"); rescue PG::Error; end
+    
+    begin; @db.exec("ALTER TABLE server_configs ADD COLUMN verify_channel BIGINT"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE server_configs ADD COLUMN verify_role BIGINT"); rescue PG::Error; end
   end
 
   # =========================
@@ -389,6 +392,19 @@ class BotDatabase
       return new_val == 1
     end
     false
+  end
+
+  def set_verification(sid, cid, rid)
+    @db.exec_params(
+      "INSERT INTO server_configs (server_id, verify_channel, verify_role) VALUES ($1, $2, $3) 
+       ON CONFLICT (server_id) DO UPDATE SET verify_channel = $2, verify_role = $3", 
+      [sid, cid, rid]
+    )
+  end
+
+  def get_verify_role(sid)
+    row = @db.exec_params("SELECT verify_role FROM server_configs WHERE server_id = $1", [sid]).first
+    row && row['verify_role'] ? row['verify_role'].to_i : nil
   end
 
   # =========================
