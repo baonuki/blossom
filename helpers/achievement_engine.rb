@@ -91,7 +91,9 @@ def sync_user_achievements(uid, channel = nil)
   unlocked_count += 1 if streak >= 365 && check_achievement(channel, uid, 'streak_365', silent: true)
 
   # 3. Inventory (Upgrades & Consumables)
-  inv = DB.get_inventory(uid)
+  inv_arr = DB.get_inventory(uid)
+  # Convert array of { 'item_id' => ..., 'quantity' => ... } to a hash { item_id => quantity }
+  inv = inv_arr.is_a?(Array) ? inv_arr.each_with_object({}) { |row, h| h[row['item_id']] = row['quantity'] } : (inv_arr || {})
   upgrades = inv.keys.select { |item| ['headset', 'keyboard', 'mic', 'neon sign', 'gacha pass'].any? { |k| item.downcase.include?(k) } && inv[item] > 0 }
   consumables_total = inv.reject { |item, _| upgrades.include?(item) }.values.sum
   

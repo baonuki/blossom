@@ -53,17 +53,16 @@ $bot.ready do |event|
     loop do
       sleep 10 # Check the database every 10 seconds for ended giveaways
       now = Time.now.to_i
-      
-      DB.get_active_giveaways.each do |gw|
+      active_gws = DB.get_active_giveaways
+      active_gws.each do |gw|
         if now >= gw['end_time'].to_i
           gw_id = gw['id']
-          
           begin
             channel = event.bot.channel(gw['channel_id'].to_i)
             next unless channel
 
             entrants = DB.get_giveaway_entrants(gw_id)
-            
+
             # Try to fetch the original giveaway message to edit it
             begin
               msg = channel.message(gw['message_id'].to_i)
@@ -95,7 +94,6 @@ $bot.ready do |event|
             
             # Wipe it from the active database
             DB.delete_giveaway(gw_id)
-            
           rescue StandardError => e
             puts "⚠️ Cleaned up broken giveaway #{gw_id} - #{e.message}"
             DB.delete_giveaway(gw_id) # Delete broken ones so they don't loop forever

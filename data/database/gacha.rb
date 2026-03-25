@@ -1,4 +1,16 @@
+  def remove_character(uid, name, amount = 1)
+    @db.exec_params("UPDATE collections SET count = count - $3 WHERE user_id = $1 AND character_name = $2 AND count >= $3", [uid, name, amount])
+    @db.exec_params("DELETE FROM collections WHERE user_id = $1 AND character_name = $2 AND count <= 0", [uid, name])
+  end
+
+  public :remove_character
 module DatabaseGacha
+    # --- SET CARD COUNT ---
+    def set_card_count(uid, name, count)
+      @db.exec_params("UPDATE collections SET count = $3 WHERE user_id = $1 AND character_name = $2", [uid, name, count])
+    end
+
+    public :set_card_count
   def get_collection(uid)
     rows = @db.exec_params("SELECT character_name, rarity, count, ascended FROM collections WHERE user_id = $1", [uid])
     col = {}

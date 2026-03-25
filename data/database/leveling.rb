@@ -1,3 +1,15 @@
+    # --- LEADERBOARD: Global Server Leaderboard ---
+    def get_global_server_leaderboard(limit = 10)
+      @db.exec_params("SELECT server_id, server_name, xp, level FROM community_levels ORDER BY xp DESC, level DESC LIMIT $1", [limit]).to_a
+    end
+
+    public :get_global_server_leaderboard
+  # --- LEADERBOARD: Top Users by XP/Level ---
+  def get_top_users(server_id, limit = 50)
+    @db.exec_params("SELECT user_id, xp, level FROM server_xp WHERE server_id = $1 ORDER BY level DESC, xp DESC LIMIT $2", [server_id, limit]).to_a
+  end
+
+  public :get_top_users
 module DatabaseLeveling
   # --- USER LEVELING ---
   def get_user_xp(sid, uid)

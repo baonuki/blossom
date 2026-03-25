@@ -38,9 +38,9 @@ $bot.message_delete do |event|
   
   # Check if the server actually has logging enabled
   config = DB.get_log_config(event.server.id)
-  next unless config[:deletes] && config[:channel]
+  next unless config && config['log_deletes'] && config['log_channel']
 
-  log_channel = bot.channel(config[:channel])
+  log_channel = event.bot.channel(config['log_channel'])
   next unless log_channel
 
   # Attempt to retrieve the ghost message from Blossom's memory
@@ -76,9 +76,9 @@ $bot.message_edit do |event|
   next if event.message.author.bot_account?
 
   config = DB.get_log_config(event.server.id)
-  next unless config[:edits] && config[:channel]
+  next unless config && config['log_edits'] && config['log_channel']
 
-  log_channel = bot.channel(config[:channel])
+  log_channel = event.bot.channel(config['log_channel'])
   next unless log_channel
 
   # Retrieve the original text before the user changed it

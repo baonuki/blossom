@@ -26,24 +26,24 @@ def format_time_delta(seconds)
   parts.join(' ')
 end
 
-def send_embed(event, title:, description:, fields: nil, image: nil)
+def send_embed(event, title:, description:, fields: nil, image: nil, color: nil)
   embed = Discordrb::Webhooks::Embed.new
   embed.title = title
   embed.description = description
-  embed.color = NEON_COLORS.sample
-  
+  embed.color = color || NEON_COLORS.sample
+
   if fields
     fields.each do |f|
       embed.add_field(name: f[:name], value: f[:value], inline: f.fetch(:inline, false))
     end
   end
-  
+
   embed.image = Discordrb::Webhooks::EmbedImage.new(url: image) if image
   embed.timestamp = Time.now
   embed.footer = Discordrb::Webhooks::EmbedFooter.new(text: "Requested by #{event.user.display_name}", icon_url: event.user.avatar_url)
 
   if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
-    event.respond(embeds: [embed]) 
+    event.respond(embeds: [embed])
   else
     event.channel.send_message(nil, false, embed, nil, nil, event.message)
   end
@@ -51,9 +51,9 @@ end
 
 def log_mod_action(bot, server_id, title, description, color = 0x800080)
   config = DB.get_log_config(server_id)
-  return unless config[:mod] && config[:channel]
+  return unless config && config['log_mod'] && config['log_channel']
 
-  log_channel = bot.channel(config[:channel])
+  log_channel = bot.channel(config['log_channel'])
   return unless log_channel
 
   embed = Discordrb::Webhooks::Embed.new(

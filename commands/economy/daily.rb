@@ -52,7 +52,8 @@ def execute_daily(event)
   end
   
   # 7. Logic: Inventory Boosts (Check for active Neon Sign)
-  inv = DB.get_inventory(uid)
+  inv_array = DB.get_inventory(uid)
+  inv = inv_array.each_with_object({}) { |item, h| h[item['item_id']] = item['quantity'] }
   if inv['neon sign'] && inv['neon sign'] > 0
     reward *= 2
     bonus_text += "\n*(✨ Neon Sign Boost: x2 Payout!)*"
