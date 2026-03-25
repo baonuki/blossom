@@ -96,6 +96,11 @@ class BotDatabase
         user_id BIGINT PRIMARY KEY
       );
 
+      CREATE TABLE IF NOT EXISTS user_prisma (
+        user_id BIGINT PRIMARY KEY,
+        balance INTEGER DEFAULT 0
+      );
+
       CREATE TABLE IF NOT EXISTS giveaways (
         id VARCHAR(255) PRIMARY KEY, 
         channel_id BIGINT, 
@@ -113,6 +118,12 @@ class BotDatabase
         log_mod INTEGER DEFAULT 0
       );
 
+      CREATE TABLE IF NOT EXISTS community_levels (
+        server_id BIGINT PRIMARY KEY,
+        xp INTEGER DEFAULT 0,
+        level INTEGER DEFAULT 1
+      );
+
       CREATE TABLE IF NOT EXISTS giveaway_entrants (
         giveaway_id VARCHAR(255), 
         user_id BIGINT, 
@@ -123,20 +134,42 @@ class BotDatabase
         id SERIAL PRIMARY KEY,
         user_id BIGINT
       );
+
+      CREATE TABLE IF NOT EXISTS user_achievements (
+        user_id BIGINT,
+        achievement_id VARCHAR(50),
+        unlocked_at TIMESTAMP,
+        PRIMARY KEY(user_id, achievement_id)
+      );
+
     SQL
 
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN daily_streak INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN reminder_channel BIGINT"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN reminder_sent INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE server_logs ADD COLUMN dm_mods INTEGER DEFAULT 1"); rescue PG::Error; end
-    
     begin; @db.exec("ALTER TABLE server_configs ADD COLUMN verify_channel BIGINT"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE server_configs ADD COLUMN verify_role BIGINT"); rescue PG::Error; end
+    
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN tickets INTEGER DEFAULT 0"); rescue PG::Error; end
   end
 
   # =========================
   # ECONOMY
   # =========================
+
+  def get_tickets(uid)
+    row = @db.exec_params("SELECT tickets FROM global_users WHERE user_id = $1", [uid]).first
+    row ? row['tickets'].to_i : 0
+  end
+
+  def add_tickets(uid, amount)
+    @db.exec_params(
+      "INSERT INTO global_users (user_id, coins, tickets) VALUES ($1, 0, $2) 
+       ON CONFLICT (user_id) DO UPDATE SET tickets = global_users.tickets + $3", 
+      [uid, amount, amount]
+    )
+  end
 
   def get_coins(uid)
     row = @db.exec_params("SELECT coins FROM global_users WHERE user_id = $1", [uid]).first
@@ -174,6 +207,47 @@ class BotDatabase
        ON CONFLICT (user_id, character_name) 
        DO UPDATE SET count = collections.count + 1", 
       [to_uid, char_name, rarity]
+    )
+  end
+
+  # =========================
+  # ACHIEVEMENTS
+  # =========================
+
+  def unlock_achievement(uid, ach_id)
+    result = @db.exec_params(
+      "INSERT INTO user_achievements (user_id, achievement_id, unlocked_at) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING", 
+      [uid, ach_id, Time.now.utc.iso8601]
+    )
+    result.cmd_tuples > 0
+  end
+
+  def get_achievements(uid)
+    @db.exec_params("SELECT achievement_id, unlocked_at FROM user_achievements WHERE user_id = $1", [uid]).to_a
+  end
+
+  # =========================
+  # PREMIUM CURRENCY (PRISMA)
+  # =========================
+
+  def get_prisma(uid)
+    result = @db.exec_params("SELECT balance FROM user_prisma WHERE user_id = $1", [uid]).to_a
+    result.empty? ? 0 : result[0]['balance'].to_i
+  end
+
+  def add_prisma(uid, amount)
+    @db.exec_params(
+      "INSERT INTO user_prisma (user_id, balance) VALUES ($1, $2) 
+       ON CONFLICT (user_id) DO UPDATE SET balance = user_prisma.balance + $3",
+      [uid, amount, amount]
+    )
+  end
+
+  def set_prisma(uid, amount)
+    @db.exec_params(
+      "INSERT INTO user_prisma (user_id, balance) VALUES ($1, $2) 
+       ON CONFLICT (user_id) DO UPDATE SET balance = EXCLUDED.balance",
+      [uid, amount]
     )
   end
 
@@ -241,6 +315,31 @@ class BotDatabase
 
   def mark_reminder_sent(uid)
     @db.exec_params("UPDATE global_users SET reminder_sent = 1 WHERE user_id = $1", [uid])
+  end
+
+  # =========================
+  # COMMUNITY LEVELING
+  # =========================
+
+  def get_community_level(server_id)
+    result = @db.exec_params("SELECT xp, level FROM community_levels WHERE server_id = $1", [server_id]).to_a
+    if result.empty?
+      { 'xp' => 0, 'level' => 1 }
+    else
+      result[0]
+    end
+  end
+
+  def update_community_level(server_id, new_xp, new_level)
+    @db.exec_params(
+      "INSERT INTO community_levels (server_id, xp, level) VALUES ($1, $2, $3) 
+       ON CONFLICT (server_id) DO UPDATE SET xp = EXCLUDED.xp, level = EXCLUDED.level",
+      [server_id, new_xp, new_level]
+    )
+  end
+
+  def get_global_server_leaderboard(limit = 10)
+    @db.exec_params("SELECT server_id, xp, level FROM community_levels ORDER BY xp DESC LIMIT $1", [limit]).to_a
   end
 
   # =========================
