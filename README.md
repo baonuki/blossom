@@ -1,22 +1,36 @@
 # 🌸 Blossom 🌸
 
-> *Your server's dedicated head mod, hype-woman, and resident gacha addict.*
+> **"The Fallen Angel of the Neon Underground. I handle the coins, the chaos, and the crown."**
 
-Blossom is a custom-built, feature-rich Discord bot designed to turn your server into a thriving content creator community. Written in Ruby, she features a fully integrated economy, an expansive VTuber gacha system, interactive arcade games, and dynamic leveling.
+Blossom is a high-performance, modular Discord utility designed for elite creator communities. Built by **Kyvrixon Development**, she balances a ruthless moderation suite with a sprawling global economy and a high-stakes VTuber gacha system. Whether she’s protecting your borders or managing your bank account, Blossom does it with style.
 
-## ✨ Features
+## ✨ Core Systems
 
-* **🎀 The Content Grind:** Earn 🪙 by using commands like `/stream`, `/post`, and `/work`. Collaborate with other chatters using the interactive `/collab` system.
-* **💎 VTuber Gacha:** Spend your revenue at the portal to `/summon` your favorite VTubers! Collect Common, Rare, Legendary, and Goddess tier cards. Pull duplicates? `/ascend` them into Shiny ✨ variants!
-* **🕹️ Neon Arcade:** Risk it all in the arcade. Play `/slots`, `/roulette`, `/coinflip`, `/dice`, `/scratch`, and `/cups`.
-* **👑 Dynamic Leveling:** Lurkers get nothing! Gain XP by chatting. Blossom tracks your activity and assigns levels for active chatters. 
-* **🫂 Social Interactions:** Track your community relationships. `/hug` your friends or `/slap` the trolls, complete with auto-updating interaction stats.
+### 🛡️ Elite Moderation & Safety
+* **Verification Gate:** Secure your server with a custom-built **Verification System** to filter out bots and bad actors before they ever see a channel.
+* **The Iron Veil:** Full suite of moderation tools including auto-logging, member management, and server-wide blacklists.
+* **Server Configs:** Deep customization for server "bombs," specialized channel thresholds, and admin-only settings.
 
-## 🛠️ Built With
-* **Language:** Ruby 3.4
-* **Library:** `discordrb`
-* **Database:** SQLite3
+### 🌐 Global Connectivity
+* **Global Economy Leaderboard:** See where you stand against the world. Track your net worth across every server Blossom calls home.
+* **Global XP Rankings:** It’s not just about one server anymore. Climb the global tiers and prove you’re the most active chatter in the ecosystem.
 
-## 👑 Developer
-Developed with 💖 by **Envvy** (Kyvrixon Dev). 
-*Software developer, game creator, and coding princess.*
+### 💎 The Gacha & Economy
+* **VTuber Summoning:** Spend your revenue to `/summon` over 100+ unique VTubers. From **Common** to **Goddess** tier, complete your collection or `/ascend` duplicates into rare **Shiny ✨** variants.
+* **Revenue Streams:** Generate income via `/stream`, `/post`, or `/work`. Need a boost? Partner up with the interactive `/collab` system.
+* **The High-Roller Arcade:** Risk your hard-earned coins on `/slots`, `/roulette`, `/coinflip`, or the premium `/lottery` system.
+
+### 👑 Social & Leveling
+* **Dynamic Leveling:** Lurking is for mortals. Active chatters earn XP and levels automatically.
+* **Interaction Stats:** Track your social standing with `/hug` and `/slap` commands that maintain live interaction counters.
+
+---
+
+## 🛠️ Technical Specifications
+* **Language:** Ruby 3.4.0
+* **Engine:** `discordrb` (Modular Architecture)
+* **Database:** PostgreSQL (High-Concurrency)
+
+## 🎀 The Creator
+Developed with 💖 by **Envvy** (Kyvrixon Development).
+*Software Architect, Game Engine Scripter, and your resident Coding Princess.*
