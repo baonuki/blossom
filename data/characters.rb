@@ -1,6 +1,7 @@
-# =========================
-# CHARACTER POOLS & GIFS
-# =========================
+# ==========================================
+# DATA: Character Pools & Rarity
+# DESCRIPTION: Defines the VTuber rosters for all banners.
+# ==========================================
 
 CHARACTER_POOLS = {
   pool_a: {
@@ -211,16 +212,9 @@ CHARACTER_POOLS = {
   }
 }.freeze
 
-TOTAL_UNIQUE_CHARS = { 'common' => [], 'rare' => [], 'legendary' => [], 'goddess' => [] }
-
-CHARACTER_POOLS.values.each do |pool|
-  TOTAL_UNIQUE_CHARS['common'].concat(pool[:characters][:common].map { |c| c[:name] })
-  TOTAL_UNIQUE_CHARS['rare'].concat(pool[:characters][:rare].map { |c| c[:name] })
-  TOTAL_UNIQUE_CHARS['legendary'].concat(pool[:characters][:legendary].map { |c| c[:name] })
-  TOTAL_UNIQUE_CHARS['goddess'].concat(pool[:characters][:goddess].map { |c| c[:name] })
-end
-TOTAL_UNIQUE_CHARS.transform_values! { |arr| arr.uniq.size }
-
+# ------------------------------------------
+# THE RARITY TABLE
+# ------------------------------------------
 RARITY_TABLE = [
   [:common, 69],   
   [:rare, 25],     
@@ -228,40 +222,14 @@ RARITY_TABLE = [
   [:goddess, 1]    
 ].freeze
 
-HUG_GIFS = [
-  'https://media.discordapp.net/attachments/1475890017443516476/1476608672657440861/hug1.gif?ex=69a1be7d&is=69a06cfd&hm=42f82f2c0f7ed57b6fd004a73018c45e22d27afcac90e1f40fbbbcbaa37e905f&=',
-  'https://media.discordapp.net/attachments/1475890017443516476/1476608673231929344/hug2.gif?ex=69a1be7d&is=69a06cfd&hm=1358cb54940965a5a2530936f5c1ab8c9bb34e3f1aaf3ff8b63ee6df33d575d0&=',
-  'https://media.discordapp.net/attachments/1475890017443516476/1476608673567608955/hug3.gif?ex=69a1be7d&is=69a06cfd&hm=4a3f565465958326a1e5e98850e4f190fffea8d670d2c748fdb00669a45d7b0e&='
-].freeze
+# ------------------------------------------
+# STATS CALCULATION
+# ------------------------------------------
+TOTAL_UNIQUE_CHARS = { 'common' => [], 'rare' => [], 'legendary' => [], 'goddess' => [] }
 
-SLAP_GIFS = [
-  'https://media.discordapp.net/attachments/1475890017443516476/1476608673987166349/slap1.gif?ex=69a1be7d&is=69a06cfd&hm=23eda85b0bd488637abd580d5c80559c4d02afbb6f0397a2a2cc3ecf5117d0fb&=',
-  'https://media.discordapp.net/attachments/1475890017443516476/1476608674414858471/slap2.gif?ex=69a1be7e&is=69a06cfe&hm=4fbd02b4b48158c2accdf00c8f7bd70c1d40215858a11c29a1cb7df0c7a9d7ca&=',
-  'https://media.discordapp.net/attachments/1475890017443516476/1476608674846998630/slap3.gif?ex=69a1be7e&is=69a06cfe&hm=30cdd268092794f83b17d1deacb8ebbbee8d945b04d078d57d59d39e27493de1&='
-].freeze
-
-# =========================
-# LIMITED TIME EVENTS
-# =========================
-
-SPRING_CARNIVAL = {
-  name: "🎪 Spring Carnival",
-  month: 4,
-  currency: "Carnival Tickets",
-  emoji: "🎟️",
-  characters: {
-    rare: [
-      { name: "Rainbow Sparkles", gif: "https://media.discordapp.net/attachments/1485541740872994817/1485541810142056558/G8_fL5ZXcAAzQud.jfif?ex=69c23e1f&is=69c0ec9f&hm=1bf5f8691843ed02763c9e514bfaca35f169e14cbb9a3276ec97732f78bfd11f&=&format=webp&width=662&height=856", price: 800 },
-      { name: "Toma", gif: "https://media.discordapp.net/attachments/1485541740872994817/1485541811345817692/Toma_by_klaeia.webp?ex=69c23e1f&is=69c0ec9f&hm=4f3d75765cc96c1f5ec0f1610e470a6160ff2a3efe5dedfede83438e93a207f7&=&format=webp&width=558&height=855", price: 800 }
-    ],
-    legendary: [
-      { name: "EmieVT", gif: "https://media.discordapp.net/attachments/1485541740872994817/1485541809185620119/Dndntic_Emie.webp?ex=69c23e1f&is=69c0ec9f&hm=97785966611175413f571b795c94a80eaa3669eddd637b3ea28a7e0dba6a413c&=&format=webp&width=643&height=856", price: 1500 },
-      { name: "Necronival", gif: "https://media.discordapp.net/attachments/1485541740872994817/1485541810540646400/HEDB4i9a8AAGhOp.jfif?ex=69c23e1f&is=69c0ec9f&hm=7ac10f30d05914b6328404513dde460e83a4b3776f96a95bf02cc0333911b8f0&=&format=webp&width=550&height=855", price: 1500 },
-      { name: "Umaru Polka", gif: "https://media.discordapp.net/attachments/1485541740872994817/1485541810989305957/Omaru.Polka.600.3540629.jpg?ex=69c23e1f&is=69c0ec9f&hm=7c9e871dda9f448b89aa1b287106fd27fa4fc323a0a0ba3c0def9b541616c0fd&=&format=webp&width=553&height=855", price: 1500 }
-    ]
-  },
-  items: {
-    'Cotton Candy' => { price: 50, desc: 'A sweet carnival treat!' },
-    'Candy Apple' => { price: 75, desc: 'Crunchy and sweet!' }
-  }
-}
+CHARACTER_POOLS.values.each do |pool|
+  pool[:characters].each do |rarity, list|
+    TOTAL_UNIQUE_CHARS[rarity.to_s].concat(list.map { |c| c[:name] })
+  end
+end
+TOTAL_UNIQUE_CHARS.transform_values! { |arr| arr.uniq.size }

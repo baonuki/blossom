@@ -1,23 +1,41 @@
+# ==========================================
+# COMMAND: timeout
+# DESCRIPTION: Restrict a user's communication for a set period.
+# CATEGORY: Moderation
+# ==========================================
+
+# ------------------------------------------
+# LOGIC: Timeout Execution
+# ------------------------------------------
 def execute_timeout(event, member, duration_str, reason)
-  return mod_reply(event, "❌ *You don't have permission to do that!*", is_ephemeral: true) unless event.user.permission?(:moderate_members) || event.user.permission?(:kick_members)
+  # 1. Security: Verify moderator permissions
+  # Requires 'moderate_members' (the native permission for timeouts).
+  unless event.user.permission?(:moderate_members) || event.user.permission?(:kick_members)
+    return mod_reply(event, "❌ *You don't have permission to do that!*", is_ephemeral: true)
+  end
+
+  # 2. Validation: Ensure target and duration are present
   return mod_reply(event, "🌸 *I couldn't find that user in this server!*", is_ephemeral: true) unless member
   return mod_reply(event, "🌸 *Please provide a duration! (e.g., 10m, 1h)*", is_ephemeral: true) unless duration_str
 
+  # 3. Time Parsing: Convert strings like '1h' or '2d' into total minutes
   duration_str = duration_str.to_s 
-
   minutes = duration_str.to_i
   minutes *= 60 if duration_str.end_with?('h')
   minutes *= 1440 if duration_str.end_with?('d')
 
-  return mod_reply(event, "🌸 *Please provide a valid number of minutes!*", is_ephemeral: true) if minutes <= 0
+  return mod_reply(event, "🌸 *Please provide a valid duration!*", is_ephemeral: true) if minutes <= 0
 
+  # 4. API Preparation: Format the expiration timestamp in ISO8601 (Required by Discord)
   reason = "No reason provided." if reason.nil? || reason.to_s.strip.empty?
   expire_time = (Time.now.utc + (minutes * 60)).iso8601
 
   begin
+    # 5. Courtesy: DM the user with the duration and reason
     config = DB.get_log_config(event.server.id)
     member.pm("You have been timed out in **#{event.server.name}** for #{duration_str}.\nReason: #{reason}") rescue nil if config[:dm_mods]
     
+    # 6. Action: Directly update the member via the Discord API
     Discordrb::API::Server.update_member(
       event.bot.token,
       event.server.id,
@@ -26,28 +44,41 @@ def execute_timeout(event, member, duration_str, reason)
       reason: reason
     )
     
+    # 7. Feedback: Confirm the action in the channel
     mod_reply(event, "⏱️ **#{member.display_name}** has been timed out for #{duration_str}.\n*Reason:* #{reason}")
 
+    # 8. Logging: Create a record in the server's moderation logs
     log_mod_action(
       event.bot, 
       event.server.id, 
       "⏳ Member Timed Out", 
       "**User:** #{member.mention} (#{member.distinct})\n**Moderator:** #{event.user.mention}\n**Duration:** #{duration_str}\n**Reason:** #{reason}",
-      0xFFFF00
+      0xFFFF00 # Yellow
     )
   rescue => e
+    # 9. Error Handling: Specifically catches role hierarchy or bot permission issues
     mod_reply(event, "❌ *Action Failed! Error:* `#{e.message}`\n*(Make sure my Bot Role is placed higher than theirs!)*", is_ephemeral: true)
   end
 end
 
-bot.command(:timeout, description: 'Timeouts a user', required_permissions: [:moderate_members]) do |event, user_input, duration, *reason_array|
+# ------------------------------------------
+# TRIGGER: Prefix Command (b!timeout)
+# ------------------------------------------
+bot.command(:timeout, 
+  description: 'Timeouts a user', 
+  required_permissions: [:moderate_members]
+) do |event, user_input, duration, *reason_array|
   member = parse_member(event, user_input)
   reason = reason_array.join(' ')
   execute_timeout(event, member, duration, reason)
   nil
 end
 
+# ------------------------------------------
+# TRIGGER: Slash Command (/timeout)
+# ------------------------------------------
 bot.application_command(:timeout) do |event|
   member = parse_member(event, event.options['user'])
+  # Supports either 'duration' or 'minutes' option naming
   execute_timeout(event, member, event.options['duration'] || event.options['minutes'], event.options['reason'])
 end
