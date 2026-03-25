@@ -178,9 +178,6 @@ bot.register_application_command(:verifysetup, 'Set up a verification panel (Adm
 end
 
 # =========================
-# DEVELOPER ONLY
-# =========================
-
 bot.register_application_command(:addcoins, 'Add or remove coins from a user (Dev Only)') do |cmd|
   cmd.user('user', 'The user to modify', required: true)
   cmd.integer('amount', 'Amount of coins (use negative to remove)', required: true)

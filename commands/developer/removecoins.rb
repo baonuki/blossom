@@ -60,12 +60,3 @@ $bot.command(:removecoins,
   execute_removecoins(event, event.message.mentions.first, amount)
   nil # Suppress default return
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/removecoins)
-# ------------------------------------------
-$bot.application_command(:removecoins) do |event|
-  # Fetch target user and pass Slash options to the executor
-  target = event.bot.user(event.options['user'].to_i)
-  execute_removecoins(event, target, event.options['amount'])
-end

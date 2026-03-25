@@ -41,12 +41,3 @@ $bot.command(:addcoins,
   execute_addcoins(event, event.message.mentions.first, amount.to_i)
   nil # Prevent double-response
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/addcoins)
-# ------------------------------------------
-$bot.application_command(:addcoins) do |event|
-  # Fetch target user object from the provided Slash option ID
-  target = event.bot.user(event.options['user'].to_i)
-  execute_addcoins(event, target, event.options['amount'])
-end

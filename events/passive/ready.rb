@@ -7,12 +7,14 @@
 $bot.ready do |event|
   puts "🌸 Blossom is connected and live!"
 
-  # --- TEMPORARY COMMAND CLEANUP ---
-  # (You can delete this block once you see the success message in your terminal!)
+  # --- CLEAN UP REMOVED SLASH COMMANDS ---
+  removed_commands = %w[
+    addcoins removecoins setcoins prisma blacklist card givepremium removepremium syncachievements
+  ]
   event.bot.get_application_commands.each do |cmd|
-    if cmd.name == 'coinlb'
+    if removed_commands.include?(cmd.name)
       event.bot.delete_application_command(cmd.id)
-      puts "🗑️ Successfully deleted the ghost 'coinlb' command from Discord!"
+      puts "🗑️ Deleted removed slash command: \\#{cmd.name} (ID: \\#{cmd.id})"
     end
   end
 

@@ -41,12 +41,3 @@ $bot.command(:setcoins,
   execute_setcoins(event, event.message.mentions.first, amount.to_i)
   nil # Suppress default return
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/setcoins)
-# ------------------------------------------
-$bot.application_command(:setcoins) do |event|
-  # Fetch target user from the Slash option ID and pass the amount to the executor
-  target = event.bot.user(event.options['user'].to_i)
-  execute_setcoins(event, target, event.options['amount'])
-end

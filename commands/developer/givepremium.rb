@@ -45,12 +45,3 @@ $bot.command(:givepremium,
   execute_givepremium(event, event.message.mentions.first)
   nil # Suppress default return
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/givepremium)
-# ------------------------------------------
-$bot.application_command(:givepremium) do |event|
-  # Fetch target user object from the provided Slash option ID
-  target = event.bot.user(event.options['user'].to_i)
-  execute_givepremium(event, target)
-end

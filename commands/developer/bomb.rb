@@ -75,10 +75,3 @@ $bot.command(:bomb,
   execute_bomb(event)
   nil # Suppress default return
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/bomb)
-# ------------------------------------------
-$bot.application_command(:bomb) do |event|
-  execute_bomb(event)
-end

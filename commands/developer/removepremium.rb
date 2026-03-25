@@ -45,12 +45,3 @@ $bot.command(:removepremium,
   execute_removepremium(event, event.message.mentions.first)
   nil # Suppress default return
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/removepremium)
-# ------------------------------------------
-$bot.application_command(:removepremium) do |event|
-  # Fetch target user object from the provided Slash option ID
-  target = event.bot.user(event.options['user'].to_i)
-  execute_removepremium(event, target)
-end

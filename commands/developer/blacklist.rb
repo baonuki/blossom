@@ -60,12 +60,3 @@ $bot.command(:blacklist,
   execute_blacklist(event, event.message.mentions.first)
   nil # Prevent double-response
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/blacklist)
-# ------------------------------------------
-$bot.application_command(:blacklist) do |event|
-  # Fetch target user object from the provided Slash option ID
-  target = event.bot.user(event.options['user'].to_i)
-  execute_blacklist(event, target)
-end

@@ -82,19 +82,3 @@ $bot.command(:prisma,
   execute_prisma(event, action, target, amount)
   nil # Suppress double-response
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/prisma)
-# ------------------------------------------
-$bot.application_command(:prisma) do |event|
-  # Security: Direct response for non-developers
-  unless event.user.id == DEV_ID
-    return event.respond(content: "❌ Developer only!", ephemeral: true) 
-  end
-  
-  # Fetch target and pass Slash options to the executor
-  target_id = event.options['user']
-  target = event.bot.user(target_id.to_i)
-  
-  execute_prisma(event, event.options['action'], target, event.options['amount'])
-end

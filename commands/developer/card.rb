@@ -107,12 +107,3 @@ $bot.command(:card,
   execute_card(event, action, event.message.mentions.first, char_name.join(' '))
   nil
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/card)
-# ------------------------------------------
-$bot.application_command(:card) do |event|
-  # Fetch target user object and pass the Slash options to the executor
-  target = event.bot.user(event.options['user'].to_i)
-  execute_card(event, event.options['action'], target, event.options['character'])
-end

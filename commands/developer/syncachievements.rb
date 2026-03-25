@@ -76,13 +76,3 @@ $bot.command(:syncachievements,
   execute_global_sync(event)
   nil # Suppress default return
 end
-
-# ------------------------------------------
-# TRIGGER: Slash Command (/syncachievements)
-# ------------------------------------------
-$bot.application_command(:syncachievements) do |event|
-  # Security: Direct response for non-developers
-  return event.respond(content: "❌ Developer only!", ephemeral: true) unless event.user.id == DEV_ID
-  
-  execute_global_sync(event)
-end
