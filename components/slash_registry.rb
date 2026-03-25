@@ -6,7 +6,7 @@
 
 puts "🌸 Registering slash commands to Discord API..."
 
-=begin
+
 
 # =========================
 # CORE & UTILITY
@@ -216,6 +216,6 @@ bot.register_application_command(:backup, 'Manually trigger a database backup (D
 bot.register_application_command(:syncachievements, 'Retroactively grant achievements to everyone! (Dev Only)')
 
 
-=end
+
 
 puts "✅ All slash commands registered!"
