@@ -12,6 +12,7 @@ $bot.ready do |event|
     addcoins removecoins setcoins givepremium removepremium
     prisma blacklist card syncachievements
     addxp setlevel enablebombs disablebombs
+    dcoin dpremium dbomb
   ]
   event.bot.get_application_commands.each do |cmd|
     if removed_commands.include?(cmd.name)
