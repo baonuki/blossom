@@ -10,10 +10,11 @@
 def execute_hug(event, target)
   # 1. Validation: Ensure a target was actually mentioned
   if target.nil?
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['error']} Interaction Error", 
-      description: "Mention someone to hug!"
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Interaction Error" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Mention someone to hug!" }
+    ]}])
   end
 
   # 2. Branching: Handle the "Hugging Blossom" special case
@@ -45,16 +46,17 @@ def execute_hug(event, target)
     actor_stats = DB.get_interactions(event.user.id)['hug']
     bot_stats   = DB.get_interactions(target.id)['hug']
 
-    # --- STEP D: Send Special "Response" Embed ---
-    send_embed(event, 
-      title: "🫂 Hugs for Blossom!", 
-      description: "Aww, thanks for the love, #{event.user.mention}! Chat's been crazy today, I needed that.\n\n*Blossom hugs you back tightly!*", 
-      fields: [
-        { name: "#{event.user.name}'s Hugs", value: "Sent: **#{actor_stats['sent']}**\nReceived: **#{actor_stats['received']}**", inline: true },
-        { name: "Blossom's Hugs", value: "Sent: **#{bot_stats['sent']}**\nReceived: **#{bot_stats['received']}**", inline: true }
-      ], 
-      image: HUG_GIFS.sample
-    )
+    # --- STEP D: Send Special "Response" CV2 Message ---
+    send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+      { type: 10, content: "## 🫂 Hugs for Blossom!" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Aww, thanks for the love, #{event.user.mention}! Chat's been crazy today, I needed that.\n\n*Blossom hugs you back tightly!*" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "**#{event.user.name}'s Hugs:** Sent: **#{actor_stats['sent']}** | Received: **#{actor_stats['received']}**" },
+      { type: 10, content: "**Blossom's Hugs:** Sent: **#{bot_stats['sent']}** | Received: **#{bot_stats['received']}**" },
+      { type: 14, spacing: 1 },
+      { type: 12, items: [{ media: { url: HUG_GIFS.sample } }] }
+    ]}])
   else
     # 3. Standard Interaction: Use the global interaction helper for other users
     interaction_embed(event, 'hug', HUG_GIFS, target)

@@ -10,14 +10,14 @@ def execute_premium(event)
       type: 17,
       accent_color: 0x00FFFF,
       components: [
-        { type: 10, content: "## 💎 Blossom Premium" },
+        { type: 10, content: "## #{EMOJI_STRINGS['prisma']} Blossom Premium" },
         { type: 14, spacing: 1 },
         {
           type: 10,
           content: "Wanna go full whale mode? I respect the hustle.\n\n" \
-                   "**💎 Premium Perks:**\n" \
+                   "**#{EMOJI_STRINGS['prisma']} Premium Perks:**\n" \
                    "⏱️ **50% Faster Cooldowns** — grind harder, rest less\n" \
-                   "💰 **+10% Coin Boost** — cha-ching on everything\n" \
+                   "#{EMOJI_STRINGS['s_coin']} **+10% Coin Boost** — cha-ching on everything\n" \
                    "🍀 **Boosted Gacha Odds** — Rares, Legendaries, Goddesses hit different\n" \
                    "#{EMOJI_STRINGS['neonsparkle']} **1% Secret Chance** to insta-pull a Shiny Ascended. ACTUALLY POG."
         },

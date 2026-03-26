@@ -5,7 +5,8 @@
 
 TOKEN  = ENV['TOKEN'] 
 PREFIX = 'b!'
-DEV_ID = 1398450651297747065
+DEV_IDS = [1398450651297747065, 981755777754755122].freeze
+DEV_ID  = DEV_IDS.first # Primary dev (backwards compat)
 
 # --- LEVELING SYSTEM ---
 XP_PER_MESSAGE         = 5

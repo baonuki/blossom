@@ -22,20 +22,20 @@ def execute_summon(event)
   # 2. Validation: Check if the portal is still recharging
   if last_used && (now - last_used) < cooldown_duration
     ready_time = (last_used + cooldown_duration).to_i
-    embed = Discordrb::Webhooks::Embed.new(
-      title: "#{EMOJI_STRINGS['drink']} Portal Recharging", 
-      description: "Chill, chat. The portal's still recharging.\nTry again <t:#{ready_time}:R>. Go touch grass or something.",
-      color: 0xFF0000
-    )
-    return event.is_a?(Discordrb::Events::ApplicationCommandEvent) ? event.respond(embeds: [embed]) : event.channel.send_message(nil, false, embed, nil, nil, event.message)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['drink']} Portal Recharging" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Chill, chat. The portal's still recharging.\nTry again <t:#{ready_time}:R>. Go touch grass or something." }
+    ]}])
   end
 
   # 3. Validation: Economy Check
   if DB.get_coins(uid) < SUMMON_COST
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['info']} Summon", 
-      description: "You need **#{SUMMON_COST}** #{EMOJI_STRINGS['s_coin']} to open the portal. You've got **#{DB.get_coins(uid)}**. Go grind, broke boy."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['info']} Summon" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You need **#{SUMMON_COST}** #{EMOJI_STRINGS['s_coin']} to open the portal. You've got **#{DB.get_coins(uid)}**. Go grind, broke boy." }
+    ]}])
   end
 
   # 4. Transaction: Deduct cost and prepare the banner
@@ -111,12 +111,15 @@ def execute_summon(event)
   check_achievement(event.channel, uid, 'goddess_luck') if rarity == :goddess
   DB.set_cooldown(uid, 'summon', now)
 
-  send_embed(event, 
-    title: "#{EMOJI_STRINGS['sparkle']} Summon Result: #{active_banner[:name]}", 
-    description: desc, 
-    fields: [{ name: 'Wallet Damage', value: "#{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}", inline: true }],
-    image: gif_url
-  )
+  send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+    { type: 10, content: "## #{EMOJI_STRINGS['sparkle']} Summon Result: #{active_banner[:name]}" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: desc },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "**Wallet Damage**\n#{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}" },
+    { type: 14, spacing: 1 },
+    { type: 12, items: [{ media: { url: gif_url } }] }
+  ]}])
 end
 
 # ------------------------------------------

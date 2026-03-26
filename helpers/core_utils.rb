@@ -94,7 +94,11 @@ end
 
 def interaction_embed(event, action_name, gifs, target)
   unless target
-    return send_embed(event, title: "#{EMOJI_STRINGS['error']} Interaction Error", description: "Mention someone to #{action_name}!")
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Interaction Error" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Mention someone to #{action_name}!" }
+    ]}])
   end
 
   actor_id  = event.user.id
@@ -106,14 +110,16 @@ def interaction_embed(event, action_name, gifs, target)
   actor_stats  = DB.get_interactions(actor_id)[action_name]
   target_stats = DB.get_interactions(target_id)[action_name]
 
-  send_embed(
-    event,
-    title: "#{EMOJI_STRINGS['heart']} #{action_name.capitalize}",
-    description: "#{event.user.mention} #{action_name}s #{target.mention}!",
-    fields: [
-      { name: "#{event.user.name}'s #{action_name}s", value: "Sent: **#{actor_stats['sent']}**\nReceived: **#{actor_stats['received']}**", inline: true },
-      { name: "#{target.name}'s #{action_name}s", value: "Sent: **#{target_stats['sent']}**\nReceived: **#{target_stats['received']}**", inline: true }
-    ],
-    image: gifs.sample
-  )
+  gif_url = gifs.sample
+
+  send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+    { type: 10, content: "## #{EMOJI_STRINGS['heart']} #{action_name.capitalize}" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "#{event.user.mention} #{action_name}s #{target.mention}!" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "**#{event.user.name}'s #{action_name}s:** Sent: **#{actor_stats['sent']}** | Received: **#{actor_stats['received']}**" },
+    { type: 10, content: "**#{target.name}'s #{action_name}s:** Sent: **#{target_stats['sent']}** | Received: **#{target_stats['received']}**" },
+    { type: 14, spacing: 1 },
+    { type: 12, items: [{ media: { url: gif_url } }] }
+  ]}])
 end

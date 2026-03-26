@@ -13,7 +13,7 @@ $bot.button(custom_id: /^trade_\d+_\d+_(accept|decline)$/) do |event|
 
   # Validation 1: Check if the trade is still actively pending in Blossom's memory
   unless ACTIVE_TRADES.key?(trade_id)
-    event.respond(content: '⚠️ *That trade is dead. Gone. Expired. Move on.*', ephemeral: true)
+    event.respond(content: "#{EMOJI_STRINGS['error']} *That trade is dead. Gone. Expired. Move on.*", ephemeral: true)
     next
   end
 

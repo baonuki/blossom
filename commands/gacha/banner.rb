@@ -37,7 +37,7 @@ def execute_banner(event)
         { type: 14, spacing: 1 },
         { type: 10, content: desc },
         { type: 14, spacing: 1 },
-        { type: 10, content: "**👑 Goddesses (1%)** — actual lottery winners only\n#{chars[:goddess].map { |c| c[:name] }.join(', ')}" },
+        { type: 10, content: "**#{EMOJI_STRINGS['crown']} Goddesses (1%)** — actual lottery winners only\n#{chars[:goddess].map { |c| c[:name] }.join(', ')}" },
         { type: 14, spacing: 1 },
         { type: 10, content: "**🌟 Legendaries (5%)** — W pull territory\n#{chars[:legendary].map { |c| c[:name] }.join(', ')}" },
         { type: 14, spacing: 1 },

@@ -90,7 +90,7 @@ $bot.command(:dice,
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [
-        { type: 10, content: "## 😕 Missing Arguments" },
+        { type: 10, content: "## #{EMOJI_STRINGS['confused']} Missing Arguments" },
         { type: 14, spacing: 1 },
         { type: 10, content: "You forgot like... half the command. I need an amount and a call, chat.\n\n**Usage:** `#{PREFIX}dice <amount> <high/low/7>`" }
       ]

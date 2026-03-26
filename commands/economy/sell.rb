@@ -20,7 +20,7 @@ def execute_sell(event, filter, rarity_opt = nil)
         type: 17,
         accent_color: 0xFF0000,
         components: [
-          { type: 10, content: "## ⚠️ Invalid Filter" },
+          { type: 10, content: "## #{EMOJI_STRINGS['error']} Invalid Filter" },
           { type: 14, spacing: 1 },
           { type: 10, content: "That's not a filter, chat. Use `all`, `over5`, or `rarity <type>`.\nExample: `#{PREFIX}sell over5`" }
         ]
@@ -38,7 +38,7 @@ def execute_sell(event, filter, rarity_opt = nil)
           type: 17,
           accent_color: 0xFF0000,
           components: [
-            { type: 10, content: "## ⚠️ Missing Rarity" },
+            { type: 10, content: "## #{EMOJI_STRINGS['error']} Missing Rarity" },
             { type: 14, spacing: 1 },
             { type: 10, content: "Pick a rarity, bestie: `common`, `rare`, `legendary`, or `goddess`.\nExample: `#{PREFIX}sell rarity common`" }
           ]

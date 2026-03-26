@@ -50,7 +50,7 @@ $bot.button(custom_id: /^carnival_ringtoss_/) do |event|
   cost = 100
 
   if DB.get_coins(uid) < cost
-    next event.update_message(content: "💸 You need **#{cost}** #{EMOJI_STRINGS['s_coin']} to play Ring Toss!", embeds: [], components: carnival_back_view(owner_id))
+    next event.update_message(content: "#{EMOJI_STRINGS['coins']} You need **#{cost}** #{EMOJI_STRINGS['s_coin']} to play Ring Toss!", embeds: [], components: carnival_back_view(owner_id))
   end
 
   DB.add_coins(uid, -cost)
@@ -86,7 +86,7 @@ $bot.button(custom_id: /^carnival_game2_/) do |event|
   cost = 150
 
   if DB.get_coins(uid) < cost
-    next event.update_message(content: "💸 You need **#{cost}** #{EMOJI_STRINGS['s_coin']} to play Balloon Pop!", embeds: [], components: carnival_back_view(owner_id))
+    next event.update_message(content: "#{EMOJI_STRINGS['coins']} You need **#{cost}** #{EMOJI_STRINGS['s_coin']} to play Balloon Pop!", embeds: [], components: carnival_back_view(owner_id))
   end
 
   DB.add_coins(uid, -cost)

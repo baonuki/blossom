@@ -17,10 +17,11 @@ def execute_collab(event)
 
   if last_used && (now - last_used) < COLLAB_COOLDOWN
     remaining = COLLAB_COOLDOWN - (now - last_used)
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['worktired']} Collab Burnout", 
-      description: "You're collab-spamming, chill out. Try again in **#{format_time_delta(remaining)}**."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['worktired']} Collab Burnout" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You're collab-spamming, chill out. Try again in **#{format_time_delta(remaining)}**." }
+    ]}])
   end
 
   # 3. Database: Update the cooldown timestamp immediately

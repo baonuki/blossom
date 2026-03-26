@@ -9,11 +9,12 @@
 # ------------------------------------------
 def execute_levelup(event, state, channel_obj = nil)
   # 1. Security: Permission Check (Admins or Developer Only)
-  unless event.user.id == DEV_ID || event.user.permission?(:administrator, event.channel)
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['x_']} Access Denied", 
-      description: "You need administrator permissions to configure this."
-    )
+  unless DEV_IDS.include?(event.user.id) || event.user.permission?(:administrator, event.channel)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Access Denied" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You need administrator permissions to configure this." }
+    ]}])
   end
 
   # 2. Data Retrieval: Fetch current level-up settings from PostgreSQL
@@ -23,33 +24,37 @@ def execute_levelup(event, state, channel_obj = nil)
   # 3. Branching Logic: Handle specific channel assignment
   if channel_obj
     DB.set_levelup_config(event.server.id, channel_obj.id, true)
-    send_embed(event, 
-      title: "📣 Level-Up Channel Set", 
-      description: "Level-up messages will now be automatically sent to #{channel_obj.mention}!"
-    )
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: [
+      { type: 10, content: "## 📣 Level-Up Channel Set" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Level-up messages will now be automatically sent to #{channel_obj.mention}!" }
+    ]}])
 
   # 4. Branching Logic: Enable notifications (ON)
   elsif state.nil? || state.downcase == 'on'
     DB.set_levelup_config(event.server.id, current_channel, true)
-    send_embed(event, 
-      title: "✅ Level-Ups Enabled", 
-      description: "Level-up messages are now turned ON."
-    )
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: [
+      { type: 10, content: "## ✅ Level-Ups Enabled" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Level-up messages are now turned ON." }
+    ]}])
 
   # 5. Branching Logic: Disable notifications (OFF)
   elsif state.downcase == 'off'
     DB.set_levelup_config(event.server.id, current_channel, false)
-    send_embed(event, 
-      title: "🔇 Level-Ups Disabled", 
-      description: "Level-up messages have been completely turned off for this server."
-    )
+    send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+      { type: 10, content: "## 🔇 Level-Ups Disabled" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Level-up messages have been completely turned off for this server." }
+    ]}])
 
   # 6. Fallback: Provide usage guidance if input is unrecognized
   else
-    send_embed(event, 
-      title: "⚠️ Invalid Usage", 
-      description: "Usage:\n`#{PREFIX}levelup #channel` - Send to a specific channel\n`#{PREFIX}levelup off` - Turn off completely\n`#{PREFIX}levelup on` - Turn on"
-    )
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Invalid Usage" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Usage:\n`#{PREFIX}levelup #channel` - Send to a specific channel\n`#{PREFIX}levelup off` - Turn off completely\n`#{PREFIX}levelup on` - Turn on" }
+    ]}])
   end
 end
 
@@ -66,7 +71,11 @@ $bot.command(:levelup,
     if chan
       execute_levelup(event, nil, chan)
     else
-      send_embed(event, title: "⚠️ Error", description: "I couldn't find that channel in this server.")
+      send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+        { type: 10, content: "## #{EMOJI_STRINGS['error']} Error" },
+        { type: 14, spacing: 1 },
+        { type: 10, content: "I couldn't find that channel in this server." }
+      ]}])
     end
   else
     # Treat the argument as a status string (on/off)

@@ -14,7 +14,7 @@ def execute_givecard(event, target, char_name)
   # Prevents giving cards to yourself or trying to gift "nobody."
   if target.nil? || target.id == uid
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## ⚠️ Invalid Target" },
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Invalid Target" },
       { type: 14, spacing: 1 },
       { type: 10, content: "You gotta @ someone else, bestie. Can't gift cards to yourself, that's just sad." }
     ]}])
@@ -23,7 +23,7 @@ def execute_givecard(event, target, char_name)
   # 2. Validation: Input check
   if char_name.nil? || char_name.strip.empty?
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## ⚠️ Missing Character" },
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Missing Character" },
       { type: 14, spacing: 1 },
       { type: 10, content: "Give WHAT? You forgot to say which character, chat." }
     ]}])
@@ -34,7 +34,7 @@ def execute_givecard(event, target, char_name)
   pool_data = find_character_in_pools(char_name)
   unless pool_data
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## ⚠️ Unknown Character" },
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Unknown Character" },
       { type: 14, spacing: 1 },
       { type: 10, content: "Who?? I don't know a VTuber called **#{char_name}**. Check your spelling, chat." }
     ]}])
@@ -73,7 +73,7 @@ def execute_givecard(event, target, char_name)
 
   # 7. Messaging: Send the success announcement CV2 message
   send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-    { type: 10, content: "## 🎁 Card Gifted!" },
+    { type: 10, content: "## #{EMOJI_STRINGS['surprise']} Card Gifted!" },
     { type: 14, spacing: 1 },
     { type: 10, content: "#{event.user.mention} just handed over **#{proper_name}** to #{target.mention}! W friend tbh.\n\n*(Rarity: #{rarity.capitalize} #{emoji})*#{envvy_comment}" }
   ]}])

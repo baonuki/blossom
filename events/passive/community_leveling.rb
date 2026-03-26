@@ -51,13 +51,23 @@ $bot.message do |event|
       announce_enabled = DB.get_community_announce_enabled(server_id)
 
       if announce_enabled
-        embed = Discordrb::Webhooks::Embed.new(
-          title: "🎊 Community Level Up!",
-          description: "Incredible teamwork! **#{event.server.name}** has reached **Server Level #{new_level}**!",
-          color: 0x00FF00,
-          image: Discordrb::Webhooks::EmbedImage.new(url: "https://media.discordapp.net/attachments/1475890017443516476/1483149362832871424/Retro-Arcade-Twitch-Overlay-OBS.webp")
+        cv2_components = [{ type: 17, accent_color: 0x00FF00, components: [
+          { type: 10, content: "## 🎊 Community Level Up!" },
+          { type: 14, spacing: 1 },
+          { type: 10, content: "Incredible teamwork! **#{event.server.name}** has reached **Server Level #{new_level}**!" },
+          { type: 14, spacing: 1 },
+          { type: 12, items: [{ media: { url: "https://media.discordapp.net/attachments/1475890017443516476/1483149362832871424/Retro-Arcade-Twitch-Overlay-OBS.webp" } }] }
+        ]}]
+        body = { content: '', flags: CV2_FLAG, components: cv2_components }.to_json
+        Discordrb::API.request(
+          :channels_cid_messages_mid,
+          event.channel.id,
+          :post,
+          "#{Discordrb::API.api_base}/channels/#{event.channel.id}/messages",
+          body,
+          Authorization: $bot.token,
+          content_type: :json
         )
-        event.channel.send_message(nil, false, embed)
       end
     end
 

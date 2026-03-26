@@ -13,7 +13,7 @@ def check_achievement(channel_or_event, uid, ach_id, silent: false)
     
     unless silent || channel_or_event.nil?
       embed = Discordrb::Webhooks::Embed.new(
-        title: "🏆 Achievement Unlocked!",
+        title: "#{EMOJI_STRINGS['crown']} Achievement Unlocked!",
         description: "Oh? **#{data[:emoji]} #{data[:name]}**\n> #{data[:desc]}\n\n*Not bad. Here's **#{data[:reward]}** #{EMOJI_STRINGS['s_coin'] || '🪙'} for your trouble.*",
         color: 0xFFD700
       )
@@ -36,7 +36,7 @@ def generate_achievements_page(username, uid, page)
   per_page = 5 
   
   embed = Discordrb::Webhooks::Embed.new(
-    title: "🏆 Trophy Case",
+    title: "#{EMOJI_STRINGS['crown']} Trophy Case",
     color: 0xFFD700
   )
   

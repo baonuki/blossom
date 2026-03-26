@@ -18,11 +18,12 @@ def execute_view(event, search_name)
   owned_name = user_chars.keys.find { |k| k.downcase == search_name.downcase }
   
   unless owned_name && (user_chars[owned_name]['count'] > 0 || user_chars[owned_name]['ascended'].to_i > 0)
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['confused']} Who??",
-      description: "You don't have **#{search_name}** in your collection.\n" \
-                   "Hit `/summon` to try your luck or `/buy` if you're feeling rich."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Who??" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You don't have **#{search_name}** in your collection.\n" \
+                   "Hit `/summon` to try your luck or `/buy` if you're feeling rich." }
+    ]}])
   end
   
   # 3. Data Retrieval: Fetch rarity and visual assets from the global pools
@@ -49,24 +50,32 @@ def execute_view(event, search_name)
   desc += "\n\n*That's my mom, by the way. Yeah, THE Envvy. She literally made me. So like... be normal about it.*" if owned_name == 'Envvy'
 
   # 6. Messaging: Send the finalized spotlight Embed
-  send_embed(
-    event, 
-    title: "#{emoji} #{owned_name} (#{rarity.capitalize})", 
-    description: desc, 
-    image: char_data[:gif] # Displays the character's active GIF
-  )
+  send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+    { type: 10, content: "## #{emoji} #{owned_name} (#{rarity.capitalize})" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: desc },
+    { type: 14, spacing: 1 },
+    { type: 12, items: [{ media: { url: char_data[:gif] } }] }
+  ]}])
 end
 
 # ------------------------------------------
 # TRIGGERS: Prefix & Slash Support
 # ------------------------------------------
-$bot.command(:view, 
-  description: 'Look at a specific character you own', 
-  min_args: 1, 
+$bot.command(:view,
+  description: 'Look at a specific character you own',
   category: 'Gacha'
 ) do |event, *name_args|
-  # Join args to support names like "Gawr Gura"
-  execute_view(event, name_args.join(' '))
+  char_name = name_args.join(' ').strip
+  if char_name.empty?
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} View Who??" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Tell me which character you wanna see, chat.\n\n**Usage:** `#{PREFIX}view <character name>`\n*Example:* `#{PREFIX}view Envvy`" }
+    ]}])
+    next
+  end
+  execute_view(event, char_name)
   nil # Suppress default return
 end
 

@@ -9,8 +9,8 @@
 # ------------------------------------------
 def execute_verifysetup(event, channel_input, role_input)
   # 1. Security: Ensure only High-Level Admins or Developers can set this up
-  unless event.user.permission?(:manage_server) || event.user.id == DEV_ID
-    return mod_reply(event, "#{EMOJI_STRINGS['x_']} *You need the Manage Server permission to do this!*", is_ephemeral: true)
+  unless event.user.permission?(:manage_server) || DEV_IDS.include?(event.user.id)
+    return event.respond(content: "#{EMOJI_STRINGS['x_']} *You need the Manage Server permission to do this!*", ephemeral: true)
   end
 
   # 2. Parsing: Resolve the Channel object
@@ -27,7 +27,11 @@ def execute_verifysetup(event, channel_input, role_input)
 
   # 4. Validation: Ensure both target inputs are valid
   if channel.nil? || role.nil?
-    return mod_reply(event, "⚠️ *Please mention a valid channel and a role! Example: `#{PREFIX}verifysetup #welcome @Verified`*", is_ephemeral: true)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Missing Info" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "I need both a channel and a role to set this up.\n`#{PREFIX}verifysetup #welcome @Verified`" }
+    ]}])
   end
 
   # 5. UI: Construct the Verification Embed
@@ -49,19 +53,27 @@ def execute_verifysetup(event, channel_input, role_input)
     # 7. Action: Send the panel to the target channel and save the config to the DB
     channel.send_message(nil, false, embed, nil, nil, nil, view)
     DB.set_verification(event.server.id, channel.id, role.id)
-    
-    mod_reply(event, "✅ **Verification Set Up!**\nThe verification panel has been sent to #{channel.mention} and will grant the **#{role.name}** role.")
+
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: [
+      { type: 10, content: "## :white_check_mark: Verification Set Up!" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "The verification panel has been sent to #{channel.mention} and will grant the **#{role.name}** role." }
+    ]}])
   rescue => e
     # 8. Error Handling: Catch permission issues (e.g., bot can't see the #welcome channel)
-    mod_reply(event, "#{EMOJI_STRINGS['x_']} *I couldn't send the message! Error:* `#{e.message}`\n*(Do I have permission to type in that channel?)*", is_ephemeral: true)
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Setup Failed" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "**Error:** `#{e.message}`\nDo I have permission to type in that channel?" }
+    ]}])
   end
 end
 
 # ------------------------------------------
 # TRIGGER: Prefix Command (b!verifysetup)
 # ------------------------------------------
-$bot.command(:verifysetup, 
-  description: 'Set up the verification panel', 
+$bot.command(:verifysetup,
+  description: 'Set up the verification panel',
   required_permissions: [:manage_server]
 ) do |event, channel_mention, role_mention|
   execute_verifysetup(event, channel_mention, role_mention)

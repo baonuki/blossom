@@ -10,14 +10,18 @@
 def execute_kick(event, member, reason)
   # 1. Security: Verify the moderator has the 'kick_members' permission
   unless event.user.permission?(:kick_members)
-    return mod_reply(event, "#{EMOJI_STRINGS['x_']} *You don't have permission to do that!*", is_ephemeral: true)
+    return event.respond(content: "#{EMOJI_STRINGS['x_']} *You don't have permission to do that!*", ephemeral: true)
   end
 
   # 2. Validation: Ensure the target user is actually in the server
   unless member
-    return mod_reply(event, "🌸 *I couldn't find that user in this server!*", is_ephemeral: true)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Who Am I Kicking?" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "I can't find that user in this server. Are they even here?\n`#{PREFIX}kick @user [reason]`" }
+    ]}])
   end
-  
+
   # 3. Normalization: Set a default reason if the moderator left it blank
   reason = "No reason provided." if reason.nil? || reason.to_s.strip.empty?
 
@@ -33,34 +37,42 @@ def execute_kick(event, member, reason)
 
     # 6. Action: Execute the kick
     event.server.kick(member, reason)
-    mod_reply(event, "👢 Successfully kicked **#{member.display_name}**.\n*Reason:* #{reason}")
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: [
+      { type: 10, content: "## :boot: Kick Confirmed" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Successfully kicked **#{member.display_name}**.\n**Reason:** #{reason}" }
+    ]}])
 
     # 7. Logging: Record the event in the server's designated moderation channel
     log_mod_action(
-      event.bot, 
-      event.server.id, 
-      "👢 Member Kicked", 
+      event.bot,
+      event.server.id,
+      "👢 Member Kicked",
       "**User:** #{member.mention} (#{member.distinct})\n**Moderator:** #{event.user.mention}\n**Reason:** #{reason}",
       0xFF8C00 # Dark Orange
     )
 
   rescue => e
     # 8. Error Handling: Specifically catches role hierarchy or bot permission issues
-    mod_reply(event, "#{EMOJI_STRINGS['x_']} *Action Failed! Error:* `#{e.message}`\n*(Make sure my Bot Role is placed higher than theirs!)*", is_ephemeral: true)
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Kick Failed" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "**Error:** `#{e.message}`\nMake sure my bot role is placed *higher* than theirs!" }
+    ]}])
   end
 end
 
 # ------------------------------------------
 # TRIGGER: Prefix Command (b!kick)
 # ------------------------------------------
-$bot.command(:kick, 
-  description: 'Kicks a user', 
+$bot.command(:kick,
+  description: 'Kicks a user',
   required_permissions: [:kick_members]
 ) do |event, user_input, *reason_array|
   # Convert input/mention into a Member object
   member = parse_member(event, user_input)
   reason = reason_array.join(' ')
-  
+
   execute_kick(event, member, reason)
   nil # Suppress default return
 end

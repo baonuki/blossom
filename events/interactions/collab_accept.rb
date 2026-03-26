@@ -40,6 +40,6 @@ $bot.button(custom_id: /^collab_/) do |event|
     # Replace the original request message with the success embed
     event.update_message(content: nil, embeds: [success_embed], components: [])
   else
-    event.respond(content: '⚠️ *That collab is old news. Too late!*', ephemeral: true)
+    event.respond(content: "#{EMOJI_STRINGS['error']} *That collab is old news. Too late!*", ephemeral: true)
   end
 end

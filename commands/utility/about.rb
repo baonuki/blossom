@@ -16,7 +16,7 @@ def execute_about(event)
           type: 10,
           content: "Yo, what's good chat! I'm **Blossom** — streamer, gacha degen, and the one keeping this whole Neon Arcade running. " \
                    "You're in MY server now, so buckle up.\n\n" \
-                   "Type `/help` and I'll show you around. Try to keep up. 📡#{EMOJI_STRINGS['neonsparkle']}"
+                   "Type `/help` and I'll show you around. Try to keep up. #{EMOJI_STRINGS['stream']}#{EMOJI_STRINGS['neonsparkle']}"
         },
         { type: 14, spacing: 1 },
         {
@@ -31,7 +31,7 @@ def execute_about(event)
         },
         {
           type: 10,
-          content: "💣 **A Little Bit of Trolling**\n" \
+          content: "#{EMOJI_STRINGS['bomb']} **A Little Bit of Trolling**\n" \
                    "Bombs drop in chat randomly. Be fast or be broke. First click eats good tonight."
         },
         { type: 14, spacing: 1 },

@@ -8,7 +8,7 @@ $bot.button(custom_id: 'verify_start') do |event|
   role_id = DB.get_verify_role(event.server.id)
   
   if role_id.nil?
-    event.respond(content: "⚠️ Verification hasn't been fully configured yet!", ephemeral: true)
+    event.respond(content: "#{EMOJI_STRINGS['error']} Verification hasn't been fully configured yet!", ephemeral: true)
     next
   end
 

@@ -12,7 +12,13 @@ def execute_global_sync(event)
   if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
     event.defer # Slash commands need more time for this heavy task
   else
-    @sync_msg = event.respond("⏳ *Starting global achievement sync... Blossom is checking everyone!*")
+    resp = send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+      { type: 10, content: "## ⏳ Syncing..." },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Starting global achievement sync... Blossom is checking everyone!" }
+    ]}])
+    @sync_channel_id = event.channel.id
+    @sync_msg_id = JSON.parse(resp.body)['id'] rescue nil
   end
 
   # 2. Threading: Move the logic to a background thread to prevent the bot from freezing
@@ -39,21 +45,35 @@ def execute_global_sync(event)
 
       # 6. UI: Construct the final report summary
       desc = "Successfully scanned the database footprints of **#{all_user_ids.size}** users.\n\n" \
-              "🏆 **#{users_affected}** users received missing achievements.\n" \
+              "#{EMOJI_STRINGS['crown']} **#{users_affected}** users received missing achievements.\n" \
               "#{EMOJI_STRINGS['neonsparkle']} **#{total_unlocked}** total achievements were retroactively unlocked!\n\n" \
               "*(All coin rewards have been automatically deposited into their accounts!)*"
 
-      embed = Discordrb::Webhooks::Embed.new(
-        title: "🌍 Global Achievement Sync Complete",
-        description: desc,
-        color: 0x00FF00 # Success Green
-      )
-
       # 7. Final Response: Edit the initial message/deferral with the results
       if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
+        embed = Discordrb::Webhooks::Embed.new(
+          title: "🌍 Global Achievement Sync Complete",
+          description: desc,
+          color: 0x00FF00
+        )
         event.edit_response(embeds: [embed])
       else
-        @sync_msg.edit(nil, embed)
+        if @sync_msg_id
+          body = { content: '', flags: CV2_FLAG, components: [{ type: 17, accent_color: 0x00FF00, components: [
+            { type: 10, content: "## 🌍 Global Achievement Sync Complete" },
+            { type: 14, spacing: 1 },
+            { type: 10, content: desc }
+          ]}] }.to_json
+          Discordrb::API.request(
+            :channels_cid_messages_mid,
+            @sync_channel_id,
+            :patch,
+            "#{Discordrb::API.api_base}/channels/#{@sync_channel_id}/messages/#{@sync_msg_id}",
+            body,
+            Authorization: $bot.token,
+            content_type: :json
+          )
+        end
       end
 
     rescue => e
@@ -71,7 +91,7 @@ $bot.command(:syncachievements,
   category: 'Developer'
 ) do |event|
   # Security: Only the developer can trigger a global database scan
-  return unless event.user.id == DEV_ID
+  return unless DEV_IDS.include?(event.user.id)
   
   execute_global_sync(event)
   nil # Suppress default return

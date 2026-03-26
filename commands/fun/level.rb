@@ -33,8 +33,8 @@ def execute_level(event, target_user)
 
   # Badges
   badges = []
-  badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if uid == DEV_ID
-  badges << "💎 **Blossom Premium**" if is_sub
+  badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if DEV_IDS.include?(uid)
+  badges << "#{EMOJI_STRINGS['prisma']} **Blossom Premium**" if is_sub
   badge_line = badges.empty? ? "" : badges.join("  ") + "\n"
 
   components = [

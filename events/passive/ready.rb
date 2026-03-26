@@ -9,7 +9,9 @@ $bot.ready do |event|
 
   # --- CLEAN UP REMOVED SLASH COMMANDS ---
   removed_commands = %w[
-    addcoins removecoins setcoins prisma blacklist card givepremium removepremium syncachievements
+    addcoins removecoins setcoins givepremium removepremium
+    prisma blacklist card syncachievements
+    addxp setlevel enablebombs disablebombs bomb setxp
   ]
   event.bot.get_application_commands.each do |cmd|
     if removed_commands.include?(cmd.name)
@@ -18,7 +20,7 @@ $bot.ready do |event|
     end
   end
 
-  puts "📡 Syncing server names to database..."
+  puts "#{EMOJI_STRINGS['stream']} Syncing server names to database..."
   event.bot.servers.each do |id, server|
     # Fetch current XP/Level so we don't reset them to 0
     stats = DB.get_community_level(id)
@@ -26,7 +28,7 @@ $bot.ready do |event|
     DB.update_community_level(id, server.name, stats['xp'], stats['level'])
   end
   puts "✅ Sync complete!"
-  
+
   # ---------------------------------
 
   # ------------------------------------------
@@ -37,11 +39,11 @@ $bot.ready do |event|
       begin
         server_count = event.bot.servers.size
         total_members = event.bot.servers.values.sum { |server| server.member_count }
-        
+
         # Updates Blossom's "Playing" status every 60 seconds
         event.bot.playing = "with #{total_members} users in #{server_count} arcades | #{PREFIX}help"
-        
-        sleep 60 
+
+        sleep 60
       rescue => e
         sleep 15 # If Discord's API hiccups, wait 15 seconds and try again
       end
@@ -84,20 +86,20 @@ $bot.ready do |event|
             else
               winner_id = entrants.sample
               winner_mention = "<@#{winner_id}>"
-              
+
               # FIXED: Actually fetch the user object before checking it!
               winner_user = event.bot.user(winner_id)
               check_achievement(channel, winner_id, 'giveaway_win', silent: true) if winner_user
-              
+
               ended_embed.description = "Hosted by: <@#{gw['host_id']}>\nWinner: #{winner_mention}\nTotal Entrants: **#{entrants.size}**"
               msg.edit(nil, ended_embed, Discordrb::Components::View.new) if msg
               channel.send_message("Congratulations #{winner_mention}! You won the **#{gw['prize']}**! #{EMOJI_STRINGS['surprise']}")
             end
-            
+
             # Wipe it from the active database
             DB.delete_giveaway(gw_id)
           rescue StandardError => e
-            puts "⚠️ Cleaned up broken giveaway #{gw_id} - #{e.message}"
+            puts "#{EMOJI_STRINGS['error']} Cleaned up broken giveaway #{gw_id} - #{e.message}"
             DB.delete_giveaway(gw_id) # Delete broken ones so they don't loop forever
           end
         end

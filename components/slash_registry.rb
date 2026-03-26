@@ -1,6 +1,6 @@
 # ==========================================
 # SYSTEM: Slash Command Registry
-# DESCRIPTION: Tells Discord's servers what commands 
+# DESCRIPTION: Tells Discord's servers what commands
 # Blossom has available and what options they require.
 # ==========================================
 
@@ -114,13 +114,13 @@ bot.register_application_command(:givecard, 'Give a VTuber card to another user'
   cmd.string('character', 'The name of the character', required: true)
 end
 bot.register_application_command(:sell, 'Sell your duplicate VTuber cards for coins') do |cmd|
-  cmd.string('filter', 'How do you want to sell?', required: true, choices: { 
-    'All Dupes (Keep 1 of each)' => 'all', 
-    'Over 5 (Save copies for ascending)' => 'over5', 
-    'Specific Rarity' => 'rarity' 
+  cmd.string('filter', 'How do you want to sell?', required: true, choices: {
+    'All Dupes (Keep 1 of each)' => 'all',
+    'Over 5 (Save copies for ascending)' => 'over5',
+    'Specific Rarity' => 'rarity'
   })
-  cmd.string('rarity', 'If filtering by rarity, which one?', required: false, choices: { 
-    'Common' => 'common', 'Rare' => 'rare', 'Legendary' => 'legendary', 'Goddess' => 'goddess' 
+  cmd.string('rarity', 'If filtering by rarity, which one?', required: false, choices: {
+    'Common' => 'common', 'Rare' => 'rare', 'Legendary' => 'legendary', 'Goddess' => 'goddess'
   })
 end
 
@@ -133,18 +133,14 @@ bot.register_application_command(:giveaway, 'Start a giveaway (Admin only)') do 
   cmd.string('time', 'Duration (e.g., 10m, 2h, 1d)', required: true)
   cmd.string('prize', 'What are you giving away?', required: true)
 end
-bot.register_application_command(:bomb, 'Plant a bomb that explodes in 5 minutes (Admin only)')
-bot.register_application_command(:enablebombs, 'Enable random bomb drops in a specific channel (Admin Only)') do |cmd|
-  cmd.channel('channel', 'The channel to drop bombs in', required: true)
+bot.register_application_command(:bomb, 'Enable or disable bomb drops (Admin Only)') do |cmd|
+  cmd.string('action', 'Enable or disable', required: true, choices: { 'Enable' => 'enable', 'Disable' => 'disable' })
+  cmd.channel('channel', 'The channel to drop bombs in (required for enable)', required: false)
 end
-bot.register_application_command(:disablebombs, 'Disable bomb drops (Admin Only)')
-bot.register_application_command(:setlevel, 'Set a user\'s server level (Admin Only)') do |cmd|
+bot.register_application_command(:setxp, 'Manage user XP/Level — add, remove, set, or level (Admin Only)') do |cmd|
+  cmd.string('action', 'What to do', required: true, choices: { 'Add XP' => 'add', 'Remove XP' => 'remove', 'Set XP' => 'set', 'Set Level' => 'level' })
   cmd.user('user', 'The user to modify', required: true)
-  cmd.integer('level', 'The new level', required: true)
-end
-bot.register_application_command(:addxp, 'Add or remove server XP from a user (Admin Only)') do |cmd|
-  cmd.user('user', 'The user to modify', required: true)
-  cmd.integer('amount', 'Amount of XP (use negative to remove)', required: true)
+  cmd.integer('amount', 'Amount of XP or target level', required: true)
 end
 bot.register_application_command(:levelup, 'Configure where level-up messages go (Admin Only)') do |cmd|
   cmd.string('state', 'Turn messages on or off', required: false, choices: { 'On' => 'on', 'Off' => 'off' })
@@ -212,6 +208,20 @@ end
 bot.register_application_command(:backup, 'Manually trigger a database backup (Dev Only)')
 bot.register_application_command(:syncachievements, 'Retroactively grant achievements to everyone! (Dev Only)')
 
+
+
+
+# --- Register new/updated slash commands ---
+$bot.register_application_command(:bomb, 'Enable or disable bomb drops (Admin Only)') do |cmd|
+  cmd.string('action', 'Enable or disable', required: true, choices: { 'Enable' => 'enable', 'Disable' => 'disable' })
+  cmd.channel('channel', 'The channel to drop bombs in (required for enable)', required: false)
+end
+
+$bot.register_application_command(:setxp, 'Manage user XP/Level — add, remove, set, or level (Admin Only)') do |cmd|
+  cmd.string('action', 'What to do', required: true, choices: { 'Add XP' => 'add', 'Remove XP' => 'remove', 'Set XP' => 'set', 'Set Level' => 'level' })
+  cmd.user('user', 'The user to modify', required: true)
+  cmd.integer('amount', 'Amount of XP or target level', required: true)
+end
 
 =end
 

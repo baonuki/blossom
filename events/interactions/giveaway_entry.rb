@@ -11,7 +11,7 @@ $bot.button(custom_id: /^gw_/) do |event|
   # Verification: Check if the giveaway is still actively running in the database
   active = DB.get_active_giveaways.any? { |gw| gw['id'] == gw_id }
   unless active
-    event.respond(content: "⚠️ *That giveaway is over! You missed it, bestie.*", ephemeral: true)
+    event.respond(content: "#{EMOJI_STRINGS['error']} *That giveaway is over! You missed it, bestie.*", ephemeral: true)
     next
   end
 

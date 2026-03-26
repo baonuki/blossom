@@ -9,20 +9,22 @@
 # ------------------------------------------
 def execute_giveaway(event, channel_id, time_str, prize)
   # 1. Security: Ensure the user is an Admin or the Developer
-  unless event.user.permission?(:administrator, event.channel) || event.user.id == DEV_ID
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['x_']} Permission Denied", 
-      description: 'Lol nope. Admins only, bestie.'
-    )
+  unless event.user.permission?(:administrator, event.channel) || DEV_IDS.include?(event.user.id)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Permission Denied" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Lol nope. Admins only, bestie." }
+    ]}])
   end
 
   # 2. Validation: Ensure the target channel exists and is accessible
   target_channel = event.bot.channel(channel_id, event.server)
   unless target_channel
-    return send_embed(event, 
-      title: "⚠️ Error", 
-      description: "That channel doesn't exist. You good?"
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Error" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "That channel doesn't exist. You good?" }
+    ]}])
   end
 
   # 3. Time Parsing: Convert strings like "10m", "2h", or "1d" into seconds
@@ -34,10 +36,11 @@ def execute_giveaway(event, channel_id, time_str, prize)
     duration = amount * 3600 if unit == 'h'
     duration = amount * 86400 if unit == 'd'
   else
-    return send_embed(event, 
-      title: "⚠️ Invalid Time Format", 
-      description: "Skill issue. Use `10m`, `5h`, or `2d`."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Invalid Time Format" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Skill issue. Use `10m`, `5h`, or `2d`." }
+    ]}])
   end
 
   # 4. Preparation: Calculate expiry and generate a unique tracking ID
@@ -75,13 +78,18 @@ end
 # ------------------------------------------
 # TRIGGER: Prefix Command (b!giveaway)
 # ------------------------------------------
-$bot.command(:giveaway, 
-  description: 'Start a giveaway (Admin only)', 
-  min_args: 3, 
-  usage: 'b!giveaway #channel 10m Prize Name', 
+$bot.command(:giveaway,
+  description: 'Start a giveaway (Admin only)',
   category: 'Admin'
 ) do |event, channel_mention, time_str, *prize_args|
-  # Strip non-numeric characters from the channel mention to get the ID
+  if channel_mention.nil? || time_str.nil? || prize_args.empty?
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} How Do Giveaways Work?" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You need to tell me WHERE, HOW LONG, and WHAT, chat.\n\n**Usage:** `#{PREFIX}giveaway #channel <time> <prize>`\n*Example:* `#{PREFIX}giveaway #general 1h Nitro Classic`\n\n*Time formats:* `10m`, `2h`, `1d`" }
+    ]}])
+    next
+  end
   channel_id = channel_mention.gsub(/[^0-9]/, '').to_i
   prize = prize_args.join(' ')
   

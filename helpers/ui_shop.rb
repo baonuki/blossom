@@ -97,13 +97,13 @@ def build_prisma_shop(user_id)
   prisma_bal = DB.get_prisma(user_id)
 
   desc = "Spend your hard-earned Prisma on the rarest characters in existence.\n\n"
-  desc += "💎 **Goddess Characters** — **#{GODDESS_PRISMA_PRICE}** #{EMOJI_STRINGS['prisma']} each\n\n"
+  desc += "#{EMOJI_STRINGS['prisma']} **Goddess Characters** — **#{GODDESS_PRISMA_PRICE}** #{EMOJI_STRINGS['prisma']} each\n\n"
   desc += goddess_chars.map { |name| "`#{name}`" }.join(', ')
   desc += "\n\nYour Prisma: **#{prisma_bal}** #{EMOJI_STRINGS['prisma']}"
   desc += "\n\nUse `#{PREFIX}buy <Name>` to purchase!"
 
   embed = Discordrb::Webhooks::Embed.new
-  embed.title = "💎 Prisma Shop"
+  embed.title = "#{EMOJI_STRINGS['prisma']} Prisma Shop"
   embed.description = desc
   embed.color = 0x9370DB
 

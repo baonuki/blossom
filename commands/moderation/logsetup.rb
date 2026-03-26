@@ -10,13 +10,17 @@
 def execute_logsetup(event, channel)
   # 1. Security: Verify 'Manage Server' permission or Developer status
   # This prevents regular moderators from moving or disabling the log feed.
-  unless event.user.permission?(:manage_server) || event.user.id == DEV_ID
-    return mod_reply(event, "#{EMOJI_STRINGS['x_']} *You need the Manage Server permission to set up logging!*", is_ephemeral: true)
+  unless event.user.permission?(:manage_server) || DEV_IDS.include?(event.user.id)
+    return event.respond(content: "#{EMOJI_STRINGS['x_']} *You need the Manage Server permission to set up logging!*", ephemeral: true)
   end
 
   # 2. Validation: Ensure a valid channel object was passed through
   if channel.nil?
-    return mod_reply(event, "⚠️ *Please tag the channel you want logs sent to. Example: `#{PREFIX}logsetup #logs`*", is_ephemeral: true)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Which Channel?" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Tag the channel you want logs sent to.\n`#{PREFIX}logsetup #logs`" }
+    ]}])
   end
 
   # 3. Database: Save the server ID and channel ID association
@@ -24,19 +28,22 @@ def execute_logsetup(event, channel)
   DB.set_log_channel(event.server.id, channel.id)
 
   # 4. UI: Confirm the setup and nudge the user toward the next step
-  mod_reply(event, "✅ **Logging Configured**\nAll server logs will now be sent to #{channel.mention}.\n\n" \
-                   "*Use `#{PREFIX}logtoggle` to choose what gets logged!*")
+  send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: [
+    { type: 10, content: "## :white_check_mark: Logging Configured" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "All server logs will now be sent to #{channel.mention}.\nUse `#{PREFIX}logtoggle` to choose what gets logged!" }
+  ]}])
 end
 
 # ------------------------------------------
 # TRIGGER: Prefix Command (b!logsetup)
 # ------------------------------------------
-$bot.command(:logsetup, 
-  description: 'Set the channel for server logs (Admin)', 
+$bot.command(:logsetup,
+  description: 'Set the channel for server logs (Admin)',
   category: 'Moderation'
 ) do |event, channel_mention|
   channel = nil
-  
+
   # Regex Parsing: Extract the numeric ID from the #channel mention
   if channel_mention && channel_mention.match(/<#(\d+)>/)
     channel_id = $1.to_i
@@ -54,6 +61,6 @@ $bot.application_command(:logsetup) do |event|
   # Fetch the channel object directly from the Slash interaction ID
   channel_id = event.options['channel'].to_i
   channel = event.bot.channel(channel_id)
-  
+
   execute_logsetup(event, channel)
 end

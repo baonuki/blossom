@@ -11,10 +11,11 @@ def execute_serverinfo(event)
   # 1. Validation: Ensure the command is not run in DMs
   # Server metadata and Community XP require a guild context.
   unless event.server
-    return send_embed(event, 
-      title: "⚠️ Error", 
-      description: "You gotta be in a server for this one, chief."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Error" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You gotta be in a server for this one, chief." }
+    ]}])
   end
 
   # 2. Initialization: Gather basic server metadata
@@ -31,22 +32,19 @@ def execute_serverinfo(event)
   # Formula: (100 * Level^2) + (1000 * Level)
   next_level_xp = (100 * (current_level ** 2)) + (1000 * current_level)
 
-  # 5. UI: Prepare the data fields for the Embed
-  fields = [
-    { name: '👑 Server Owner', value: owner ? owner.mention : "Unknown", inline: true },
-    { name: '👥 Total Members', value: server.member_count.to_s, inline: true },
-    { name: "#{EMOJI_STRINGS['neonsparkle']} Community Rank", value: "**Level #{current_level}**\n*(#{current_xp} / #{next_level_xp} XP)*", inline: false },
-    { name: '📅 Created On', value: "<t:#{created_time}:D> (<t:#{created_time}:R>)", inline: false }
-  ]
-
-  # 6. Messaging: Construct and send the final Server Info Embed
-  send_embed(
-    event, 
-    title: "📊 #{server.name} — The Rundown",
-    description: "Alright, here's what we're working with in **#{server.name}**:",
-    fields: fields,
-    image: server.icon_url # Sets the server icon as the embed's large image
-  )
+  # 5. Messaging: Construct and send the final Server Info CV2 message
+  send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+    { type: 10, content: "## 📊 #{server.name} — The Rundown" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "Alright, here's what we're working with in **#{server.name}**:" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "**#{EMOJI_STRINGS['crown']} Server Owner:** #{owner ? owner.mention : "Unknown"}" },
+    { type: 10, content: "**👥 Total Members:** #{server.member_count}" },
+    { type: 10, content: "**#{EMOJI_STRINGS['neonsparkle']} Community Rank:** **Level #{current_level}**\n*(#{current_xp} / #{next_level_xp} XP)*" },
+    { type: 10, content: "**📅 Created On:** <t:#{created_time}:D> (<t:#{created_time}:R>)" },
+    { type: 14, spacing: 1 },
+    { type: 12, items: [{ media: { url: server.icon_url } }] }
+  ]}])
 end
 
 # ------------------------------------------

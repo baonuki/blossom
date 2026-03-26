@@ -11,7 +11,7 @@ def execute_buy(event, search_name)
   # 1. Validation: Ensure an item name was provided
   if search_name.nil? || search_name.strip.empty?
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## ⚠️ Missing Name" },
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Missing Name" },
       { type: 14, spacing: 1 },
       { type: 10, content: "Buy WHAT, chat?? You gotta tell me what you want." }
     ]}])
@@ -40,7 +40,7 @@ def execute_buy(event, search_name)
     # A. Funds Check
     if DB.get_coins(uid) < price
       return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-        { type: 10, content: "## 😰 Broke Alert" },
+        { type: 10, content: "## #{EMOJI_STRINGS['nervous']} Broke Alert" },
         { type: 14, spacing: 1 },
         { type: 10, content: "The #{item_data[:name]} costs **#{price}** coins. You've got **#{DB.get_coins(uid)}**. That's not gonna work, chief." }
       ]}])
@@ -51,7 +51,7 @@ def execute_buy(event, search_name)
     inv = inv_array.each_with_object({}) { |item, h| h[item['item_id']] = item['quantity'] }
     if item_data[:type] == 'upgrade' && inv[search_name] && inv[search_name] >= 1
       return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-        { type: 10, content: "## 😕 Already Owned" },
+        { type: 10, content: "## #{EMOJI_STRINGS['confused']} Already Owned" },
         { type: 14, spacing: 1 },
         { type: 10, content: "You already have the **#{item_data[:name]}** in your setup, galaxy brain. No dupes." }
       ]}])
@@ -121,7 +121,7 @@ def execute_buy(event, search_name)
 
     if prisma_bal < prisma_price
       return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-        { type: 10, content: "## 💎 Not Enough Prisma" },
+        { type: 10, content: "## #{EMOJI_STRINGS['prisma']} Not Enough Prisma" },
         { type: 14, spacing: 1 },
         { type: 10, content: "**#{char_data[:name]}** is Goddess-tier and costs **#{prisma_price}** Prisma. You've got **#{prisma_bal}**.\n\nThat's pure copium, bestie. Farm more Prisma from premium rewards and events!" }
       ]}])
@@ -134,9 +134,9 @@ def execute_buy(event, search_name)
     check_achievement(event.channel, uid, 'first_goddess_buy')
 
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## 💎 Goddess Acquired!" },
+      { type: 10, content: "## #{EMOJI_STRINGS['prisma']} Goddess Acquired!" },
       { type: 14, spacing: 1 },
-      { type: 10, content: "💎 WHALE ALERT!! You bought **#{name}** for **#{prisma_price}** Prisma!\nYou now own **#{new_count}** of them. Absolute baller move." },
+      { type: 10, content: "#{EMOJI_STRINGS['prisma']} WHALE ALERT!! You bought **#{name}** for **#{prisma_price}** Prisma!\nYou now own **#{new_count}** of them. Absolute baller move." },
       { type: 14, spacing: 1 },
       { type: 10, content: "**Prisma Left:** #{DB.get_prisma(uid)} Prisma" }
     ]}])
@@ -154,7 +154,7 @@ def execute_buy(event, search_name)
   # C. Funds Check
   if DB.get_coins(uid) < price
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## 😰 Broke Alert" },
+      { type: 10, content: "## #{EMOJI_STRINGS['nervous']} Broke Alert" },
       { type: 14, spacing: 1 },
       { type: 10, content: "A #{rarity.capitalize} character costs **#{price}** coins. You've got **#{DB.get_coins(uid)}**. L." }
     ]}])
@@ -180,7 +180,7 @@ end
 # ------------------------------------------
 # TRIGGERS: Prefix & Slash
 # ------------------------------------------
-$bot.command(:buy, description: 'Buy a character or tech upgrade', min_args: 1, category: 'Economy') do |event, *name_args|
+$bot.command(:buy, description: 'Buy a character or tech upgrade', category: 'Economy') do |event, *name_args|
   execute_buy(event, name_args.join(' '))
   nil
 end

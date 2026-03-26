@@ -10,22 +10,22 @@
 def execute_suggest(event, suggestion_text)
   # 1. Validation: Ensure the user actually typed a suggestion
   if suggestion_text.nil? || suggestion_text.strip.empty?
-    return send_embed(
-      event, 
-      title: "⚠️ Missing Suggestion", 
-      description: "Please tell me what you'd like to suggest!\nExample: `#{PREFIX}suggest Add a fishing minigame!`"
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Missing Suggestion" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Please tell me what you'd like to suggest!\nExample: `#{PREFIX}suggest Add a fishing minigame!`" }
+    ]}])
   end
 
   # 2. Retrieval: Locate the developer user object in the bot's cache
   dev_user = event.bot.user(DEV_ID)
 
   unless dev_user
-    return send_embed(
-      event, 
-      title: "#{EMOJI_STRINGS['x_']} Error", 
-      description: "I couldn't find my developer in my cache! Try again later."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Error" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "I couldn't find my developer in my cache! Try again later." }
+    ]}])
   end
 
   # 3. Context: Determine the origin of the suggestion (Server name or DM)
@@ -48,19 +48,19 @@ def execute_suggest(event, suggestion_text)
     pm_channel.send_message(nil, false, dev_embed)
     
     # 6. Feedback: Confirm successful delivery to the user
-    send_embed(
-      event, 
-      title: "✅ Suggestion Sent!", 
-      description: "Thank you! Your suggestion has been sent directly to my developer. 🌸"
-    )
+    send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+      { type: 10, content: "## ✅ Suggestion Sent!" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Thank you! Your suggestion has been sent directly to my developer. 🌸" }
+    ]}])
   rescue => e
     # 7. Error Handling: Catch instances where the developer has DMs disabled
     puts "[SUGGEST ERROR] #{e.message}"
-    send_embed(
-      event, 
-      title: "#{EMOJI_STRINGS['x_']} Delivery Failed", 
-      description: "I couldn't send the suggestion. My developer might have their DMs closed right now!"
-    )
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Delivery Failed" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "I couldn't send the suggestion. My developer might have their DMs closed right now!" }
+    ]}])
   end
 end
 

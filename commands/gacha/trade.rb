@@ -10,22 +10,22 @@
 def execute_trade(event, target_user, offer_str, request_str)
   # 1. Validation: Ensure the target is valid and not the sender
   if target_user.nil? || target_user.id == event.user.id
-    return send_embed(
-      event, 
-      title: "#{EMOJI_STRINGS['confused']} Invalid Trade",
-      description: "You can't trade with yourself, weirdo. Pick someone else.\n" \
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Invalid Trade" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You can't trade with yourself, weirdo. Pick someone else.\n" \
                    "**Prefix:** `#{PREFIX}trade @user <Your Char> for <Their Char>`\n" \
-                   "**Slash:** `/trade user:@user offer:<Your Char> request:<Their Char>`"
-    )
+                   "**Slash:** `/trade user:@user offer:<Your Char> request:<Their Char>`" }
+    ]}])
   end
 
   # 2. Validation: Ensure both sides of the deal are specified
   if offer_str.nil? || offer_str.strip.empty? || request_str.nil? || request_str.strip.empty?
-    return send_embed(
-      event, 
-      title: "#{EMOJI_STRINGS['error']} Trade Formatting",
-      description: "You gotta specify what you're offering AND what you want back. I'm not a mind reader, chat."
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Trade Formatting" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You gotta specify what you're offering AND what you want back. I'm not a mind reader, chat." }
+    ]}])
   end
 
   # 3. Initialization: Normalize names and fetch collections
@@ -42,11 +42,19 @@ def execute_trade(event, target_user, offer_str, request_str)
   their_char_real = coll_b.keys.find { |k| k.downcase == their_char_search }
 
   if my_char_real.nil? || coll_a[my_char_real]['count'] < 1
-    return send_embed(event, title: "#{EMOJI_STRINGS['x_']} Nice Try", description: "You can't trade what you don't have, genius. You don't own **#{offer_str}**.")
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} Nice Try" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You can't trade what you don't have, genius. You don't own **#{offer_str}**." }
+    ]}])
   end
 
   if their_char_real.nil? || coll_b[their_char_real]['count'] < 1
-    return send_embed(event, title: "#{EMOJI_STRINGS['x_']} They Don't Have It", description: "#{target_user.mention} doesn't even own **#{request_str}**. Awkward.")
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['x_']} They Don't Have It" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "#{target_user.mention} doesn't even own **#{request_str}**. Awkward." }
+    ]}])
   end
 
   # 5. State Persistence: Create a temporary trade record
@@ -112,10 +120,11 @@ $bot.command(:trade,
   parts = clean_text.split(/ for /i)
   
   if parts.size != 2
-    send_embed(event, 
-      title: "#{EMOJI_STRINGS['error']} Trade Formatting",
-      description: "Wrong format, chat. Do it like this:\n`#{PREFIX}trade @user Gawr Gura for Filian`"
-    )
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Trade Formatting" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Wrong format, chat. Do it like this:\n`#{PREFIX}trade @user Gawr Gura for Filian`" }
+    ]}])
     next
   end
 

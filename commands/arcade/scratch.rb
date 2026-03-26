@@ -17,7 +17,7 @@ def execute_scratch(event)
     return send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [
-        { type: 10, content: "## 😰 Insufficient Funds" },
+        { type: 10, content: "## #{EMOJI_STRINGS['nervous']} Insufficient Funds" },
         { type: 14, spacing: 1 },
         { type: 10, content: "A ticket costs **#{ticket_price}** #{EMOJI_STRINGS['s_coin']} and you don't even have that. Down bad." }
       ]

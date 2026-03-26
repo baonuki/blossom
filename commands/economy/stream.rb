@@ -25,7 +25,7 @@ def execute_stream(event)
         type: 17,
         accent_color: 0xFF0000,
         components: [
-          { type: 10, content: "## 📡 Stream Offline" },
+          { type: 10, content: "## #{EMOJI_STRINGS['stream']} Stream Offline" },
           { type: 14, spacing: 1 },
           { type: 10, content: "You JUST went offline, bestie. Touch grass for a sec.\nGo live again in **#{format_time_delta(remaining)}**." }
         ]
@@ -47,7 +47,7 @@ def execute_stream(event)
     end
 
     # 6. Premium Note: The 10% global boost is calculated inside award_coins
-    bonus_text += "\n*(💎 Subscriber Bonus: +10%)*" if is_sub
+    bonus_text += "\n*(#{EMOJI_STRINGS['prisma']} Subscriber Bonus: +10%)*" if is_sub
 
     # 7. Database & Progression: Set cooldown and check for the 'first_stream' milestone
     # award_coins handles the final math and global premium multipliers.
@@ -61,7 +61,7 @@ def execute_stream(event)
         type: 17,
         accent_color: 0x00FF00,
         components: [
-          { type: 10, content: "## 📡 Stream Ended" },
+          { type: 10, content: "## #{EMOJI_STRINGS['stream']} Stream Ended" },
           { type: 14, spacing: 1 },
           { type: 10, content: "Chat went crazy watching you play **#{game}**! You banked **#{final_reward}** #{EMOJI_STRINGS['s_coin']}!#{bonus_text}\nBalance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}." }
         ]

@@ -10,10 +10,11 @@
 def execute_slap(event, target)
   # 1. Validation: Ensure a target was actually mentioned
   if target.nil?
-    return send_embed(event, 
-      title: "#{EMOJI_STRINGS['error']} Interaction Error", 
-      description: "Mention someone to slap!"
-    )
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['error']} Interaction Error" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Mention someone to slap!" }
+    ]}])
   end
 
   # 2. Branching: Handle the "Slapping Blossom" special case
@@ -45,16 +46,17 @@ def execute_slap(event, target)
     actor_stats = DB.get_interactions(event.user.id)['slap']
     bot_stats   = DB.get_interactions(target.id)['slap']
 
-    # --- STEP D: Send "Bot Abuse" Response Embed ---
-    send_embed(event, 
-      title: "💢 Bot Abuse Detected!", 
-      description: "Hey! #{event.user.mention} just slapped me?! Chat, clip that! That is literal bot abuse.\n\n*Blossom smacks you right back!*", 
-      fields: [
-        { name: "#{event.user.name}'s Slaps", value: "Sent: **#{actor_stats['sent']}**\nReceived: **#{actor_stats['received']}**", inline: true },
-        { name: "Blossom's Slaps", value: "Sent: **#{bot_stats['sent']}**\nReceived: **#{bot_stats['received']}**", inline: true }
-      ], 
-      image: SLAP_GIFS.sample
-    )
+    # --- STEP D: Send "Bot Abuse" Response CV2 Message ---
+    send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+      { type: 10, content: "## 💢 Bot Abuse Detected!" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Hey! #{event.user.mention} just slapped me?! Chat, clip that! That is literal bot abuse.\n\n*Blossom smacks you right back!*" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "**#{event.user.name}'s Slaps:** Sent: **#{actor_stats['sent']}** | Received: **#{actor_stats['received']}**" },
+      { type: 10, content: "**Blossom's Slaps:** Sent: **#{bot_stats['sent']}** | Received: **#{bot_stats['received']}**" },
+      { type: 14, spacing: 1 },
+      { type: 12, items: [{ media: { url: SLAP_GIFS.sample } }] }
+    ]}])
   else
     # 3. Standard Interaction: Use the global interaction helper for other users
     interaction_embed(event, 'slap', SLAP_GIFS, target)

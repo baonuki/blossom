@@ -27,7 +27,7 @@ def execute_ascend(event, search_name)
   # 3. Validation: Quantity Check (Requirement: 5 Copies)
   if user_chars[owned_name]['count'] < 5
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## 😰 Not Enough Copies" },
+      { type: 10, content: "## #{EMOJI_STRINGS['nervous']} Not Enough Copies" },
       { type: 14, spacing: 1 },
       { type: 10, content: "You need **5 copies** of #{owned_name} to ascend. You've got **#{user_chars[owned_name]['count']}**. Keep pulling, copium andy." }
     ]}])
@@ -37,7 +37,7 @@ def execute_ascend(event, search_name)
   ascension_cost = 5000
   if DB.get_coins(uid) < ascension_cost
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## 😰 Broke Alert" },
+      { type: 10, content: "## #{EMOJI_STRINGS['nervous']} Broke Alert" },
       { type: 14, spacing: 1 },
       { type: 10, content: "The ascension ritual costs **#{ascension_cost}** coins. You've got **#{DB.get_coins(uid)}**. Go farm, broke boy." }
     ]}])
@@ -62,13 +62,20 @@ end
 # ------------------------------------------
 # TRIGGER: Prefix Command (b!ascend)
 # ------------------------------------------
-$bot.command(:ascend, 
-  description: 'Fuse 5 duplicate characters into a Shiny Ascended version!', 
-  min_args: 1, 
+$bot.command(:ascend,
+  description: 'Fuse 5 duplicate characters into a Shiny Ascended version!',
   category: 'Gacha'
 ) do |event, *name_args|
-  # Join all arguments to support multi-word character names
-  execute_ascend(event, name_args.join(' '))
+  char_name = name_args.join(' ').strip
+  if char_name.empty?
+    send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Ascend Who??" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "You forgot to tell me which character to ascend, chat.\n\n**Usage:** `#{PREFIX}ascend <character name>`\n*Example:* `#{PREFIX}ascend Gawr Gura`" }
+    ]}])
+    next
+  end
+  execute_ascend(event, char_name)
   nil # Suppress default return
 end
 

@@ -21,7 +21,7 @@ def execute_balance(event, target_user)
 
   # 4. Badge Logic: Build a list of visual achievements/roles
   badges = []
-  badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if uid == DEV_ID
+  badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if DEV_IDS.include?(uid)
   badges << "#{EMOJI_STRINGS['prisma']} **Premium**" if is_sub
   
   # 5. Header Formatting: Create the top-row badge line if badges exist

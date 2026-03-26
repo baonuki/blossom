@@ -10,13 +10,17 @@
 def execute_purge(event, amount)
   # 1. Security: Verify 'Manage Messages' permission in the specific channel
   unless event.user.permission?(:manage_messages, event.channel)
-    return mod_reply(event, "#{EMOJI_STRINGS['x_']} *You don't have permission to do that!*", is_ephemeral: true)
+    return event.respond(content: "#{EMOJI_STRINGS['x_']} *You don't have permission to do that!*", ephemeral: true)
   end
-  
+
   # 2. Validation: Ensure the amount is within Discord's API limits (1-100)
   amt = amount.to_i
   unless amt.between?(1, 100)
-    return mod_reply(event, "🌸 *Please provide a number between 1 and 100!*", is_ephemeral: true)
+    return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
+      { type: 10, content: "## #{EMOJI_STRINGS['confused']} Invalid Amount" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Give me a number between **1** and **100**.\n`#{PREFIX}purge <amount>`" }
+    ]}])
   end
 
   # 3. Preparation: Identify trigger type and 'defer' Slash interactions to prevent timeouts
@@ -28,9 +32,9 @@ def execute_purge(event, amount)
     # Slash commands don't have a trigger message in the channel, so we use the raw amount.
     delete_count = is_slash ? amt : amt + 1
     event.channel.prune(delete_count)
-    
-    success_msg = "🧹 Successfully swept away #{amt} messages!"
-    
+
+    success_msg = ":broom: Successfully swept away **#{amt}** messages!"
+
     # 5. UI: Handle success feedback
     if is_slash
       # Edit the deferred interaction response
@@ -48,7 +52,7 @@ def execute_purge(event, amount)
     if is_slash
       event.edit_response(content: error_msg)
     else
-      mod_reply(event, error_msg, is_ephemeral: true)
+      event.respond(error_msg)
     end
   end
 end
@@ -56,8 +60,8 @@ end
 # ------------------------------------------
 # TRIGGER: Prefix Command (b!purge)
 # ------------------------------------------
-$bot.command(:purge, 
-  description: 'Deletes a number of messages', 
+$bot.command(:purge,
+  description: 'Deletes a number of messages',
   required_permissions: [:manage_messages]
 ) do |event, amount|
   execute_purge(event, amount)

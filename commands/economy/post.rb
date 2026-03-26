@@ -47,7 +47,7 @@ def execute_post(event)
     end
 
     # 6. Premium Bonus: Add a note (the 10% math is handled by award_coins)
-    bonus_text += "\n*(💎 Subscriber Bonus: +10%)*" if is_sub
+    bonus_text += "\n*(#{EMOJI_STRINGS['prisma']} Subscriber Bonus: +10%)*" if is_sub
 
     # 7. Database: Record the cooldown and grant the coins
     # award_coins automatically applies the global premium multiplier

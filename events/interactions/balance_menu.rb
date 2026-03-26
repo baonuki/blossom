@@ -27,7 +27,7 @@ $bot.select_menu(custom_id: /^bal_menu_/) do |event|
     daily_info = DB.get_daily_info(uid)
 
     badges = []
-    badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if uid == DEV_ID
+    badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if DEV_IDS.include?(uid)
     badges << "#{EMOJI_STRINGS['prisma']} **Premium**" if is_sub 
     
     header = badges.empty? ? "" : badges.join(" | ") + "\n\n"

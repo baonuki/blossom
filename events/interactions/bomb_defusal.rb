@@ -20,7 +20,7 @@ $bot.button(custom_id: /^bomb_/) do |event|
     )
     event.update_message(content: nil, embeds: [defused_embed], components: [])
   else
-    event.respond(content: '⚠️ *Too slow! That bomb is already dealt with.*', ephemeral: true)
+    event.respond(content: "#{EMOJI_STRINGS['error']} *Too slow! That bomb is already dealt with.*", ephemeral: true)
   end
 end
 

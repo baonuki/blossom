@@ -29,7 +29,7 @@ def execute_coinflip(event, amount, choice)
     return send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [
-        { type: 10, content: "## 😰 Insufficient Funds" },
+        { type: 10, content: "## #{EMOJI_STRINGS['nervous']} Insufficient Funds" },
         { type: 14, spacing: 1 },
         { type: 10, content: "You're broke, chat. You can't afford that.\nYou've got **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}. Work with what you have." }
       ]
@@ -90,7 +90,7 @@ $bot.command(:coinflip,
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [
-        { type: 10, content: "## 😕 Missing Arguments" },
+        { type: 10, content: "## #{EMOJI_STRINGS['confused']} Missing Arguments" },
         { type: 14, spacing: 1 },
         { type: 10, content: "Did you forget how to type? I need an amount AND a side, chat.\n\n**Usage:** `#{PREFIX}coinflip <amount> <heads/tails>`" }
       ]

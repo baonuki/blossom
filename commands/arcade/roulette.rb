@@ -117,7 +117,7 @@ $bot.command(:roulette,
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [
-        { type: 10, content: "## 😕 Missing Arguments" },
+        { type: 10, content: "## #{EMOJI_STRINGS['confused']} Missing Arguments" },
         { type: 14, spacing: 1 },
         { type: 10, content: "You literally gave me nothing to work with. Amount AND bet, chat.\n\n**Usage:** `#{PREFIX}roulette <amount> <bet>`\n**Valid Bets:** `red`, `black`, `even`, `odd`, or a number `0-36`." }
       ]

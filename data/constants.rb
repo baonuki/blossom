@@ -15,6 +15,6 @@ COMMAND_CATEGORIES = {
   'Arcade'    => [:coinflip, :slots, :roulette, :scratch, :dice, :cups],
   'Fun'       => [:kettle, :level, :leaderboard, :hug, :slap, :interactions],
   'Utility'   => [:ping, :help, :about, :support, :premium, :call, :dismiss, :serverinfo, :suggest],
-  'Admin'     => [:setlevel, :enablebombs, :disablebombs, :levelup, :addxp, :giveaway, :logsetup, :logtoggle, :purge, :kick, :ban, :timeout, :verifysetup],
-  'Developer' => [:addcoins, :removecoins, :setcoins, :blacklist, :card, :backup, :givepremium, :removepremium, :bomb]
+  'Admin'     => [:setxp, :bomb, :levelup, :giveaway, :logsetup, :logtoggle, :purge, :kick, :ban, :timeout, :verifysetup],
+  'Developer' => [:dcoin, :dpremium, :blacklist, :card, :prisma, :dbomb, :syncachievements, :backup]
 }.freeze

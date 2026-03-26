@@ -25,7 +25,7 @@ def execute_work(event)
         type: 17,
         accent_color: 0xFF0000,
         components: [
-          { type: 10, content: "## 💼 Work" },
+          { type: 10, content: "## #{EMOJI_STRINGS['work']} Work" },
           { type: 14, spacing: 1 },
           { type: 10, content: "You're tired already?? Go take a nap or something.\nCome back in **#{format_time_delta(remaining)}**." }
         ]
@@ -46,7 +46,7 @@ def execute_work(event)
     end
 
     # 6. Premium Note: The 10% global boost is handled inside award_coins
-    bonus_text += "\n*(💎 Subscriber Bonus: +10%)*" if is_sub
+    bonus_text += "\n*(#{EMOJI_STRINGS['prisma']} Subscriber Bonus: +10%)*" if is_sub
 
     # 7. Database: Record the cooldown and grant the final reward
     # award_coins handles the final math and global premium multipliers.
@@ -62,7 +62,7 @@ def execute_work(event)
         type: 17,
         accent_color: 0x00FF00,
         components: [
-          { type: 10, content: "## 💼 Work" },
+          { type: 10, content: "## #{EMOJI_STRINGS['work']} Work" },
           { type: 14, spacing: 1 },
           { type: 10, content: "Not bad, chat. You ground out **#{final_amount}** #{EMOJI_STRINGS['s_coin']}. The hustle is real.#{bonus_text}\nBalance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}." }
         ]

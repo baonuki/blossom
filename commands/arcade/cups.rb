@@ -85,7 +85,7 @@ $bot.command(:cups,
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [
-        { type: 10, content: "## 😕 Missing Arguments" },
+        { type: 10, content: "## #{EMOJI_STRINGS['confused']} Missing Arguments" },
         { type: 14, spacing: 1 },
         { type: 10, content: "Uh, hello?? I need a bet amount AND a cup number, chat.\n\n**Usage:** `#{PREFIX}cups <amount> <1/2/3>`" }
       ]

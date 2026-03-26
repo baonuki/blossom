@@ -5,40 +5,24 @@
 # ==========================================
 
 def execute_devhelp(event)
-  return unless event.user.id == DEV_ID
+  return unless DEV_IDS.include?(event.user.id)
 
-  dev_commands = [
-    'addcoins',
-    'removecoins',
-    'setcoins',
-    'prisma',
-    'blacklist',
-    'card',
-    'givepremium',
-    'removepremium',
-    'syncachievements',
-    'devhelp'
-  ]
+  cmd_list = [
+    "`#{PREFIX}dcoin <add/remove/set> @user <amount>` — Manage user coins",
+    "`#{PREFIX}dpremium <give/remove> @user` — Manage lifetime premium",
+    "`#{PREFIX}prisma <add/remove/set> @user <amount>` — Manage user Prisma",
+    "`#{PREFIX}blacklist @user` — Toggle user blacklist",
+    "`#{PREFIX}card <add/remove/giveascended/takeascended> @user <name>` — Manage user cards",
+    "`#{PREFIX}dbomb` — Plant a manual bomb",
+    "`#{PREFIX}syncachievements` — Retroactively grant missing achievements",
+    "`#{PREFIX}devhelp` — This list"
+  ].join("\n")
 
-  descs = {
-    'addcoins' => 'Add or remove coins from a user',
-    'removecoins' => 'Remove coins from a user',
-    'setcoins' => 'Set a user\'s balance to an exact amount',
-    'prisma' => 'Manage user Prisma balance',
-    'blacklist' => 'Toggle blacklist for a user',
-    'card' => 'Manage user cards',
-    'givepremium' => 'Give a user lifetime premium',
-    'removepremium' => 'Remove lifetime premium from a user',
-    'syncachievements' => 'Retroactively grant achievements to everyone',
-    'devhelp' => 'Show this list of developer commands'
-  }
-
-  msg = "**Developer Commands:**\n"
-  dev_commands.each do |cmd|
-    msg += "`#{PREFIX}#{cmd}` - #{descs[cmd]}\n"
-  end
-
-  event.send_message(msg)
+  send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
+    { type: 10, content: "## #{EMOJI_STRINGS['developer']} Developer Commands" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: cmd_list }
+  ]}])
 end
 
 $bot.command(:devhelp, description: 'List all developer commands (Dev Only)') do |event|
