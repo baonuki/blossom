@@ -211,18 +211,7 @@ bot.register_application_command(:syncachievements, 'Retroactively grant achieve
 
 =end
 
-# --- Register new/updated slash commands ---
-$bot.register_application_command(:bomb, 'Enable or disable bomb drops (Admin Only)') do |cmd|
-  cmd.string('action', 'Enable or disable', required: true, choices: { 'Enable' => 'enable', 'Disable' => 'disable' })
-  cmd.channel('channel', 'The channel to drop bombs in (required for enable)', required: false)
-end
+# NOTE: bomb and setxp are registered in ready.rb after deleting old versions
+# All other slash commands are registered above (commented out — only uncomment to do a full re-register)
 
-$bot.register_application_command(:setxp, 'Manage user XP/Level — add, remove, set, or level (Admin Only)') do |cmd|
-  cmd.string('action', 'What to do', required: true, choices: { 'Add XP' => 'add', 'Remove XP' => 'remove', 'Set XP' => 'set', 'Set Level' => 'level' })
-  cmd.user('user', 'The user to modify', required: true)
-  cmd.integer('amount', 'Amount of XP or target level', required: true)
-end
-
-
-
-puts "✅ All slash commands registered!"
+puts "✅ Slash registry loaded."

@@ -7,19 +7,36 @@
 $bot.ready do |event|
   puts "🌸 Blossom is connected and live!"
 
-  # --- CLEAN UP REMOVED SLASH COMMANDS ---
+  # --- CLEAN UP OLD/REMOVED SLASH COMMANDS ---
+  # Delete commands that were removed or need to be re-registered with new params
   removed_commands = %w[
     addcoins removecoins setcoins givepremium removepremium
     prisma blacklist card syncachievements
     addxp setlevel enablebombs disablebombs
     dcoin dpremium dbomb
   ]
+  # Also force re-register these by deleting first (params changed)
+  refresh_commands = %w[bomb setxp]
+
   event.bot.get_application_commands.each do |cmd|
-    if removed_commands.include?(cmd.name)
+    if removed_commands.include?(cmd.name) || refresh_commands.include?(cmd.name)
       event.bot.delete_application_command(cmd.id)
-      puts "🗑️ Deleted removed slash command: \\#{cmd.name} (ID: \\#{cmd.id})"
+      puts "🗑️ Deleted slash command: #{cmd.name} (ID: #{cmd.id})"
     end
   end
+
+  # Re-register commands that need fresh params
+  puts "🔄 Re-registering updated slash commands..."
+  event.bot.register_application_command(:bomb, 'Enable or disable bomb drops (Admin Only)') do |cmd|
+    cmd.string('action', 'Enable or disable', required: true, choices: { 'Enable' => 'enable', 'Disable' => 'disable' })
+    cmd.channel('channel', 'The channel to drop bombs in (required for enable)', required: false)
+  end
+  event.bot.register_application_command(:setxp, 'Manage user XP/Level (Admin Only)') do |cmd|
+    cmd.string('action', 'What to do', required: true, choices: { 'Add XP' => 'add', 'Remove XP' => 'remove', 'Set XP' => 'set', 'Set Level' => 'level' })
+    cmd.user('user', 'The user to modify', required: true)
+    cmd.integer('amount', 'Amount of XP or target level', required: true)
+  end
+  puts "✅ Slash commands refreshed!"
 
   puts "#{EMOJI_STRINGS['stream']} Syncing server names to database..."
   event.bot.servers.each do |id, server|
