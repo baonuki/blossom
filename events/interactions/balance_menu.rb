@@ -46,7 +46,9 @@ $bot.select_menu(custom_id: /^bal_menu_/) do |event|
       consumables = []
       upgrade_keywords = ['headset', 'keyboard', 'mic', 'neon sign', 'gacha pass']
 
-      inv.each do |item, count|
+      inv.each do |row|
+        item = row['item_id']
+        count = row['quantity']
         is_upgrade = upgrade_keywords.any? { |kw| item.downcase.include?(kw) }
         if is_upgrade
           upgrades << "**#{item}**: #{count}"

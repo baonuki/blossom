@@ -1,36 +1,9 @@
-    # --- LEADERBOARD: Global Server Leaderboard ---
-    def get_global_server_leaderboard(limit = 10)
-      @db.exec_params("SELECT server_id, server_name, xp, level FROM community_levels ORDER BY xp DESC, level DESC LIMIT $1", [limit]).to_a
-    end
+# ==========================================
+# MODULE: Database Leveling
+# DESCRIPTION: Handles user XP, server leveling, and community levels.
+# ==========================================
 
-    public :get_global_server_leaderboard
-  # --- LEADERBOARD: Top Users by XP/Level ---
-  def get_top_users(server_id, limit = 50)
-    @db.exec_params("SELECT user_id, xp, level FROM server_xp WHERE server_id = $1 ORDER BY level DESC, xp DESC LIMIT $2", [server_id, limit]).to_a
-  end
-
-  public :get_top_users
 module DatabaseLeveling
-    # --- COMMUNITY LEVEL-UP ANNOUNCEMENT TOGGLE ---
-    def toggle_community_levelup(server_id)
-      # Add the column if it doesn't exist (migration safety)
-      begin
-        @db.exec("ALTER TABLE community_levels ADD COLUMN IF NOT EXISTS announce_enabled INTEGER DEFAULT 0")
-      rescue PG::Error
-      end
-
-      # Ensure the row exists
-      @db.exec_params("INSERT INTO community_levels (server_id) VALUES ($1) ON CONFLICT (server_id) DO NOTHING", [server_id])
-
-      # Flip the value
-      @db.exec_params("UPDATE community_levels SET announce_enabled = 1 - COALESCE(announce_enabled, 0) WHERE server_id = $1", [server_id])
-
-      # Return the new value
-      row = @db.exec_params("SELECT announce_enabled FROM community_levels WHERE server_id = $1", [server_id]).first
-      row && row['announce_enabled'].to_i == 1
-    end
-
-    public :toggle_community_levelup
   # --- USER LEVELING ---
   def get_user_xp(sid, uid)
     row = @db.exec_params("SELECT xp, level, last_xp_at FROM server_xp WHERE server_id = $1 AND user_id = $2", [sid, uid]).first
@@ -46,6 +19,28 @@ module DatabaseLeveling
     @db.exec_params("INSERT INTO server_xp (server_id, user_id, xp, level, last_xp_at) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (server_id, user_id) DO UPDATE SET xp = $6, level = $7, last_xp_at = $8", [sid, uid, xp, level, time_str, xp, level, time_str])
   end
 
+  def remove_user_xp(sid, uid)
+    @db.exec_params("DELETE FROM server_xp WHERE server_id = $1 AND user_id = $2", [sid, uid])
+  end
+
+  # --- LEVEL-UP CONFIG ---
+  def get_levelup_config(sid)
+    row = @db.exec_params("SELECT levelup_channel, levelup_enabled FROM server_configs WHERE server_id = $1", [sid]).first
+    if row
+      { channel: row['levelup_channel'] ? row['levelup_channel'].to_i : nil, enabled: row['levelup_enabled'].to_i == 1 }
+    else
+      { channel: nil, enabled: true }
+    end
+  end
+
+  def set_levelup_config(sid, channel_id, enabled)
+    val = enabled ? 1 : 0
+    @db.exec_params(
+      "INSERT INTO server_configs (server_id, levelup_channel, levelup_enabled) VALUES ($1, $2, $3) ON CONFLICT (server_id) DO UPDATE SET levelup_channel = $2, levelup_enabled = $3",
+      [sid, channel_id, val]
+    )
+  end
+
   # --- COMMUNITY (SERVER) LEVELING ---
   def get_community_level(server_id)
     result = @db.exec_params("SELECT xp, level FROM community_levels WHERE server_id = $1", [server_id]).to_a
@@ -54,5 +49,36 @@ module DatabaseLeveling
 
   def update_community_level(server_id, server_name, new_xp, new_level)
     @db.exec_params("INSERT INTO community_levels (server_id, server_name, xp, level) VALUES ($1, $2, $3, $4) ON CONFLICT (server_id) DO UPDATE SET server_name = EXCLUDED.server_name, xp = EXCLUDED.xp, level = EXCLUDED.level", [server_id, server_name, new_xp, new_level])
+  end
+
+  # --- COMMUNITY LEVEL-UP ANNOUNCEMENT TOGGLE ---
+  def toggle_community_levelup(server_id)
+    begin
+      @db.exec("ALTER TABLE community_levels ADD COLUMN IF NOT EXISTS announce_enabled INTEGER DEFAULT 0")
+    rescue PG::Error
+    end
+
+    @db.exec_params("INSERT INTO community_levels (server_id) VALUES ($1) ON CONFLICT (server_id) DO NOTHING", [server_id])
+    @db.exec_params("UPDATE community_levels SET announce_enabled = 1 - COALESCE(announce_enabled, 0) WHERE server_id = $1", [server_id])
+
+    row = @db.exec_params("SELECT announce_enabled FROM community_levels WHERE server_id = $1", [server_id]).first
+    row && row['announce_enabled'].to_i == 1
+  end
+
+  def get_community_announce_enabled(server_id)
+    row = @db.exec_params("SELECT announce_enabled FROM community_levels WHERE server_id = $1", [server_id]).first
+    row && row['announce_enabled'].to_i == 1
+  rescue PG::Error
+    false
+  end
+
+  # --- LEADERBOARD: Top Users by XP/Level ---
+  def get_top_users(server_id, limit = 50)
+    @db.exec_params("SELECT user_id, xp, level FROM server_xp WHERE server_id = $1 ORDER BY level DESC, xp DESC LIMIT $2", [server_id, limit]).to_a
+  end
+
+  # --- LEADERBOARD: Global Server Leaderboard ---
+  def get_global_server_leaderboard(limit = 10)
+    @db.exec_params("SELECT server_id, server_name, xp, level FROM community_levels ORDER BY xp DESC, level DESC LIMIT $1", [limit]).to_a
   end
 end

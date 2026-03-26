@@ -26,7 +26,7 @@ $bot.message do |event|
 
     # If the threshold is hit, drop the bomb!
     if config['message_count'] >= config['threshold']
-      target_channel = bot.channel(config['channel_id'], event.server)
+      target_channel = $bot.channel(config['channel_id'], event.server)
       
       if target_channel
         embed = Discordrb::Webhooks::Embed.new(

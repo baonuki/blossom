@@ -16,5 +16,14 @@ EMOJIS = {
   'bomb'         => '<a:bomb:1476321595877232802>',
   'work'         => '<a:work:1476300654120276148>',
   'stream'       => '<:stream:1476318017217368084>',
-  # ... (Add the rest of your emojis here!)
+  # Fallback emojis for keys used across the bot (replace with custom Discord emoji IDs when available)
+  'heart'        => '💖',
+  'x_'           => '❌',
+  'developer'    => '🛠️',
+  'confused'     => '❓',
+  'neonsparkle'  => '✨',
+  'surprise'     => '🎉',
+  'play'         => '▶️',
+  'sparkle'      => '✨',
+  'info'         => 'ℹ️',
 }.freeze

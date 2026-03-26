@@ -48,13 +48,7 @@ $bot.message do |event|
       new_level += 1 # Level up!
 
       # Only announce if enabled (default: off)
-      announce_enabled = false
-      begin
-        row = DB.instance_variable_get(:@db).exec_params("SELECT announce_enabled FROM community_levels WHERE server_id = $1", [server_id]).first
-        announce_enabled = row && row['announce_enabled'].to_i == 1
-      rescue
-        announce_enabled = false
-      end
+      announce_enabled = DB.get_community_announce_enabled(server_id)
 
       if announce_enabled
         embed = Discordrb::Webhooks::Embed.new(

@@ -5,3 +5,5 @@ gem "dotenv"
 gem "fiddle"
 gem "colorize"
 gem 'ffi'
+gem 'pg'
+gem 'connection_pool'

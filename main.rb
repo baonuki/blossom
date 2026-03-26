@@ -52,14 +52,6 @@ $bot = Discordrb::Commands::CommandBot.new(
   intents: [:servers, :server_messages, :server_members, :server_voice_states]
 )
 
-# 3. Environmental Checks
-puts "[SYSTEM] Checking voice engine..."
-if defined?(Discordrb::Voice)
-  puts "✅  Voice Engine: Ready"
-else
-  puts "❌  Voice Engine: Missing (libsodium/sodium.dll not found)"
-end
-
 # 4. Load System Components
 require_relative 'components/loader'
 load_blossom_modules # Pass the 'bot' variable context to the loader

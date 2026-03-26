@@ -8,6 +8,12 @@
 # LOGIC: Prisma Modification Execution
 # ------------------------------------------
 def execute_prisma(event, action, target, amount)
+  # 0. Security: Ensure only the developer can execute this
+  unless event.user.id == DEV_ID
+    return event.respond(content: "❌ *This command is restricted to the bot developer.*", ephemeral: true) if event.is_a?(Discordrb::Events::ApplicationCommandEvent)
+    return
+  end
+
   # 1. Validation: Exit early if the target user object is missing
   return if target.nil?
   

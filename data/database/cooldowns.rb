@@ -34,16 +34,22 @@ module DatabaseCooldowns
   end
 
   # --- GENERAL COOLDOWNS ---
+  VALID_COOLDOWN_TYPES = %w[daily work stream post collab summon].freeze
+
   def get_cooldown(uid, type)
-    row = @db.exec_params("SELECT #{type}_at FROM global_users WHERE user_id = $1", [uid]).first
-    return nil unless row && row["#{type}_at"]
-    Time.parse(row["#{type}_at"])
+    raise ArgumentError, "Invalid cooldown type: #{type}" unless VALID_COOLDOWN_TYPES.include?(type.to_s)
+    column = "#{type}_at"
+    row = @db.exec_params("SELECT #{column} FROM global_users WHERE user_id = $1", [uid]).first
+    return nil unless row && row[column]
+    Time.parse(row[column])
   end
 
   def set_cooldown(uid, type, time_obj)
+    raise ArgumentError, "Invalid cooldown type: #{type}" unless VALID_COOLDOWN_TYPES.include?(type.to_s)
+    column = "#{type}_at"
     time_str = time_obj ? time_obj.iso8601 : nil
     @db.exec_params("INSERT INTO global_users (user_id, coins) VALUES ($1, 0) ON CONFLICT DO NOTHING", [uid])
-    @db.exec_params("UPDATE global_users SET #{type}_at = $2 WHERE user_id = $1", [uid, time_str])
+    @db.exec_params("UPDATE global_users SET #{column} = $2 WHERE user_id = $1", [uid, time_str])
   end
 
   # --- DAILY REMINDERS ---

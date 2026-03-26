@@ -1,88 +1,21 @@
-    # --- GIVEAWAY CREATION ---
-    def create_giveaway(id, channel_id, message_id, host_id, prize, end_time)
-      @db.exec_params("INSERT INTO giveaways (id, channel_id, message_id, host_id, prize, end_time) VALUES ($1, $2, $3, $4, $5, $6)", [id, channel_id, message_id, host_id, prize, end_time])
-    end
-
-    public :create_giveaway
-
-    # --- SERVER VERIFICATION ROLE ---
-    def get_verify_role(server_id)
-      row = @db.exec_params("SELECT verify_role FROM server_configs WHERE server_id = $1", [server_id]).first
-      row && row['verify_role'] ? row['verify_role'].to_i : nil
-    end
-
-    public :get_verify_role
-  # --- LOGGING CONFIGURATION ---
-  def get_log_config(server_id)
-    row = @db.exec_params("SELECT * FROM server_logs WHERE server_id = $1", [server_id]).first
-    return nil unless row
-    {
-      'log_channel' => row['log_channel'] ? row['log_channel'].to_i : nil,
-      'log_deletes' => row['log_deletes'].to_i == 1,
-      'log_edits' => row['log_edits'].to_i == 1,
-      'log_mod' => row['log_mod'].to_i == 1
-    }
-  end
-
-  public :get_log_config
 # ==========================================
 # MODULE: Database Admin
 # DESCRIPTION: Manages server configurations, moderation tools, and giveaways.
 # ==========================================
 
 module DatabaseAdmin
-        # --- SERVER VERIFICATION SETUP ---
-        # Sets the verification channel and role for a server in server_configs.
-        def set_verification(server_id, channel_id, role_id)
-          @db.exec_params(
-            "INSERT INTO server_configs (server_id, verify_channel, verify_role) VALUES ($1, $2, $3) " \
-            "ON CONFLICT (server_id) DO UPDATE SET verify_channel = $2, verify_role = $3",
-            [server_id, channel_id, role_id]
-          )
-        end
-
-        public :set_verification
-      # --- LOG CHANNEL SETUP ---
-      # Sets or updates the log channel for a server in server_logs.
-      def set_log_channel(server_id, channel_id)
-        @db.exec_params(
-          "INSERT INTO server_logs (server_id, log_channel) VALUES ($1, $2) ON CONFLICT (server_id) DO UPDATE SET log_channel = $2",
-          [server_id, channel_id]
-        )
-      end
-
-      public :set_log_channel
-    # --- LOGGING TOGGLE ---
-    # Toggles a boolean log setting (log_deletes, log_edits, log_mod, dm_mods) for a server and returns the new value.
-    def toggle_log_setting(server_id, column)
-      # Validate column name to prevent SQL injection
-      valid_columns = %w[log_deletes log_edits log_mod dm_mods]
-      raise ArgumentError, "Invalid log column" unless valid_columns.include?(column)
-
-      # Ensure the row exists
-      @db.exec_params("INSERT INTO server_logs (server_id) VALUES ($1) ON CONFLICT (server_id) DO NOTHING", [server_id])
-
-      # Flip the value
-      @db.exec_params("UPDATE server_logs SET #{column} = 1 - COALESCE(#{column}, 0) WHERE server_id = $1", [server_id])
-
-      # Return the new value
-      row = @db.exec_params("SELECT #{column} FROM server_logs WHERE server_id = $1", [server_id]).first
-      row && row[column].to_i == 1
-    end
-
-    public :toggle_log_setting
-  # We use 'public' to ensure the Bot can reach these from the outside.
-  public 
-
   # --- GIVEAWAY MANAGEMENT ---
+  def create_giveaway(id, channel_id, message_id, host_id, prize, end_time)
+    @db.exec_params("INSERT INTO giveaways (id, channel_id, message_id, host_id, prize, end_time) VALUES ($1, $2, $3, $4, $5, $6)", [id, channel_id, message_id, host_id, prize, end_time])
+  end
+
   def get_active_giveaways
     @db.exec("SELECT * FROM giveaways").to_a
   end
 
   def add_giveaway_entrant(gw_id, user_id)
     result = @db.exec_params(
-      "INSERT INTO giveaway_entrants (giveaway_id, user_id) VALUES ($1, $2) 
-       ON CONFLICT DO NOTHING", 
+      "INSERT INTO giveaway_entrants (giveaway_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
       [gw_id, user_id]
     )
     result.cmd_tuples > 0
@@ -97,14 +30,55 @@ module DatabaseAdmin
     @db.exec_params("DELETE FROM giveaway_entrants WHERE giveaway_id = $1", [gw_id])
   end
 
+  # --- LOGGING CONFIGURATION ---
+  def get_log_config(server_id)
+    row = @db.exec_params("SELECT * FROM server_logs WHERE server_id = $1", [server_id]).first
+    return nil unless row
+    {
+      'log_channel' => row['log_channel'] ? row['log_channel'].to_i : nil,
+      'log_deletes' => row['log_deletes'].to_i == 1,
+      'log_edits' => row['log_edits'].to_i == 1,
+      'log_mod' => row['log_mod'].to_i == 1
+    }
+  end
+
+  def set_log_channel(server_id, channel_id)
+    @db.exec_params(
+      "INSERT INTO server_logs (server_id, log_channel) VALUES ($1, $2) ON CONFLICT (server_id) DO UPDATE SET log_channel = $2",
+      [server_id, channel_id]
+    )
+  end
+
+  def toggle_log_setting(server_id, column)
+    valid_columns = %w[log_deletes log_edits log_mod dm_mods]
+    raise ArgumentError, "Invalid log column" unless valid_columns.include?(column)
+
+    @db.exec_params("INSERT INTO server_logs (server_id) VALUES ($1) ON CONFLICT (server_id) DO NOTHING", [server_id])
+    @db.exec_params("UPDATE server_logs SET #{column} = 1 - COALESCE(#{column}, 0) WHERE server_id = $1", [server_id])
+
+    row = @db.exec_params("SELECT #{column} FROM server_logs WHERE server_id = $1", [server_id]).first
+    row && row[column].to_i == 1
+  end
+
+  # --- SERVER VERIFICATION ---
+  def set_verification(server_id, channel_id, role_id)
+    @db.exec_params(
+      "INSERT INTO server_configs (server_id, verify_channel, verify_role) VALUES ($1, $2, $3) " \
+      "ON CONFLICT (server_id) DO UPDATE SET verify_channel = $2, verify_role = $3",
+      [server_id, channel_id, role_id]
+    )
+  end
+
+  def get_verify_role(server_id)
+    row = @db.exec_params("SELECT verify_role FROM server_configs WHERE server_id = $1", [server_id]).first
+    row && row['verify_role'] ? row['verify_role'].to_i : nil
+  end
+
   # --- BOMB CONFIGURATION ---
   def save_bomb_config(sid, enabled, channel_id, threshold, count)
     val = enabled ? 1 : 0
     @db.exec_params(
-      "INSERT INTO server_bombs (server_id, enabled, channel_id, threshold, count) 
-       VALUES ($1, $2, $3, $4, $5) 
-       ON CONFLICT (server_id) DO UPDATE 
-       SET enabled = $6, channel_id = $7, threshold = $8, count = $9", 
+      "INSERT INTO server_bombs (server_id, enabled, channel_id, threshold, count) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (server_id) DO UPDATE SET enabled = $6, channel_id = $7, threshold = $8, count = $9",
       [sid, val, channel_id, threshold, count, val, channel_id, threshold, count]
     )
   end
@@ -153,11 +127,7 @@ module DatabaseAdmin
     end
   end
 
-
-  # =========================
-  # GLOBAL LOTTERY SYSTEM
-  # =========================
-
+  # --- GLOBAL LOTTERY SYSTEM ---
   def enter_lottery(uid, tickets)
     @db.exec("BEGIN")
     begin

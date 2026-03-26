@@ -31,11 +31,14 @@ module DatabaseSocial
     end
   end
 
+  VALID_INTERACTION_COLUMNS = %w[hug_sent hug_received slap_sent slap_received].freeze
+
   def add_interaction(uid, type, role)
     col = "#{type}_#{role}" # e.g., 'hug_sent' or 'slap_received'
+    raise ArgumentError, "Invalid interaction column: #{col}" unless VALID_INTERACTION_COLUMNS.include?(col)
     @db.exec_params(
-      "INSERT INTO interactions (user_id, #{col}) VALUES ($1, 1) 
-       ON CONFLICT (user_id) DO UPDATE SET #{col} = interactions.#{col} + 1", 
+      "INSERT INTO interactions (user_id, #{col}) VALUES ($1, 1)
+       ON CONFLICT (user_id) DO UPDATE SET #{col} = interactions.#{col} + 1",
       [uid]
     )
   end

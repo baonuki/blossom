@@ -15,7 +15,7 @@ $bot.command(:join,
   end
 
   # 2. Action: Establish the voice connection
-  bot.voice_connect(channel)
+  $bot.voice_connect(channel)
   send_embed(event, title: "🎤 Connected!", description: "Successfully joined **#{channel.name}**! Ready to drop a beat.")
   nil
 end
@@ -29,7 +29,7 @@ $bot.command(:leave,
   category: 'Voice'
 ) do |event|
   # Destroys the voice bot instance for this specific server
-  bot.voice_destroy(event.server.id)
+  $bot.voice_destroy(event.server.id)
   send_embed(event, title: "👋 Disconnected", description: "Packed up the DJ booth and left the channel.")
   nil
 end
@@ -55,7 +55,7 @@ $bot.command(:play,
   end
 
   # 2. Logic: Auto-connect if not already in the channel
-  bot.voice_connect(channel)
+  $bot.voice_connect(channel)
 
   # 3. Validation: Prevent crashes by checking if the file actually exists
   unless File.exist?(filepath)
