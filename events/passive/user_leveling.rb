@@ -20,9 +20,10 @@ $bot.message do |event|
     next
   end
 
-  new_xp = user['xp'] + XP_PER_MESSAGE
+  xp_gain = is_premium?(event.bot, uid) ? (XP_PER_MESSAGE * 1.5).to_i : XP_PER_MESSAGE
+  new_xp = user['xp'] + xp_gain
   new_level = user['level']
-  
+
   # Give them a little pocket change for chatting!
   DB.add_coins(uid, COINS_PER_MESSAGE)
 

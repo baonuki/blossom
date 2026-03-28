@@ -51,10 +51,11 @@ def execute_summon(event)
   used_manipulator = false
 
   # 5. RNG Logic: Check for 'RNG Manipulator' usage
+  pity_triggered = false
   if inv['rng manipulator'] && inv['rng manipulator'] > 0
     DB.remove_inventory(uid, 'rng manipulator', 1)
     used_manipulator = true
-    
+
     # Manipulator guarantees Rare or higher
     roll = rand(31)
     if roll < 25
@@ -67,6 +68,20 @@ def execute_summon(event)
   else
     # Standard Roll using the global helper
     rarity = roll_rarity(is_sub)
+  end
+
+  # 5b. Pity System: Premium users get a guaranteed Legendary/Goddess after 30 pulls without one
+  if is_sub
+    if rarity == :legendary || rarity == :goddess
+      DB.reset_pity(uid)
+    else
+      DB.increment_pity(uid)
+      if DB.get_pity(uid) >= PITY_THRESHOLD
+        rarity = rand(2).zero? ? :legendary : :goddess
+        pity_triggered = true
+        DB.reset_pity(uid)
+      end
+    end
   end
 
   # 6. Character Selection: Pick a random VTuber from the rarity tier
@@ -95,6 +110,7 @@ def execute_summon(event)
   buff_text = ""
   buff_text += "\n\n*#{EMOJI_STRINGS['stamina_pill']} Stamina Pill popped! Cooldown bypassed.*" if used_pill
   buff_text += "\n\n*#{EMOJI_STRINGS['rng_manipulator']} RNG Manipulator burned! No commons for you this time, chat.*" if used_manipulator
+  buff_text += "\n\n#{EMOJI_STRINGS['neonsparkle']} **PITY ACTIVATED!**\nThe gacha gods took mercy on you after #{PITY_THRESHOLD} pulls. Don't say I never did anything for you." if pity_triggered
 
   # Rarity-flavored pull messages
   pull_flavor = case rarity
@@ -127,7 +143,7 @@ def execute_summon(event)
     { type: 14, spacing: 1 },
     { type: 10, content: desc },
     { type: 14, spacing: 1 },
-    { type: 10, content: "**Wallet Damage**\n#{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'gacha')}" },
+    { type: 10, content: "**Wallet Damage**\n#{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}#{is_sub ? "\n**Pity:** #{DB.get_pity(uid)}/#{PITY_THRESHOLD}" : ''}#{mom_remark(uid, 'gacha')}" },
     { type: 14, spacing: 1 },
     { type: 12, items: [{ media: { url: gif_url } }] }
   ]}])

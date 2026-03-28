@@ -82,16 +82,18 @@ def execute_roulette(event, amount, bet)
 
   # 12. Result: Handle the win/loss feedback
   if win
-    DB.add_coins(uid, payout)
+    payout_result = arcade_payout(event.bot, uid, payout)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
     check_achievement(event.channel, uid, 'roulette_number') if bet == spin.to_s
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## 🎰 Roulette Spin" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "I spin the wheel... it lands on **#{color_emoji} #{spin}**!\n\nYou called **#{bet}** and it ACTUALLY hit. Pog. **#{payout}** #{EMOJI_STRINGS['s_coin']} yours.\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+
+    inner = [
+      { type: 10, content: "## 🎰 Roulette Spin" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "I spin the wheel... it lands on **#{color_emoji} #{spin}**!\n\nYou called **#{bet}** and it ACTUALLY hit. Pog. **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']} yours.#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
     check_achievement(event.channel, uid, 'gamble_broke') if amount >= 5000
     send_cv2(event, [{

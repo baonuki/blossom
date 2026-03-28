@@ -46,19 +46,20 @@ def execute_scratch(event)
              else 0
              end
 
-    # 7. Database: Grant the payout to the user
-    DB.add_coins(uid, payout)
+    # 7. Database: Grant the payout to the user with premium perks
+    payout_result = arcade_payout(event.bot, uid, payout)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
     check_achievement(event.channel, uid, 'scratch_jackpot') if result[0] == '🌟'
-    
+
     # 8. UI: Send the "Winner" response
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## 🎫 Scratch-Off Ticket" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "**[ #{result.join(' | ')} ]**\n\nACTUALLY POG?! Triple **#{result[0]}**!! You just snagged **#{payout}** #{EMOJI_STRINGS['s_coin']}!\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+    inner = [
+      { type: 10, content: "## 🎫 Scratch-Off Ticket" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "**[ #{result.join(' | ')} ]**\n\nACTUALLY POG?! Triple **#{result[0]}**!! You just snagged **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']}!#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
     # 9. UI: Send the "Loss" response
     send_cv2(event, [{

@@ -51,7 +51,7 @@ CHARACTER_POOLS = {
         { name: 'Vienna', gif: 'https://media.discordapp.net/attachments/1486442109153186042/1486451753028157550/E9K9F6_XsAIBVeF.jpg?ex=69c58d92&is=69c43c12&hm=33dfead3c6b061677bf707bc066bb5640a8f4740bd1dc9d4f77b602d509eab16&=&format=webp'}
       ],
       goddess: [
-        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486992691924307968/Gemini_Generated_Image_wlzx8vwlzx8vwlzx.png?ex=69c7855c&is=69c633dc&hm=d934423b74f6cccdc0b33295e19f435b3b02915428f1bbccfbe9bd245caa37e3&=&format=webp&quality=lossless&width=728&height=960' },
+        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69c8f92c&is=69c7a7ac&hm=a4d0f680da0d16822ff5177df63bc2afee74ad1c017c36b04eee6587480c2f52&=&format=webp&quality=lossless&width=747&height=960' },
         { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' },
         { name: 'Cweamcat', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485887383265218580/HD3ZWDMXIAIjPfU.jfif?ex=69c428b6&is=69c2d736&hm=93d7090dfa304ff1c66c05dd53d9a7abbc102ef50e12a3fc86eac7aa11392216&=&format=webp&width=640&height=960'},
@@ -59,7 +59,8 @@ CHARACTER_POOLS = {
         { name: 'little nii', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485851144910540951/GsAf3WhXIAAM0gm.jfif?ex=69c406f6&is=69c2b576&hm=0ac4ebeb7a2db81a3061ea7cdc1338356ee8686bf8ffc459c3707d226c07c827&=&format=webp&width=1280&height=960'},
         { name: 'Hexchu', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486790381247922326/bafkreihrmzuc65y2wmqalmfrjhnunx4rjlhkztl4l45x3d6bbmd5grb3jy.webp?ex=69c6c8f2&is=69c57772&hm=63d44a9e30287f29f3a208b7ab5b3a41e05f09534bd48f75b4c25f63552d9932&=&format=webp'},
         { name: 'Suko', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486442609265213601/Suko15.webp?ex=69c5850e&is=69c4338e&hm=98235b0b2d953a8db322c692ad92b38f0d360c87cb05c7c1930174a3fac5cd23&=&format=webp&width=594&height=960'},
-        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c6df41&is=69c58dc1&hm=33e78c786c200652146717d43caa33373b80ce50ae84daa182a395b0de8a96c7&=&format=webp'}
+        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c8d981&is=69c78801&hm=5453a5b13bf367faef56a5e5e384e588f55c8fd6643cdf9ebe10bc340f6b5fe8&=&format=webp'},
+        { name: 'Mika Akakuma', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486482338031603762/1500x500.jfif?ex=69c8f5ce&is=69c7a44e&hm=c3ed815fd9bdb2461f62256870512ecc3a387c000ed1ea0c1f1fea8811a66fe1&=&format=webp'}
       ]
     }
   },
@@ -115,7 +116,7 @@ CHARACTER_POOLS = {
         { name: 'Hyakumantenbara Salome', gif: 'https://media.discordapp.net/attachments/1486442109153186042/1486447066321260825/thumb-1920-1290058.png?ex=69c58935&is=69c437b5&hm=1866ae5824b2efb974d84c34c9f9b3b27770c04c5e6be144adf25b0b719317cb&=&format=webp&quality=lossless&width=1152&height=960'}
       ],
       goddess: [
-        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486992691924307968/Gemini_Generated_Image_wlzx8vwlzx8vwlzx.png?ex=69c7855c&is=69c633dc&hm=d934423b74f6cccdc0b33295e19f435b3b02915428f1bbccfbe9bd245caa37e3&=&format=webp&quality=lossless&width=728&height=960' },
+        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69c8f92c&is=69c7a7ac&hm=a4d0f680da0d16822ff5177df63bc2afee74ad1c017c36b04eee6587480c2f52&=&format=webp&quality=lossless&width=747&height=960' },
         { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' },
         { name: 'Cweamcat', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485887383265218580/HD3ZWDMXIAIjPfU.jfif?ex=69c428b6&is=69c2d736&hm=93d7090dfa304ff1c66c05dd53d9a7abbc102ef50e12a3fc86eac7aa11392216&=&format=webp&width=640&height=960'},
@@ -123,7 +124,8 @@ CHARACTER_POOLS = {
         { name: 'little nii', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485851144910540951/GsAf3WhXIAAM0gm.jfif?ex=69c406f6&is=69c2b576&hm=0ac4ebeb7a2db81a3061ea7cdc1338356ee8686bf8ffc459c3707d226c07c827&=&format=webp&width=1280&height=960'},
         { name: 'Hexchu', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486790381247922326/bafkreihrmzuc65y2wmqalmfrjhnunx4rjlhkztl4l45x3d6bbmd5grb3jy.webp?ex=69c6c8f2&is=69c57772&hm=63d44a9e30287f29f3a208b7ab5b3a41e05f09534bd48f75b4c25f63552d9932&=&format=webp'},
         { name: 'Suko', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486442609265213601/Suko15.webp?ex=69c5850e&is=69c4338e&hm=98235b0b2d953a8db322c692ad92b38f0d360c87cb05c7c1930174a3fac5cd23&=&format=webp&width=594&height=960'},
-        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c6df41&is=69c58dc1&hm=33e78c786c200652146717d43caa33373b80ce50ae84daa182a395b0de8a96c7&=&format=webp'}
+        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c8d981&is=69c78801&hm=5453a5b13bf367faef56a5e5e384e588f55c8fd6643cdf9ebe10bc340f6b5fe8&=&format=webp'},
+        { name: 'Mika Akakuma', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486482338031603762/1500x500.jfif?ex=69c8f5ce&is=69c7a44e&hm=c3ed815fd9bdb2461f62256870512ecc3a387c000ed1ea0c1f1fea8811a66fe1&=&format=webp'}
       ]
     }
   },
@@ -172,7 +174,7 @@ CHARACTER_POOLS = {
         { name: 'Fulgur Ovid', gif: 'https://media.discordapp.net/attachments/1486442109153186042/1486448153552097454/thumb-1920-1250507.png?ex=69c58a38&is=69c438b8&hm=5f370db9f8a784ed9fb38915a6c23682f111f02ff0b8ef695b29d86a2c21449f&=&format=webp&quality=lossless&width=1406&height=856'}
       ],
       goddess: [
-        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486992691924307968/Gemini_Generated_Image_wlzx8vwlzx8vwlzx.png?ex=69c7855c&is=69c633dc&hm=d934423b74f6cccdc0b33295e19f435b3b02915428f1bbccfbe9bd245caa37e3&=&format=webp&quality=lossless&width=728&height=960' },
+        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69c8f92c&is=69c7a7ac&hm=a4d0f680da0d16822ff5177df63bc2afee74ad1c017c36b04eee6587480c2f52&=&format=webp&quality=lossless&width=747&height=960' },
         { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' },
         { name: 'Cweamcat', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485887383265218580/HD3ZWDMXIAIjPfU.jfif?ex=69c428b6&is=69c2d736&hm=93d7090dfa304ff1c66c05dd53d9a7abbc102ef50e12a3fc86eac7aa11392216&=&format=webp&width=640&height=960'},
@@ -180,7 +182,8 @@ CHARACTER_POOLS = {
         { name: 'little nii', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485851144910540951/GsAf3WhXIAAM0gm.jfif?ex=69c406f6&is=69c2b576&hm=0ac4ebeb7a2db81a3061ea7cdc1338356ee8686bf8ffc459c3707d226c07c827&=&format=webp&width=1280&height=960'},
         { name: 'Hexchu', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486790381247922326/bafkreihrmzuc65y2wmqalmfrjhnunx4rjlhkztl4l45x3d6bbmd5grb3jy.webp?ex=69c6c8f2&is=69c57772&hm=63d44a9e30287f29f3a208b7ab5b3a41e05f09534bd48f75b4c25f63552d9932&=&format=webp'},
         { name: 'Suko', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486442609265213601/Suko15.webp?ex=69c5850e&is=69c4338e&hm=98235b0b2d953a8db322c692ad92b38f0d360c87cb05c7c1930174a3fac5cd23&=&format=webp&width=594&height=960'},
-        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c6df41&is=69c58dc1&hm=33e78c786c200652146717d43caa33373b80ce50ae84daa182a395b0de8a96c7&=&format=webp'}
+        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c8d981&is=69c78801&hm=5453a5b13bf367faef56a5e5e384e588f55c8fd6643cdf9ebe10bc340f6b5fe8&=&format=webp'},
+        { name: 'Mika Akakuma', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486482338031603762/1500x500.jfif?ex=69c8f5ce&is=69c7a44e&hm=c3ed815fd9bdb2461f62256870512ecc3a387c000ed1ea0c1f1fea8811a66fe1&=&format=webp'}
       ]
     }
   },
@@ -234,7 +237,7 @@ CHARACTER_POOLS = {
         { name: 'Saruei', gif: 'https://media.discordapp.net/attachments/1486442109153186042/1486451317932163192/gloria-the-animator-composited.jpg?ex=69c58d2b&is=69c43bab&hm=b6e1663c1b3e8dd65e5ac02cb4f3458998f9dbe392c516ba8b54a1293be0edf2&=&format=webp&width=640&height=960'}
       ],
       goddess: [
-        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486992691924307968/Gemini_Generated_Image_wlzx8vwlzx8vwlzx.png?ex=69c7855c&is=69c633dc&hm=d934423b74f6cccdc0b33295e19f435b3b02915428f1bbccfbe9bd245caa37e3&=&format=webp&quality=lossless&width=728&height=960' },
+        { name: 'Envvy', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1476339091653005312/Gemini_Generated_Image_z3jz8tz3jz8tz3jz.png?ex=69c8f92c&is=69c7a7ac&hm=a4d0f680da0d16822ff5177df63bc2afee74ad1c017c36b04eee6587480c2f52&=&format=webp&quality=lossless&width=747&height=960' },
         { name: 'Blossom', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1485555394532343818/Gemini_Generated_Image_grwxaagrwxaagrwx.png?ex=69c24ac6&is=69c0f946&hm=e045c4d593d17ce8999f0a611c708d9fe0c5377072a87c32482912e323fa11ac&=&format=webp&quality=lossless&width=600&height=960' },
         { name: 'Kyvrixon', gif: 'https://media.discordapp.net/attachments/1475890017443516476/1481224269647319131/18df00e257eef9d3e71fe280e866f251.png?ex=69b28919&is=69b13799&hm=04e3243f370e621ab2209cbbc3bfcf989e49e78d052248a5f12031290c6a080a&=&format=webp&quality=lossless' },
         { name: 'Cweamcat', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485887383265218580/HD3ZWDMXIAIjPfU.jfif?ex=69c428b6&is=69c2d736&hm=93d7090dfa304ff1c66c05dd53d9a7abbc102ef50e12a3fc86eac7aa11392216&=&format=webp&width=640&height=960'},
@@ -242,7 +245,8 @@ CHARACTER_POOLS = {
         { name: 'little nii', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1485851144910540951/GsAf3WhXIAAM0gm.jfif?ex=69c406f6&is=69c2b576&hm=0ac4ebeb7a2db81a3061ea7cdc1338356ee8686bf8ffc459c3707d226c07c827&=&format=webp&width=1280&height=960'},
         { name: 'Hexchu', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486790381247922326/bafkreihrmzuc65y2wmqalmfrjhnunx4rjlhkztl4l45x3d6bbmd5grb3jy.webp?ex=69c6c8f2&is=69c57772&hm=63d44a9e30287f29f3a208b7ab5b3a41e05f09534bd48f75b4c25f63552d9932&=&format=webp'},
         { name: 'Suko', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486442609265213601/Suko15.webp?ex=69c5850e&is=69c4338e&hm=98235b0b2d953a8db322c692ad92b38f0d360c87cb05c7c1930174a3fac5cd23&=&format=webp&width=594&height=960'},
-        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c6df41&is=69c58dc1&hm=33e78c786c200652146717d43caa33373b80ce50ae84daa182a395b0de8a96c7&=&format=webp'}
+        { name: 'Robopup', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486814336675614831/ab67616d0000b2734fd48b59a6debf9ebfe2222b.jfif?ex=69c8d981&is=69c78801&hm=5453a5b13bf367faef56a5e5e384e588f55c8fd6643cdf9ebe10bc340f6b5fe8&=&format=webp'},
+        { name: 'Mika Akakuma', gif: 'https://media.discordapp.net/attachments/1482859369543630868/1486482338031603762/1500x500.jfif?ex=69c8f5ce&is=69c7a44e&hm=c3ed815fd9bdb2461f62256870512ecc3a387c000ed1ea0c1f1fea8811a66fe1&=&format=webp'}
       ]
     }
   }
@@ -252,10 +256,10 @@ CHARACTER_POOLS = {
 # THE RARITY TABLE
 # ------------------------------------------
 RARITY_TABLE = [
-  [:common, 69],   
-  [:rare, 25],     
-  [:legendary, 5], 
-  [:goddess, 1]    
+  [:common, 70],
+  [:rare, 24],
+  [:legendary, 5],
+  [:goddess, 1]
 ].freeze
 
 # ------------------------------------------

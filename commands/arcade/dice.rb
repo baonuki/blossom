@@ -53,18 +53,19 @@ def execute_dice(event, amount, bet)
 
   # 8. Result: Handle the win/loss branching
   if bet == actual_result
-    payout = (bet == '7') ? (amount * 4) : (amount * 2)
-    DB.add_coins(uid, payout)
+    base_payout = (bet == '7') ? (amount * 4) : (amount * 2)
+    payout_result = arcade_payout(event.bot, uid, base_payout)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
     check_achievement(event.channel, uid, 'dice_seven') if bet == '7'
 
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## 🎲 High Roller Dice" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "The dice roll... **#{die1}** and **#{die2}**! (Total: **#{total}**)\n\nOkay not bad, chat. You called **#{bet}** and walked away with **#{payout}** #{EMOJI_STRINGS['s_coin']}.\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+    inner = [
+      { type: 10, content: "## 🎲 High Roller Dice" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "The dice roll... **#{die1}** and **#{die2}**! (Total: **#{total}**)\n\nOkay not bad, chat. You called **#{bet}** and walked away with **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']}.#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
     check_achievement(event.channel, uid, 'gamble_broke') if amount >= 5000
     send_cv2(event, [{

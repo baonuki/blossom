@@ -49,17 +49,17 @@ def execute_cups(event, amount, guess)
   # 7. Result: Handle the win or loss scenarios
   if guess == winning_cup
     # Win: Triple the original bet!
-    payout = amount * 3
-    DB.add_coins(uid, payout)
+    payout_result = arcade_payout(event.bot, uid, amount * 3)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
 
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## 🥤 The Shell Game" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "I lift cup ##{winning_cup}...\n\n**#{cups_display}**\n\nNO WAY you actually found it?! GG, take your **#{payout}** #{EMOJI_STRINGS['s_coin']}.\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+    inner = [
+      { type: 10, content: "## 🥤 The Shell Game" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "I lift cup ##{winning_cup}...\n\n**#{cups_display}**\n\nNO WAY you actually found it?! GG, take your **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']}.#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
     # Loss: The user picked wrong; reveal where it was
     send_cv2(event, [{

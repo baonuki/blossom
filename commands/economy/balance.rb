@@ -12,6 +12,7 @@ def execute_balance(event, target_user)
   uid = target_user.id
   coins = DB.get_coins(uid)
   prisma = DB.get_prisma(uid)
+  rep = DB.get_reputation(uid)
   
   # 2. Check: Determine if the user has active Premium status
   is_sub = is_premium?(event.bot, uid)
@@ -48,6 +49,7 @@ def execute_balance(event, target_user)
     title: "🌸 #{target_user.display_name}'s Balance",
     description: "#{header}**Coins:** #{coins} #{EMOJI_STRINGS['s_coin']}\n" \
                  "**Prisma:** #{prisma} #{EMOJI_STRINGS['prisma']}\n" \
+                 "**Reputation:** #{rep} #{EMOJI_STRINGS['rainbowheart']}\n" \
                  "**Daily Streak:** #{daily_info['streak']} Days#{fav_line}\n\n" \
                  "*Use the dropdown below to view your items, VTubers, and Achievements!*#{mom_remark(uid, 'economy')}",
     color: 0xFFB6C1 # Light Pink (Princess Vibe)

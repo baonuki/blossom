@@ -43,4 +43,35 @@ module DatabaseSocial
       [uid]
     )
   end
+
+  # --- REPUTATION ---
+  def get_reputation(uid)
+    row = @db.exec_params("SELECT reputation FROM global_users WHERE user_id = $1", [uid]).first
+    row ? row['reputation'].to_i : 0
+  end
+
+  def add_reputation(uid)
+    @db.exec_params("INSERT INTO global_users (user_id, reputation) VALUES ($1, 1) ON CONFLICT (user_id) DO UPDATE SET reputation = global_users.reputation + 1", [uid])
+  end
+
+  def can_rep?(giver_id, receiver_id)
+    row = @db.exec_params("SELECT given_at FROM rep_cooldowns WHERE giver_id = $1 AND receiver_id = $2", [giver_id, receiver_id]).first
+    return true unless row
+    (Time.now - Time.parse(row['given_at'].to_s)) >= 86_400
+  end
+
+  def reps_given_today(giver_id)
+    @db.exec_params(
+      "SELECT COUNT(*) AS cnt FROM rep_cooldowns WHERE giver_id = $1 AND given_at > $2",
+      [giver_id, (Time.now - 86_400).utc.iso8601]
+    ).first['cnt'].to_i
+  end
+
+  def set_rep_cooldown(giver_id, receiver_id)
+    @db.exec_params(
+      "INSERT INTO rep_cooldowns (giver_id, receiver_id, given_at) VALUES ($1, $2, $3)
+       ON CONFLICT (giver_id, receiver_id) DO UPDATE SET given_at = $3",
+      [giver_id, receiver_id, Time.now.utc.iso8601]
+    )
+  end
 end

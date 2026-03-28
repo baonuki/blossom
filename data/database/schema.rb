@@ -141,5 +141,16 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
     begin; @db.exec("ALTER TABLE server_configs ADD COLUMN IF NOT EXISTS welcome_enabled INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE server_logs ADD COLUMN IF NOT EXISTS log_joins INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE server_logs ADD COLUMN IF NOT EXISTS log_leaves INTEGER DEFAULT 0"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS pity_counter INTEGER DEFAULT 0"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS reputation INTEGER DEFAULT 0"); rescue PG::Error; end
+
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS rep_cooldowns (
+        giver_id BIGINT,
+        receiver_id BIGINT,
+        given_at TIMESTAMP,
+        PRIMARY KEY(giver_id, receiver_id)
+      );
+    SQL
   end # Closes 'def setup_schema'
 end # Closes 'module DatabaseSchema'

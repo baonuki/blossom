@@ -21,6 +21,7 @@ def execute_level(event, target_user)
   daily_info = DB.get_daily_info(uid)
   is_sub = is_premium?(event.bot, uid)
   coins = DB.get_coins(uid)
+  rep = DB.get_reputation(uid)
 
   level = user['level']
   xp = user['xp']
@@ -65,6 +66,7 @@ def execute_level(event, target_user)
     { type: 10, content: "#{EMOJI_STRINGS['level_heart']} **Level** #{level}\n`#{bar}` #{((xp.to_f / [needed, 1].max) * 100).round}%" },
     { type: 10, content: "#{EMOJI_STRINGS['up_arrow']} **XP** #{xp} / #{needed}" },
     { type: 10, content: "#{EMOJI_STRINGS['s_coin']} **Coins** #{coins}" },
+    { type: 10, content: "#{EMOJI_STRINGS['rainbowheart']} **Rep** #{rep}" },
     { type: 10, content: "**Streak** #{streak} day#{'s' unless streak == 1}" }
   ]
 

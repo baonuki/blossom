@@ -45,8 +45,8 @@ def execute_daily(event)
     streak_msg = "\n🔥 **Streak:** #{new_streak} days!"
   end
 
-  # 5. Calculation: Base Reward + Streak Bonus (+50 per day)
-  reward = DAILY_REWARD + (new_streak * 50) 
+  # 5. Calculation: Base Reward + Streak Bonus
+  reward = DAILY_REWARD + (new_streak * DAILY_STREAK_BONUS)
   
   # 6. Logic: Premium & Prisma Rewards
   if is_sub

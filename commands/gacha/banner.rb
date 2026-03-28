@@ -41,9 +41,9 @@ def execute_banner(event)
         { type: 14, spacing: 1 },
         { type: 10, content: "**#{EMOJI_STRINGS['legendary']} Legendaries (5%)** — W pull territory\n#{chars[:legendary].map { |c| c[:name] }.join(', ')}" },
         { type: 14, spacing: 1 },
-        { type: 10, content: "**#{EMOJI_STRINGS['rare']} Rares (25%)** — solid, no copium needed\n#{chars[:rare].map { |c| c[:name] }.join(', ')}" },
+        { type: 10, content: "**#{EMOJI_STRINGS['rare']} Rares (24%)** — solid, no copium needed\n#{chars[:rare].map { |c| c[:name] }.join(', ')}" },
         { type: 14, spacing: 1 },
-        { type: 10, content: "**#{EMOJI_STRINGS['common']} Commons (69%)** — you'll see these a lot, chat\n#{chars[:common].map { |c| c[:name] }.join(', ')}#{mom_remark(event.user.id, 'gacha')}" }
+        { type: 10, content: "**#{EMOJI_STRINGS['common']} Commons (70%)** — you'll see these a lot, chat\n#{chars[:common].map { |c| c[:name] }.join(', ')}#{mom_remark(event.user.id, 'gacha')}" }
       ]
     }
   ]

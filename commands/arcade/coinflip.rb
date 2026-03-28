@@ -55,15 +55,17 @@ def execute_coinflip(event, amount, choice)
 
   # 6. Result: Handle the Win/Loss scenarios
   if choice == result
-    DB.add_coins(uid, amount * 2)
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## #{EMOJI_STRINGS['s_coin']} Coinflip: #{result.capitalize}!" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "Okay wait, you actually hit?? GG, you doubled up and snagged **#{amount}** #{EMOJI_STRINGS['s_coin']}.\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+    payout_result = arcade_payout(event.bot, uid, amount * 2)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
+
+    inner = [
+      { type: 10, content: "## #{EMOJI_STRINGS['s_coin']} Coinflip: #{result.capitalize}!" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "Okay wait, you actually hit?? GG, you snagged **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']}!#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
     check_achievement(event.channel, uid, 'gamble_win')
   else
     check_achievement(event.channel, uid, 'gamble_broke') if amount >= 5000

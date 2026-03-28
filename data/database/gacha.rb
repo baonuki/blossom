@@ -44,4 +44,17 @@ module DatabaseGacha
   def set_favorite_card(uid, name)
     @db.exec_params("INSERT INTO global_users (user_id, favorite_card) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET favorite_card = $2", [uid, name])
   end
+
+  def get_pity(uid)
+    row = @db.exec_params("SELECT pity_counter FROM global_users WHERE user_id = $1", [uid]).first
+    row ? row['pity_counter'].to_i : 0
+  end
+
+  def increment_pity(uid)
+    @db.exec_params("UPDATE global_users SET pity_counter = pity_counter + 1 WHERE user_id = $1", [uid])
+  end
+
+  def reset_pity(uid)
+    @db.exec_params("UPDATE global_users SET pity_counter = 0 WHERE user_id = $1", [uid])
+  end
 end

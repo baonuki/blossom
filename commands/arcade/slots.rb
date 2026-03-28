@@ -35,32 +35,32 @@ def execute_slots(event, amount)
   # 5. Result Branching: Calculate winnings based on symbol uniqueness
   if spin.uniq.size == 1
     # JACKPOT: All three symbols match (5x Payout)
-    winnings = amount * 5
-    DB.add_coins(uid, winnings)
+    payout_result = arcade_payout(event.bot, uid, amount * 5)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
     check_achievement(event.channel, uid, 'slots_jackpot')
 
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## 🎰 Neon Slots" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "[ #{spin.join(' | ')} ]\n\nNO WAY. **JACKPOT!!** #{EMOJI_STRINGS['neonsparkle']}\nYou just pulled **#{winnings}** #{EMOJI_STRINGS['s_coin']}!! ACTUALLY POG!!\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+    inner = [
+      { type: 10, content: "## 🎰 Neon Slots" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "[ #{spin.join(' | ')} ]\n\nNO WAY. **JACKPOT!!** #{EMOJI_STRINGS['neonsparkle']}\nYou just pulled **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']}!! ACTUALLY POG!!#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
 
   elsif spin.uniq.size == 2
     # PARTIAL MATCH: Two symbols match (2x Payout)
-    winnings = amount * 2
-    DB.add_coins(uid, winnings)
+    payout_result = arcade_payout(event.bot, uid, amount * 2)
+    DB.add_coins(uid, payout_result[:winnings])
+    extras = arcade_win_extras(uid, payout_result)
 
-    send_cv2(event, [{
-      type: 17, accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## 🎰 Neon Slots" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "[ #{spin.join(' | ')} ]\n\nTwo outta three, not bad chat~ You grabbed **#{winnings}** #{EMOJI_STRINGS['s_coin']}.\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
-      ]
-    }])
+    inner = [
+      { type: 10, content: "## 🎰 Neon Slots" },
+      { type: 14, spacing: 1 },
+      { type: 10, content: "[ #{spin.join(' | ')} ]\n\nTwo outta three, not bad chat~ You grabbed **#{payout_result[:winnings]}** #{EMOJI_STRINGS['s_coin']}.#{extras[:text]}\nNew Balance: **#{DB.get_coins(uid)}** #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'arcade')}" }
+    ]
+    inner << extras[:button] if extras[:button]
+    send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
 
   else
     # LOSS: No matches found

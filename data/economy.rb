@@ -4,25 +4,27 @@
 # ==========================================
 
 # --- REWARDS & COOLDOWNS ---
-DAILY_REWARD   = 500
-DAILY_COOLDOWN = 24 * 60 * 60
+DAILY_REWARD        = 350
+DAILY_STREAK_BONUS  = 30
+DAILY_COOLDOWN      = 24 * 60 * 60
 
-WORK_REWARD_RANGE = (50..100)
+WORK_REWARD_RANGE = (35..75)
 WORK_COOLDOWN     = 60 * 10
 
-STREAM_REWARD_RANGE = (100..200)
+STREAM_REWARD_RANGE = (75..150)
 STREAM_COOLDOWN     = 30 * 60
 STREAM_GAMES = ['Minecraft', 'Valorant', 'Just Chatting', 'Apex Legends', 'Lethal Company', 'Elden Ring', 'Genshin Impact', 'Phasmophobia', 'Overwatch 2', 'VRChat'].freeze
 
-POST_REWARD_RANGE = (20..50)
+POST_REWARD_RANGE = (15..35)
 POST_COOLDOWN     = 5 * 60
 POST_PLATFORMS    = ['Twitter/X', 'TikTok', 'Instagram', 'YouTube Shorts', 'Bluesky', 'Threads', 'Reddit'].freeze
 
-COLLAB_REWARD   = 200
+COLLAB_REWARD   = 150
 COLLAB_COOLDOWN = 30 * 60
 
 # --- GACHA & SHOP ---
-SUMMON_COST = 100
+SUMMON_COST = 150
+PITY_THRESHOLD = 30
 
 SHOP_PRICES = { 'common' => 1_000, 'rare' => 5_000, 'legendary' => 25_000 }.freeze
 GODDESS_PRISMA_PRICE = 100
