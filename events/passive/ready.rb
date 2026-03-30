@@ -9,6 +9,7 @@ $bot.ready do |event|
 
   # --- SLASH COMMAND REGISTRATION ---
   # All slash commands are live. Uncomment below to re-register if needed.
+  event.bot.register_application_command(:leaderboard, 'Show top users by level for this server')
   # event.bot.register_application_command(:spin, 'Spin the daily prize wheel!')
   # event.bot.register_application_command(:marry, 'Propose to someone!') do |cmd|
   #   cmd.user('user', 'The person you want to marry', required: true)
