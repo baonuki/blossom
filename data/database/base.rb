@@ -18,15 +18,36 @@ require_relative 'admin'
 
 class PGPoolWrapper
   def initialize(url)
+    @url = url
     @pool = ConnectionPool.new(size: 20, timeout: 5) { PG.connect(url) }
   end
 
   def exec(*args)
-    @pool.with { |conn| conn.exec(*args) }
+    with_retry { |conn| conn.exec(*args) }
   end
 
   def exec_params(*args)
-    @pool.with { |conn| conn.exec_params(*args) }
+    with_retry { |conn| conn.exec_params(*args) }
+  end
+
+  private
+
+  def with_retry(&block)
+    retries = 0
+    @pool.with do |conn|
+      begin
+        conn.exec("SELECT 1") unless conn.status == PG::CONNECTION_OK
+        block.call(conn)
+      rescue PG::ConnectionBad, PG::UnableToSend => e
+        retries += 1
+        if retries <= 1
+          conn.reset
+          retry
+        else
+          raise e
+        end
+      end
+    end
   end
 end
 
