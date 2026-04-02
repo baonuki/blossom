@@ -2,13 +2,16 @@
 # SYSTEM: Slash Command Registry
 # DESCRIPTION: Tells Discord's servers what commands
 # Blossom has available and what options they require.
+# All commands below are already registered. Uncomment
+# the =begin/=end block only for a full re-register.
 # ==========================================
 
-puts "🌸 Registering slash commands to Discord API..."
+puts "🌸 Slash registry loaded (all commands registered)."
 
 =begin
+
 # =========================
-# CORE & UTILITY (Already registered)
+# CORE & UTILITY
 # =========================
 
 $bot.register_application_command(:ping, 'Check bot latency')
@@ -20,9 +23,20 @@ $bot.register_application_command(:serverinfo, 'Displays information about the c
 $bot.register_application_command(:suggest, 'Send a suggestion directly to the developer!') do |cmd|
   cmd.string('suggestion', 'What would you like to see added or changed?', required: true)
 end
+$bot.register_application_command(:stats, 'View your lifetime stats dashboard')
+$bot.register_application_command(:notifications, 'Set how achievement notifications are delivered') do |cmd|
+  cmd.string('mode', 'Notification mode', required: true, choices: { 'Channel' => 'channel', 'DM' => 'dm', 'Silent' => 'silent' })
+end
+$bot.register_application_command(:profile, 'Customize your premium profile') do |cmd|
+  cmd.string('action', 'What to customize', required: false, choices: {
+    'Color' => 'color', 'Bio' => 'bio', 'Favorite' => 'fav', 'Unfavorite' => 'unfav',
+    'Pet' => 'pet', 'Title' => 'title', 'Theme' => 'theme', 'Badge' => 'badge', 'Reset' => 'reset'
+  })
+  cmd.string('value', 'The value to set (hex code, bio text, slot + name, pet/title/theme/badge ID)', required: false)
+end
 
 # =========================
-# FUN & SOCIAL (Already registered)
+# FUN & SOCIAL
 # =========================
 
 $bot.register_application_command(:kettle, 'Pings a specific user with a yay emoji')
@@ -36,9 +50,19 @@ end
 $bot.register_application_command(:pat, 'Give someone a gentle head pat') do |cmd|
   cmd.user('user', 'The person you want to pat', required: true)
 end
+$bot.register_application_command(:rep, 'Give reputation to another user') do |cmd|
+  cmd.user('user', 'Who deserves some rep?', required: true)
+end
+$bot.register_application_command(:marry, 'Propose to another user!') do |cmd|
+  cmd.user('user', 'The love of your life', required: true)
+end
+$bot.register_application_command(:divorce, 'End your marriage')
+$bot.register_application_command(:birthday, 'Set your birthday for a special reward') do |cmd|
+  cmd.string('date', 'Your birthday in MM/DD format', required: true)
+end
 
 # =========================
-# ECONOMY & ARCADE (Already registered)
+# ECONOMY
 # =========================
 
 $bot.register_application_command(:balance, "Show a user's coin balance, gacha stats, and inventory") do |cmd|
@@ -60,8 +84,15 @@ $bot.register_application_command(:leaderboard, 'Show top users by level for thi
 $bot.register_application_command(:level, 'Show a user\'s level and XP for this server') do |cmd|
   cmd.user('user', 'The user to check (optional)', required: false)
 end
+$bot.register_application_command(:lottery, 'Enter the hourly global lottery!') do |cmd|
+  cmd.integer('tickets', 'How many 1000-coin tickets to buy', required: false)
+end
+$bot.register_application_command(:lotteryinfo, 'View current lottery stats and your tickets')
 
-# Casino & Betting (Already registered)
+# =========================
+# ARCADE
+# =========================
+
 $bot.register_application_command(:coinflip, 'Bet your stream revenue on a coinflip!') do |cmd|
   cmd.integer('amount', 'How many coins to bet', required: true)
   cmd.string('choice', 'Heads or Tails', required: true, choices: { 'Heads' => 'heads', 'Tails' => 'tails' })
@@ -82,13 +113,18 @@ $bot.register_application_command(:cups, 'Guess which cup hides the coin (1, 2, 
   cmd.integer('amount', 'How many coins to bet', required: true)
   cmd.integer('guess', 'Cup 1, 2, or 3', required: true, choices: { 'Cup 1' => 1, 'Cup 2' => 2, 'Cup 3' => 3 })
 end
-$bot.register_application_command(:lottery, 'Enter the hourly global lottery!') do |cmd|
-  cmd.integer('tickets', 'How many 1000-coin tickets to buy', required: false)
+$bot.register_application_command(:blackjack, 'Play blackjack against Blossom!') do |cmd|
+  cmd.integer('amount', 'How many coins to bet', required: true)
 end
-$bot.register_application_command(:lotteryinfo, 'View current lottery stats and your tickets')
+$bot.register_application_command(:spin, 'Spin the daily prize wheel!')
+$bot.register_application_command(:rps, 'Challenge someone to Rock Paper Scissors!') do |cmd|
+  cmd.user('user', 'Who do you want to challenge?', required: true)
+  cmd.integer('bet', 'How many coins to bet', required: true)
+end
+$bot.register_application_command(:fish, 'Cast a line and catch something!')
 
 # =========================
-# GACHA & INVENTORY (Already registered)
+# GACHA & INVENTORY
 # =========================
 
 $bot.register_application_command(:summon, 'Roll the gacha!')
@@ -127,9 +163,14 @@ $bot.register_application_command(:sell, 'Sell your duplicate VTuber cards for c
     'Common' => 'common', 'Rare' => 'rare', 'Legendary' => 'legendary', 'Goddess' => 'goddess'
   })
 end
+$bot.register_application_command(:autosell, 'Toggle auto-sell for common dupes (Premium)')
+$bot.register_application_command(:shinymode, 'Toggle Shiny Hunting Mode — 2x cost, 2% shiny (Premium)')
+$bot.register_application_command(:giftlog, 'View your card gifting history') do |cmd|
+  cmd.integer('page', 'Page number', required: false)
+end
 
 # =========================
-# ADMINISTRATION (Already registered)
+# ADMINISTRATION
 # =========================
 
 $bot.register_application_command(:giveaway, 'Start a giveaway (Admin only)') do |cmd|
@@ -186,7 +227,7 @@ end
 $bot.register_application_command(:achievements, 'Toggle achievement notifications for this server (Admin Only)')
 
 # =========================
-# DEVELOPER (Already registered)
+# DEVELOPER
 # =========================
 
 $bot.register_application_command(:addcoins, 'Add or remove coins from a user (Dev Only)') do |cmd|
@@ -223,49 +264,6 @@ end
 $bot.register_application_command(:backup, 'Manually trigger a database backup (Dev Only)')
 $bot.register_application_command(:syncachievements, 'Retroactively grant achievements to everyone! (Dev Only)')
 
-=end
-
-# =========================
-# NEW COMMANDS — Register these, then comment out and move above
-# =========================
-
-$bot.register_application_command(:stats, 'View your lifetime stats dashboard')
-$bot.register_application_command(:notifications, 'Set how achievement notifications are delivered') do |cmd|
-  cmd.string('mode', 'Notification mode', required: true, choices: { 'Channel' => 'channel', 'DM' => 'dm', 'Silent' => 'silent' })
-end
-$bot.register_application_command(:profile, 'Customize your premium profile') do |cmd|
-  cmd.string('action', 'What to customize', required: false, choices: {
-    'Color' => 'color', 'Bio' => 'bio', 'Favorite' => 'fav', 'Unfavorite' => 'unfav',
-    'Pet' => 'pet', 'Title' => 'title', 'Theme' => 'theme', 'Badge' => 'badge', 'Reset' => 'reset'
-  })
-  cmd.string('value', 'The value to set (hex code, bio text, slot + name, pet/title/theme/badge ID)', required: false)
-end
-$bot.register_application_command(:blackjack, 'Play blackjack against Blossom!') do |cmd|
-  cmd.integer('amount', 'How many coins to bet', required: true)
-end
-$bot.register_application_command(:spin, 'Spin the daily prize wheel!')
-$bot.register_application_command(:rps, 'Challenge someone to Rock Paper Scissors!') do |cmd|
-  cmd.user('user', 'Who do you want to challenge?', required: true)
-  cmd.integer('bet', 'How many coins to bet', required: true)
-end
-$bot.register_application_command(:fish, 'Cast a line and catch something!')
-$bot.register_application_command(:autosell, 'Toggle auto-sell for common dupes (Premium)')
-$bot.register_application_command(:shinymode, 'Toggle Shiny Hunting Mode — 2x cost, 2% shiny (Premium)')
-$bot.register_application_command(:giftlog, 'View your card gifting history') do |cmd|
-  cmd.integer('page', 'Page number', required: false)
-end
-$bot.register_application_command(:rep, 'Give reputation to another user') do |cmd|
-  cmd.user('user', 'Who deserves some rep?', required: true)
-end
-$bot.register_application_command(:marry, 'Propose to another user!') do |cmd|
-  cmd.user('user', 'The love of your life', required: true)
-end
-$bot.register_application_command(:divorce, 'End your marriage')
-$bot.register_application_command(:birthday, 'Set your birthday for a special reward') do |cmd|
-  cmd.string('date', 'Your birthday in MM/DD format', required: true)
-end
-
 # NOTE: bomb and setxp are registered in ready.rb after deleting old versions
-# Once new commands are confirmed working, comment them out and move into the =begin block above
 
-puts "✅ Slash registry loaded."
+=end

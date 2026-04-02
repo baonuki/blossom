@@ -70,6 +70,9 @@ $bot.button(custom_id: /^carnival_ringtoss_/) do |event|
   if rand(100) < 40 
     winnings = rand(15..50)
     DB.add_tickets(uid, winnings)
+    total_tickets = DB.get_tickets(uid)
+    check_achievement(event.channel, uid, 'tickets_1k') if total_tickets >= 1000
+    check_achievement(event.channel, uid, 'tickets_5k') if total_tickets >= 5000
     embed.title = "⭕ Ring Toss Winner!"
     embed.description = "You toss the ring... and it lands perfectly on a bottle!\n\nYou won **#{winnings}** #{SPRING_CARNIVAL[:emoji]}!\n*Balance: #{DB.get_tickets(uid)} #{SPRING_CARNIVAL[:emoji]}*"
   else
@@ -109,6 +112,9 @@ $bot.button(custom_id: /^carnival_game2_/) do |event|
   if successes > 0
     winnings = successes * rand(10..30)
     DB.add_tickets(uid, winnings)
+    total_tickets = DB.get_tickets(uid)
+    check_achievement(event.channel, uid, 'tickets_1k') if total_tickets >= 1000
+    check_achievement(event.channel, uid, 'tickets_5k') if total_tickets >= 5000
     embed.title = "🎈 Balloon Pop!"
     embed.description = "You throw your darts and pop **#{successes}** balloons!\n\nYou won **#{winnings}** #{SPRING_CARNIVAL[:emoji]}!\n*Balance: #{DB.get_tickets(uid)} #{SPRING_CARNIVAL[:emoji]}*"
   else
