@@ -55,6 +55,7 @@ def execute_sell(event, filter, rarity_opt = nil)
   col = DB.get_collection(uid)
   coins_earned = 0
   sold_count = 0
+  sold_cards = {} # Track what was sold for premium undo
 
   # 5. Iteration: Loop through every card owned by the user
   col.each do |char_name, data|
@@ -71,10 +72,13 @@ def execute_sell(event, filter, rarity_opt = nil)
     # 7. Processing: If user has more than the keep_amount, sell the extras
     if count > keep_amount
       sell_amount = count - keep_amount
-      
+
       # Calculate value using global SELL_PRICES hash
       coins_earned += (sell_amount * SELL_PRICES[rarity].to_i)
       sold_count += sell_amount
+
+      # Track for undo
+      sold_cards[char_name] = { count: sell_amount, rarity: rarity }
 
       # Update the database for this specific character
       DB.set_card_count(uid, char_name, keep_amount)
@@ -104,20 +108,47 @@ def execute_sell(event, filter, rarity_opt = nil)
   check_achievement(event.channel, uid, 'first_sell')
   check_wealth_achievements(event.channel, uid)
 
-  # 11. UI: Send final success report via CV2
-  components = [
-    {
-      type: 17,
-      accent_color: 0x00FF00,
-      components: [
-        { type: 10, content: "## ♻️ Duplicates Sold!" },
-        { type: 14, spacing: 1 },
-        { type: 10, content: "Dumped **#{sold_count}** dupes. Declutter arc activated.\n\n" \
-                             "💰 **Earned:** #{coins_earned} #{EMOJI_STRINGS['s_coin']}\n" \
-                             "💳 **Balance:** #{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}#{mom_remark(uid, 'economy')}" }
-      ]
+  # 11. Premium Undo: Store sell data for potential reversal
+  premium = is_premium?(event.bot, uid)
+  undo_line = ""
+
+  if premium
+    sell_id = "sellundo_#{uid}_#{Time.now.to_i}_#{rand(10000)}"
+    expire_time = Time.now + SELL_UNDO_WINDOW
+
+    ACTIVE_SELLS[sell_id] = {
+      uid: uid,
+      coins: coins_earned,
+      cards: sold_cards,
+      expires: expire_time
     }
+
+    undo_line = "\n\n#{EMOJI_STRINGS['neonsparkle']} **Premium Perk:** You have **5 minutes** to undo this sell! Expires <t:#{expire_time.to_i}:R>."
+
+    # Background cleanup thread
+    Thread.new do
+      sleep SELL_UNDO_WINDOW
+      ACTIVE_SELLS.delete(sell_id)
+    end
+  end
+
+  # 12. UI: Send final success report via CV2
+  inner = [
+    { type: 10, content: "## ♻️ Duplicates Sold!" },
+    { type: 14, spacing: 1 },
+    { type: 10, content: "Dumped **#{sold_count}** dupes. Declutter arc activated.\n\n" \
+                         "💰 **Earned:** #{coins_earned} #{EMOJI_STRINGS['s_coin']}\n" \
+                         "💳 **Balance:** #{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}#{undo_line}#{mom_remark(uid, 'economy')}" }
   ]
+
+  if premium
+    inner << { type: 14, spacing: 1 }
+    inner << { type: 1, components: [
+      { type: 2, custom_id: sell_id, label: 'Undo Sell', style: 4, emoji: EMOJI_OBJECTS['x_'] }
+    ]}
+  end
+
+  components = [{ type: 17, accent_color: 0x00FF00, components: inner }]
   send_cv2(event, components)
 end
 

@@ -7,6 +7,11 @@
 ARCADE_JACKPOT_CHANCE = 2     # 2% chance per win
 ARCADE_JACKPOT_MULTIPLIER = 5 # 5x bonus on top of winnings
 
+# Track arcade outcomes
+def track_arcade(uid, won)
+  won ? DB.increment_arcade_wins(uid) : DB.increment_arcade_losses(uid)
+end
+
 # Calculates final arcade winnings with premium perks.
 # Returns { winnings:, jackpot:, premium: }
 def arcade_payout(bot, uid, base_winnings)

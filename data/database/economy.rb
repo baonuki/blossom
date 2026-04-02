@@ -20,12 +20,14 @@ module DatabaseEconomy
 
   # --- INVENTORY ---
   def get_inventory(uid)
-    results = @db.exec_params("SELECT item_name, count FROM inventory WHERE user_id = $1", [uid])
-    results.map do |row|
-      {
-        'item_id' => row['item_name'],
-        'quantity' => row['count'].to_i
-      }
+    CACHE.fetch(:inventory, uid, ttl: CACHE_TTL_INVENTORY) do
+      results = @db.exec_params("SELECT item_name, count FROM inventory WHERE user_id = $1", [uid])
+      results.map do |row|
+        {
+          'item_id' => row['item_name'],
+          'quantity' => row['count'].to_i
+        }
+      end
     end
   end
 
@@ -34,6 +36,7 @@ module DatabaseEconomy
       "INSERT INTO inventory (user_id, item_name, count) VALUES ($1, $2, $3) ON CONFLICT (user_id, item_name) DO UPDATE SET count = inventory.count + $3",
       [uid, item_name, count]
     )
+    CACHE.invalidate(:inventory, uid)
   end
 
   def remove_inventory(uid, item_name, count)
@@ -45,6 +48,7 @@ module DatabaseEconomy
       "DELETE FROM inventory WHERE user_id = $1 AND item_name = $2 AND count <= 0",
       [uid, item_name]
     )
+    CACHE.invalidate(:inventory, uid)
   end
 
   # --- TICKETS (Event Currency) ---
@@ -108,6 +112,69 @@ module DatabaseEconomy
       { 'pull_count' => row['pull_count'].to_i, 'trade_count' => row['trade_count'].to_i, 'givecard_count' => row['givecard_count'].to_i, 'coins_given_total' => row['coins_given_total'].to_i }
     else
       { 'pull_count' => 0, 'trade_count' => 0, 'givecard_count' => 0, 'coins_given_total' => 0 }
+    end
+  end
+
+  # --- ARCADE TRACKING ---
+  def increment_arcade_wins(uid)
+    @db.exec_params("INSERT INTO global_users (user_id, arcade_wins) VALUES ($1, 1) ON CONFLICT (user_id) DO UPDATE SET arcade_wins = global_users.arcade_wins + 1", [uid])
+  end
+
+  def increment_arcade_losses(uid)
+    @db.exec_params("INSERT INTO global_users (user_id, arcade_losses) VALUES ($1, 1) ON CONFLICT (user_id) DO UPDATE SET arcade_losses = global_users.arcade_losses + 1", [uid])
+  end
+
+  def get_arcade_stats(uid)
+    row = @db.exec_params("SELECT arcade_wins, arcade_losses FROM global_users WHERE user_id = $1", [uid]).first
+    if row
+      { 'wins' => row['arcade_wins'].to_i, 'losses' => row['arcade_losses'].to_i }
+    else
+      { 'wins' => 0, 'losses' => 0 }
+    end
+  end
+
+  # --- USER PREFERENCES ---
+  def get_ach_notify(uid)
+    row = @db.exec_params("SELECT ach_notify FROM global_users WHERE user_id = $1", [uid]).first
+    row ? (row['ach_notify'] || 'channel') : 'channel'
+  end
+
+  def set_ach_notify(uid, mode)
+    @db.exec_params("INSERT INTO global_users (user_id, ach_notify) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET ach_notify = $2", [uid, mode])
+  end
+
+  def get_autosell(uid)
+    row = @db.exec_params("SELECT autosell_enabled FROM global_users WHERE user_id = $1", [uid]).first
+    row ? row['autosell_enabled'].to_i == 1 : false
+  end
+
+  def toggle_autosell(uid)
+    @db.exec_params("INSERT INTO global_users (user_id, autosell_enabled) VALUES ($1, 1) ON CONFLICT (user_id) DO UPDATE SET autosell_enabled = CASE WHEN global_users.autosell_enabled = 1 THEN 0 ELSE 1 END", [uid])
+    get_autosell(uid)
+  end
+
+  def get_shiny_mode(uid)
+    row = @db.exec_params("SELECT shiny_mode FROM global_users WHERE user_id = $1", [uid]).first
+    row ? row['shiny_mode'].to_i == 1 : false
+  end
+
+  def toggle_shiny_mode(uid)
+    @db.exec_params("INSERT INTO global_users (user_id, shiny_mode) VALUES ($1, 1) ON CONFLICT (user_id) DO UPDATE SET shiny_mode = CASE WHEN global_users.shiny_mode = 1 THEN 0 ELSE 1 END", [uid])
+    get_shiny_mode(uid)
+  end
+
+  # --- FULL STATS (for /stats dashboard) ---
+  def get_full_stats(uid)
+    row = @db.exec_params(
+      "SELECT coins, daily_streak, pull_count, trade_count, givecard_count, coins_given_total, reputation, autosell_enabled, shiny_mode FROM global_users WHERE user_id = $1", [uid]
+    ).first
+    if row
+      { 'coins' => row['coins'].to_i, 'daily_streak' => row['daily_streak'].to_i, 'pull_count' => row['pull_count'].to_i,
+        'trade_count' => row['trade_count'].to_i, 'givecard_count' => row['givecard_count'].to_i,
+        'coins_given_total' => row['coins_given_total'].to_i, 'reputation' => row['reputation'].to_i,
+        'autosell_enabled' => row['autosell_enabled'].to_i, 'shiny_mode' => row['shiny_mode'].to_i }
+    else
+      { 'coins' => 0, 'daily_streak' => 0, 'pull_count' => 0, 'trade_count' => 0, 'givecard_count' => 0, 'coins_given_total' => 0, 'reputation' => 0, 'autosell_enabled' => 0, 'shiny_mode' => 0 }
     end
   end
 end

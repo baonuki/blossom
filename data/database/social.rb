@@ -44,6 +44,24 @@ module DatabaseSocial
     )
   end
 
+  # --- GIFT LOGS ---
+  def log_gift(giver_id, receiver_id, character_name, rarity)
+    @db.exec_params(
+      "INSERT INTO gift_logs (giver_id, receiver_id, character_name, rarity, gifted_at) VALUES ($1, $2, $3, $4, $5)",
+      [giver_id, receiver_id, character_name, rarity, Time.now.utc.iso8601]
+    )
+  end
+
+  def get_gift_log(uid, page = 1, per_page = 8)
+    offset = (page - 1) * per_page
+    count = @db.exec_params("SELECT COUNT(*) AS cnt FROM gift_logs WHERE giver_id = $1 OR receiver_id = $1", [uid]).first['cnt'].to_i
+    rows = @db.exec_params(
+      "SELECT giver_id, receiver_id, character_name, rarity, gifted_at FROM gift_logs WHERE giver_id = $1 OR receiver_id = $1 ORDER BY gifted_at DESC LIMIT $2 OFFSET $3",
+      [uid, per_page, offset]
+    ).to_a
+    { rows: rows, total: count, pages: (count / per_page.to_f).ceil }
+  end
+
   # --- REPUTATION ---
   def get_reputation(uid)
     row = @db.exec_params("SELECT reputation FROM global_users WHERE user_id = $1", [uid]).first

@@ -111,36 +111,41 @@ end
 def generate_collection_page(user_obj, rarity_page)
   uid = user_obj.id
   chars = DB.get_collection(uid)
-  
+
   page_chars = chars.select { |_, data| data['rarity'] == rarity_page && (data['count'] > 0 || data['ascended'].to_i > 0) }
-  
+
   total_collected = page_chars.size
   total_available = TOTAL_UNIQUE_CHARS[rarity_page]
-  
+
+  # Load user's collection theme
+  cosmetics = DB.get_cosmetics(uid)
+  theme_id = cosmetics['theme'] || 'default'
+  theme = COLLECTION_THEMES[theme_id] || COLLECTION_THEMES['default']
+
   emoji = case rarity_page
           when 'goddess'   then EMOJI_STRINGS['goddess']
           when 'legendary' then EMOJI_STRINGS['legendary']
           when 'rare'      then EMOJI_STRINGS['rare']
           else EMOJI_STRINGS['common']
           end
-          
+
   desc = "You have collected **#{total_collected} / #{total_available}** unique #{rarity_page.capitalize} characters.\n\n"
-  
+
   if page_chars.empty?
     desc += "*You haven't pulled any characters of this rarity yet!*"
   else
     list = page_chars.map do |name, data|
-      str = "`#{name}` (x#{data['count']})"
-      str += " #{EMOJI_STRINGS['neonsparkle']}*(Ascended x#{data['ascended']})*" if data['ascended'].to_i > 0
+      str = "#{theme[:bullet]}#{theme[:prefix]}#{name}#{theme[:suffix]} (x#{data['count']})"
+      str += " #{EMOJI_STRINGS['neonsparkle']}Ascended x#{data['ascended']}" if data['ascended'].to_i > 0
       str
     end
-    desc += list.join(', ')
+    desc += list.join("\n")
   end
-  
+
   embed = Discordrb::Webhooks::Embed.new
   embed.title = "#{emoji} #{user_obj.display_name}'s Collection - #{rarity_page.capitalize}"
   embed.description = desc
-  embed.color = NEON_COLORS.sample
+  embed.color = theme[:color] || NEON_COLORS.sample
   embed
 end
 

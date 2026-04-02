@@ -35,6 +35,7 @@ def execute_slots(event, amount)
   # 5. Result Branching: Calculate winnings based on symbol uniqueness
   if spin.uniq.size == 1
     # JACKPOT: All three symbols match (5x Payout)
+    track_arcade(uid, true)
     payout_result = arcade_payout(event.bot, uid, amount * 5)
     DB.add_coins(uid, payout_result[:winnings])
     extras = arcade_win_extras(uid, payout_result)
@@ -50,6 +51,7 @@ def execute_slots(event, amount)
 
   elsif spin.uniq.size == 2
     # PARTIAL MATCH: Two symbols match (2x Payout)
+    track_arcade(uid, true)
     payout_result = arcade_payout(event.bot, uid, amount * 2)
     DB.add_coins(uid, payout_result[:winnings])
     extras = arcade_win_extras(uid, payout_result)
@@ -64,6 +66,7 @@ def execute_slots(event, amount)
 
   else
     # LOSS: No matches found
+    track_arcade(uid, false)
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [

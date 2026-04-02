@@ -36,6 +36,7 @@ def execute_scratch(event)
 
   # 6. Logic: Check for a match (using .uniq.size == 1 confirms all items are identical)
   if result.uniq.size == 1
+    track_arcade(uid, true)
     # 6. Payout Mapping: Determine the prize based on the winning symbol
     payout = case result[0]
              when '🌟' then 10000 
@@ -61,6 +62,7 @@ def execute_scratch(event)
     inner << extras[:button] if extras[:button]
     send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
+    track_arcade(uid, false)
     # 9. UI: Send the "Loss" response
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,

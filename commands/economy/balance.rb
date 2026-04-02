@@ -21,18 +21,36 @@ def execute_balance(event, target_user)
   # 3. Data Retrieval: Get the daily streak info from the cooldowns module
   daily_info = DB.get_daily_info(uid)
 
-  # 4. Badge Logic: Build a list of visual achievements/roles
-  badges = []
-  badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if DEV_IDS.include?(uid)
-  badges << "#{EMOJI_STRINGS['prisma']} **Premium**" if is_sub
+  # 4. Cosmetics: Load and build display elements
+  cosmetics = DB.get_cosmetics(uid)
 
-  # 5. Header Formatting: Create the top-row badge line if badges exist
-  header = badges.empty? ? "" : badges.join(" | ") + "\n\n"
+  # Auto-grant developer cosmetics
+  if DEV_IDS.include?(uid)
+    DB.unlock_badge(uid, 'developer')
+    DB.set_equipped_badge(uid, 'developer') unless cosmetics['badge']
+    DB.set_title(uid, 'developer') unless cosmetics['title']
+    cosmetics = DB.get_cosmetics(uid)
+  end
 
-  # 6. Bio line (premium only)
-  bio_line = (profile['bio'] && !profile['bio'].empty?) ? "\n*\"#{profile['bio']}\"*\n" : ""
+  # Title + Badge line (badge emoji displayed next to title)
+  title_badge_line = ""
+  badge_emoji = ""
+  if cosmetics['badge'] && BADGES[cosmetics['badge']]
+    badge_emoji = "#{BADGES[cosmetics['badge']][:emoji]} "
+  end
+  if cosmetics['title'] && TITLES[cosmetics['title']]
+    title_badge_line = "#{badge_emoji}*#{TITLES[cosmetics['title']][:name]}*\n"
+  elsif !badge_emoji.empty?
+    title_badge_line = "#{badge_emoji.strip}\n"
+  end
 
-  # 7. Marriage line
+  # Status badges (Premium only now — developer is handled via cosmetics)
+  status_line = is_sub ? "#{EMOJI_STRINGS['prisma']} **Premium**\n" : ""
+
+  # 5. Bio line (premium only)
+  bio_line = (profile['bio'] && !profile['bio'].empty?) ? "*\"#{profile['bio']}\"*\n" : ""
+
+  # 6. Marriage line
   marriage = DB.get_marriage(uid)
   if marriage
     partner_user = event.bot.user(marriage[:partner])
@@ -42,19 +60,27 @@ def execute_balance(event, target_user)
     marriage_line = ""
   end
 
-  # 8. Favorite cards (premium: up to 3)
+  # 7. Favorite cards (premium: up to 3)
   favs = profile['favorites']
   fav_lines = favs.map { |name| format_fav_line(name) }.compact
   fav_section = fav_lines.empty? ? "" : "\n#{EMOJI_STRINGS['hearts']} **Favorites:** #{fav_lines.join(' · ')}"
 
-  # 8. UI: Construct the primary Balance Embed
+  # 8. Pet line
+  pet_line = ""
+  if cosmetics['pet'] && PETS[cosmetics['pet']]
+    pet = PETS[cosmetics['pet']]
+    pet_line = "\n\n#{pet[:emoji]} #{pet[:idle]}"
+  end
+
+  # 9. UI: Construct the primary Balance Embed
   accent = profile['color'] ? profile['color'].to_i(16) : 0xFFB6C1
   embed = Discordrb::Webhooks::Embed.new(
     title: "🌸 #{target_user.display_name}'s Balance",
-    description: "#{header}#{bio_line}**Coins:** #{coins} #{EMOJI_STRINGS['s_coin']}\n" \
+    description: "#{title_badge_line}#{status_line}#{bio_line}\n" \
+                 "**Coins:** #{coins} #{EMOJI_STRINGS['s_coin']}\n" \
                  "**Prisma:** #{prisma} #{EMOJI_STRINGS['prisma']}\n" \
                  "**Reputation:** #{rep} #{EMOJI_STRINGS['rainbowheart']}\n" \
-                 "**Daily Streak:** #{daily_info['streak']} Days#{marriage_line}#{fav_section}\n\n" \
+                 "**Daily Streak:** #{daily_info['streak']} Days#{marriage_line}#{fav_section}#{pet_line}\n\n" \
                  "*Use the dropdown below to view your items, VTubers, and Achievements!*#{mom_remark(uid, 'economy')}",
     color: accent
   )

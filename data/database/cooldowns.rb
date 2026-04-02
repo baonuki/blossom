@@ -34,7 +34,7 @@ module DatabaseCooldowns
   end
 
   # --- GENERAL COOLDOWNS ---
-  VALID_COOLDOWN_TYPES = %w[daily work stream post collab summon spin].freeze
+  VALID_COOLDOWN_TYPES = %w[daily work stream post collab summon spin fish].freeze
 
   def get_cooldown(uid, type)
     raise ArgumentError, "Invalid cooldown type: #{type}" unless VALID_COOLDOWN_TYPES.include?(type.to_s)

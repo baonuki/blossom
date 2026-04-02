@@ -33,11 +33,35 @@ def execute_level(event, target_user)
   progress = needed > 0 ? [(xp.to_f / needed * 10).round, 10].min : 0
   bar = ('▓' * progress) + ('░' * (10 - progress))
 
-  # Badges
-  badges = []
-  badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if DEV_IDS.include?(uid)
-  badges << "#{EMOJI_STRINGS['prisma']} **Blossom Premium**" if is_sub
-  badge_line = badges.empty? ? "" : badges.join("  ") + "\n"
+  # Badges & Cosmetics
+  cosmetics = DB.get_cosmetics(uid)
+
+  # Auto-grant developer cosmetics
+  if DEV_IDS.include?(uid)
+    DB.unlock_badge(uid, 'developer')
+    DB.set_equipped_badge(uid, 'developer') unless cosmetics['badge']
+    DB.set_title(uid, 'developer') unless cosmetics['title']
+  end
+
+  # Reload cosmetics after potential auto-grant
+  cosmetics = DB.get_cosmetics(uid) if DEV_IDS.include?(uid)
+
+  # Title + Badge line (badge emoji next to title)
+  badge_emoji = ""
+  if cosmetics['badge'] && BADGES[cosmetics['badge']]
+    badge_emoji = "#{BADGES[cosmetics['badge']][:emoji]} "
+  end
+  title_badge_line = ""
+  if cosmetics['title'] && TITLES[cosmetics['title']]
+    title_badge_line = "#{badge_emoji}*#{TITLES[cosmetics['title']][:name]}*"
+  elsif !badge_emoji.empty?
+    title_badge_line = badge_emoji.strip
+  end
+
+  # Status badges
+  status_badges = []
+  status_badges << "#{EMOJI_STRINGS['prisma']} **Blossom Premium**" if is_sub
+  badge_line = status_badges.empty? ? "" : status_badges.join("  ") + "\n"
 
   avatar_url = target_user.avatar_url || ''
 
@@ -52,7 +76,7 @@ def execute_level(event, target_user)
   inner = [
     { type: 9, components: [
       { type: 10, content: "## #{EMOJI_STRINGS['neonsparkle']} #{target_user.display_name}" },
-      { type: 10, content: badge_line.empty? ? "Server profile" : badge_line.strip }
+      { type: 10, content: "#{title_badge_line.empty? ? '' : title_badge_line + "\n"}#{badge_line.empty? ? 'Server profile' : badge_line.strip}" }
     ], accessory: { type: 11, media: { url: avatar_url } } },
     { type: 14, spacing: 1 },
     { type: 10, content: "#{EMOJI_STRINGS['level_heart']} **Level** #{level}\n`#{bar}` #{((xp.to_f / [needed, 1].max) * 100).round}%" },
@@ -74,6 +98,9 @@ def execute_level(event, target_user)
     inner << { type: 14, spacing: 1 }
     inner << { type: 10, content: "#{EMOJI_STRINGS['hearts']} **Favorites**\n#{fav_lines.join("\n")}" }
   end
+
+  pet_text = pet_flavor(uid, :idle)
+  inner << { type: 10, content: pet_text } unless pet_text.empty?
 
   mama_note = mom_remark(uid, 'general')
   inner << { type: 10, content: mama_note } if mama_note

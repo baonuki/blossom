@@ -145,6 +145,20 @@ def send_cv2(event, components)
   end
 end
 
+# Update a button interaction response with CV2 components
+def update_cv2(event, components)
+  body = { content: '', flags: CV2_FLAG, components: components, allowed_mentions: { parse: [] } }.to_json
+  Discordrb::API.request(
+    :interaction_callback,
+    nil,
+    :post,
+    "#{Discordrb::API.api_base}/interactions/#{event.interaction.id}/#{event.interaction.token}/callback",
+    { type: 7, data: JSON.parse(body) }.to_json,
+    Authorization: $bot.token,
+    content_type: :json
+  )
+end
+
 def log_mod_action(bot, server_id, title, description, color = 0x800080)
   config = DB.get_log_config(server_id)
   return unless config && config['log_mod'] && config['log_channel']

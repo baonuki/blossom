@@ -35,9 +35,11 @@ def execute_collab(event)
 
   # 3. Database: Update the cooldown timestamp immediately
   DB.set_cooldown(uid, 'collab', now)
-  
-  # 4. Preparation: Set expiration (3 minutes) and generate a unique ID
-  expire_time = Time.now + 180 
+
+  # 4. Preparation: Set expiration (premium gets extended window) and generate a unique ID
+  premium = is_premium?(event.bot, uid)
+  window = premium ? COLLAB_WINDOW_PREMIUM : COLLAB_WINDOW
+  expire_time = Time.now + window
   discord_timestamp = "<t:#{expire_time.to_i}:R>" # Relative Discord timestamp
   collab_id = "collab_#{expire_time.to_i}_#{rand(10000)}"
   
@@ -65,9 +67,9 @@ def execute_collab(event)
     msg = event.channel.send_message(nil, false, embed, nil, nil, event.message, view)
   end
 
-  # 9. Threading: Start a background timer for the 3-minute expiration
+  # 9. Threading: Start a background timer for the collab expiration
   Thread.new do
-    sleep 180
+    sleep window
     
     # 10. Cleanup: If the collab was never accepted, delete it and update the UI
     if ACTIVE_COLLABS.key?(collab_id)

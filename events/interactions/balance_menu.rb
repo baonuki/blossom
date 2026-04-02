@@ -26,11 +26,22 @@ $bot.select_menu(custom_id: /^bal_menu_/) do |event|
     is_sub = is_premium?(event.bot, uid)
     daily_info = DB.get_daily_info(uid)
 
-    badges = []
-    badges << "#{EMOJI_STRINGS['developer']} **Bot Developer**" if DEV_IDS.include?(uid)
-    badges << "#{EMOJI_STRINGS['prisma']} **Premium**" if is_sub 
-    
-    header = badges.empty? ? "" : badges.join(" | ") + "\n\n"
+    cosmetics = DB.get_cosmetics(uid)
+
+    # Title + Badge line
+    badge_emoji = ""
+    if cosmetics['badge'] && BADGES[cosmetics['badge']]
+      badge_emoji = "#{BADGES[cosmetics['badge']][:emoji]} "
+    end
+    title_badge_line = ""
+    if cosmetics['title'] && TITLES[cosmetics['title']]
+      title_badge_line = "#{badge_emoji}*#{TITLES[cosmetics['title']][:name]}*\n"
+    elsif !badge_emoji.empty?
+      title_badge_line = "#{badge_emoji.strip}\n"
+    end
+
+    status_line = is_sub ? "#{EMOJI_STRINGS['prisma']} **Premium**\n" : ""
+    header = "#{title_badge_line}#{status_line}"
 
     # Favorite card (premium feature only)
     fav_name = is_sub ? DB.get_favorite_card(uid) : nil

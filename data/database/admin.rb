@@ -32,16 +32,18 @@ module DatabaseAdmin
 
   # --- LOGGING CONFIGURATION ---
   def get_log_config(server_id)
-    row = @db.exec_params("SELECT * FROM server_logs WHERE server_id = $1", [server_id]).first
-    return nil unless row
-    {
-      'log_channel' => row['log_channel'] ? row['log_channel'].to_i : nil,
-      'log_deletes' => row['log_deletes'].to_i == 1,
-      'log_edits' => row['log_edits'].to_i == 1,
-      'log_mod' => row['log_mod'].to_i == 1,
-      'log_joins' => row['log_joins'].to_i == 1,
-      'log_leaves' => row['log_leaves'].to_i == 1
-    }
+    CACHE.fetch(:log_config, server_id, ttl: CACHE_TTL_SERVER_CFG) do
+      row = @db.exec_params("SELECT * FROM server_logs WHERE server_id = $1", [server_id]).first
+      next nil unless row
+      {
+        'log_channel' => row['log_channel'] ? row['log_channel'].to_i : nil,
+        'log_deletes' => row['log_deletes'].to_i == 1,
+        'log_edits' => row['log_edits'].to_i == 1,
+        'log_mod' => row['log_mod'].to_i == 1,
+        'log_joins' => row['log_joins'].to_i == 1,
+        'log_leaves' => row['log_leaves'].to_i == 1
+      }
+    end
   end
 
   def set_log_channel(server_id, channel_id)
@@ -49,6 +51,7 @@ module DatabaseAdmin
       "INSERT INTO server_logs (server_id, log_channel) VALUES ($1, $2) ON CONFLICT (server_id) DO UPDATE SET log_channel = $2",
       [server_id, channel_id]
     )
+    CACHE.invalidate(:log_config, server_id)
   end
 
   def toggle_log_setting(server_id, column)
@@ -58,6 +61,7 @@ module DatabaseAdmin
     @db.exec_params("INSERT INTO server_logs (server_id) VALUES ($1) ON CONFLICT (server_id) DO NOTHING", [server_id])
     @db.exec_params("UPDATE server_logs SET #{column} = 1 - COALESCE(#{column}, 0) WHERE server_id = $1", [server_id])
 
+    CACHE.invalidate(:log_config, server_id)
     row = @db.exec_params("SELECT #{column} FROM server_logs WHERE server_id = $1", [server_id]).first
     row && row[column].to_i == 1
   end
@@ -78,13 +82,16 @@ module DatabaseAdmin
 
   # --- ACHIEVEMENT NOTIFICATIONS ---
   def achievements_enabled?(server_id)
-    row = @db.exec_params("SELECT achievements_enabled FROM server_configs WHERE server_id = $1", [server_id]).first
-    row ? row['achievements_enabled'].to_i == 1 : false
+    CACHE.fetch(:ach_enabled, server_id, ttl: CACHE_TTL_SERVER_CFG) do
+      row = @db.exec_params("SELECT achievements_enabled FROM server_configs WHERE server_id = $1", [server_id]).first
+      row ? row['achievements_enabled'].to_i == 1 : false
+    end
   end
 
   def toggle_achievements(server_id)
     @db.exec_params("INSERT INTO server_configs (server_id, achievements_enabled) VALUES ($1, 0) ON CONFLICT (server_id) DO NOTHING", [server_id])
     @db.exec_params("UPDATE server_configs SET achievements_enabled = 1 - COALESCE(achievements_enabled, 0) WHERE server_id = $1", [server_id])
+    CACHE.invalidate(:ach_enabled, server_id)
     row = @db.exec_params("SELECT achievements_enabled FROM server_configs WHERE server_id = $1", [server_id]).first
     row && row['achievements_enabled'].to_i == 1
   end

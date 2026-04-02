@@ -27,6 +27,24 @@ $bot.message do |event|
   # Give them a little pocket change for chatting!
   DB.add_coins(uid, COINS_PER_MESSAGE)
 
+  # --- ACTIVITY STREAK TRACKING ---
+  today_str = now.strftime('%Y-%m-%d')
+  streak_data = DB.get_chat_streak(sid, uid)
+  last_date = streak_data['last_date']
+
+  if last_date.nil? || last_date.to_s != today_str
+    yesterday = (now - 86_400).strftime('%Y-%m-%d')
+    new_streak = (last_date.to_s == yesterday) ? streak_data['streak'] + 1 : 1
+    DB.update_chat_streak(sid, uid, new_streak, today_str)
+
+    # Activity streak achievements
+    check_achievement(event.channel, uid, 'active_7') if new_streak >= 7
+    check_achievement(event.channel, uid, 'active_14') if new_streak >= 14
+    check_achievement(event.channel, uid, 'active_30') if new_streak >= 30
+    check_achievement(event.channel, uid, 'active_60') if new_streak >= 60
+    check_achievement(event.channel, uid, 'active_100') if new_streak >= 100
+  end
+
   needed = new_level * 100
   
   # Check if they crossed the threshold for the next level

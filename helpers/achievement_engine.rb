@@ -6,12 +6,16 @@
 # MERGED: Intelligently accepts either an Event or a direct Channel object!
 def check_achievement(channel_or_event, uid, ach_id, silent: false)
   return false unless ACHIEVEMENTS.key?(ach_id)
-  
+
   if DB.unlock_achievement(uid, ach_id)
     data = ACHIEVEMENTS[ach_id]
-    DB.add_coins(uid, data[:reward]) 
-    
+    DB.add_coins(uid, data[:reward])
+
     unless silent || channel_or_event.nil?
+      # Check user notification preference
+      user_pref = DB.get_ach_notify(uid)
+      return true if user_pref == 'silent'
+
       # Check if the server has achievement notifications disabled
       server = if channel_or_event.respond_to?(:server)
                  channel_or_event.server
@@ -27,15 +31,26 @@ def check_achievement(channel_or_event, uid, ach_id, silent: false)
           color: 0xFFD700
         )
 
-        # Route appropriately if it's an event or raw channel
-        if channel_or_event.respond_to?(:channel)
-          channel_or_event.channel.send_message(nil, false, embed) rescue nil
+        if user_pref == 'dm'
+          # DM the achievement to the user
+          begin
+            user = channel_or_event.respond_to?(:user) ? channel_or_event.user : nil
+            user ||= $bot.user(uid)
+            user&.dm&.send_message(nil, false, embed)
+          rescue StandardError
+            nil
+          end
         else
-          channel_or_event.send_message(nil, false, embed) rescue nil
+          # Post in channel (default behavior)
+          if channel_or_event.respond_to?(:channel)
+            channel_or_event.channel.send_message(nil, false, embed) rescue nil
+          else
+            channel_or_event.send_message(nil, false, embed) rescue nil
+          end
         end
       end
     end
-    return true 
+    return true
   end
   false
 end

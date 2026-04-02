@@ -57,8 +57,10 @@ def execute_trade(event, target_user, offer_str, request_str)
     ]}])
   end
 
-  # 5. State Persistence: Create a temporary trade record
-  expire_time = Time.now + 120 # 2 Minute Window
+  # 5. State Persistence: Create a temporary trade record (premium gets extended window)
+  premium_trade = is_premium?(event.bot, uid_a)
+  trade_window = premium_trade ? TRADE_WINDOW_PREMIUM : TRADE_WINDOW
+  expire_time = Time.now + trade_window
   trade_id = "trade_#{expire_time.to_i}_#{rand(1000)}"
 
   ACTIVE_TRADES[trade_id] = {
@@ -99,9 +101,9 @@ def execute_trade(event, target_user, offer_str, request_str)
     msg = event.channel.send_message(nil, false, embed, nil, nil, event.message, view)
   end
 
-  # 9. Cleanup Task: Automatically expire the trade after 120 seconds
+  # 9. Cleanup Task: Automatically expire the trade
   Thread.new do
-    sleep 120
+    sleep trade_window
     if ACTIVE_TRADES.key?(trade_id)
       ACTIVE_TRADES.delete(trade_id)
       failed_embed = Discordrb::Webhooks::Embed.new(title: '⏳ Trade Expired', description: 'Too slow. The deal is off.', color: 0x808080)

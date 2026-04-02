@@ -53,6 +53,7 @@ def execute_dice(event, amount, bet)
 
   # 8. Result: Handle the win/loss branching
   if bet == actual_result
+    track_arcade(uid, true)
     base_payout = (bet == '7') ? (amount * 4) : (amount * 2)
     payout_result = arcade_payout(event.bot, uid, base_payout)
     DB.add_coins(uid, payout_result[:winnings])
@@ -67,6 +68,7 @@ def execute_dice(event, amount, bet)
     inner << extras[:button] if extras[:button]
     send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
+    track_arcade(uid, false)
     check_achievement(event.channel, uid, 'gamble_broke') if amount >= 5000
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,

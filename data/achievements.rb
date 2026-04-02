@@ -127,6 +127,13 @@ ACHIEVEMENTS = {
   'tickets_1k'     => { name: "Carny", desc: "Hold 1,000 Carnival Tickets.", emoji: "🎟️", reward: 2500 },
   'tickets_5k'     => { name: "Ticket Master", desc: "Hold 5,000 Carnival Tickets.", emoji: "🎡", reward: 10000 },
 
+  # --- ACTIVITY STREAKS ---
+  'active_7'       => { name: "Regular", desc: "Chat for 7 consecutive days in a server.", emoji: "📆", reward: 500 },
+  'active_14'      => { name: "Loyal Patron", desc: "Chat for 14 consecutive days in a server.", emoji: "📅", reward: 1500 },
+  'active_30'      => { name: "The Local", desc: "Chat for 30 consecutive days in a server.", emoji: "🏠", reward: 5000 },
+  'active_60'      => { name: "Pillar of the Community", desc: "Chat for 60 consecutive days in a server.", emoji: "🏛️", reward: 10000 },
+  'active_100'     => { name: "Immortalized", desc: "Chat for 100 consecutive days in a server.", emoji: "🗿", reward: 25000 },
+
   # --- META & MILESTONES ---
   'ach_10'         => { name: "Trophy Case", desc: "Unlock 10 achievements.", emoji: "🗄️", reward: 2500 },
   'ach_25'         => { name: "Overachiever", desc: "Unlock 25 achievements.", emoji: "🏅", reward: 10000 },

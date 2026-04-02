@@ -25,11 +25,13 @@ module DatabaseLeveling
 
   # --- LEVEL-UP CONFIG ---
   def get_levelup_config(sid)
-    row = @db.exec_params("SELECT levelup_channel, levelup_enabled FROM server_configs WHERE server_id = $1", [sid]).first
-    if row
-      { channel: row['levelup_channel'] ? row['levelup_channel'].to_i : nil, enabled: row['levelup_enabled'].to_i == 1 }
-    else
-      { channel: nil, enabled: true }
+    CACHE.fetch(:levelup_cfg, sid, ttl: CACHE_TTL_SERVER_CFG) do
+      row = @db.exec_params("SELECT levelup_channel, levelup_enabled FROM server_configs WHERE server_id = $1", [sid]).first
+      if row
+        { channel: row['levelup_channel'] ? row['levelup_channel'].to_i : nil, enabled: row['levelup_enabled'].to_i == 1 }
+      else
+        { channel: nil, enabled: true }
+      end
     end
   end
 
@@ -39,6 +41,7 @@ module DatabaseLeveling
       "INSERT INTO server_configs (server_id, levelup_channel, levelup_enabled) VALUES ($1, $2, $3) ON CONFLICT (server_id) DO UPDATE SET levelup_channel = $2, levelup_enabled = $3",
       [sid, channel_id, val]
     )
+    CACHE.invalidate(:levelup_cfg, sid)
   end
 
   # --- COMMUNITY (SERVER) LEVELING ---
@@ -70,6 +73,23 @@ module DatabaseLeveling
     row && row['announce_enabled'].to_i == 1
   rescue PG::Error
     false
+  end
+
+  # --- ACTIVITY STREAKS ---
+  def get_chat_streak(sid, uid)
+    row = @db.exec_params("SELECT chat_streak, last_chat_date FROM server_xp WHERE server_id = $1 AND user_id = $2", [sid, uid]).first
+    if row
+      { 'streak' => row['chat_streak'].to_i, 'last_date' => row['last_chat_date'] }
+    else
+      { 'streak' => 0, 'last_date' => nil }
+    end
+  end
+
+  def update_chat_streak(sid, uid, streak, date_str)
+    @db.exec_params(
+      "UPDATE server_xp SET chat_streak = $3, last_chat_date = $4 WHERE server_id = $1 AND user_id = $2",
+      [sid, uid, streak, date_str]
+    )
   end
 
   # --- LEADERBOARD: Top Users by XP/Level ---

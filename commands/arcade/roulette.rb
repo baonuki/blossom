@@ -82,6 +82,7 @@ def execute_roulette(event, amount, bet)
 
   # 12. Result: Handle the win/loss feedback
   if win
+    track_arcade(uid, true)
     payout_result = arcade_payout(event.bot, uid, payout)
     DB.add_coins(uid, payout_result[:winnings])
     extras = arcade_win_extras(uid, payout_result)
@@ -95,6 +96,7 @@ def execute_roulette(event, amount, bet)
     inner << extras[:button] if extras[:button]
     send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
+    track_arcade(uid, false)
     check_achievement(event.channel, uid, 'gamble_broke') if amount >= 5000
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,

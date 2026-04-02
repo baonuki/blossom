@@ -33,21 +33,31 @@ def build_collection_page(event, target_user, col, current_rarity, page, is_edit
   start_idx = (page - 1) * items_per_page
   page_items = sorted_items[start_idx, items_per_page]
 
-  # 4. UI: Construct the Collection Embed
+  # 4. Load collection theme
+  cosmetics = DB.get_cosmetics(uid)
+  theme_id = cosmetics['theme'] || 'default'
+  theme = COLLECTION_THEMES[theme_id] || COLLECTION_THEMES['default']
+
+  # 5. UI: Construct the Collection Embed
   embed = Discordrb::Webhooks::Embed.new(
     title: "#{EMOJI_STRINGS[current_rarity] || EMOJI_STRINGS['neonsparkle']} #{username}'s VTubers: #{current_rarity.capitalize}",
-    color: 0xFFB6C1 # Blossom Pink
+    color: theme[:color] || 0xFFB6C1
   )
 
   desc = ""
-  page_items.each do |name, data|
-    count = data['count']
-    asc = data['ascended']
-    asc_text = asc > 0 ? " | 🔥 Ascended: #{asc}" : ""
-    desc += "**#{name}** - x#{count}#{asc_text}\n"
+  if page_items.nil? || page_items.empty?
+    desc = "*Nothing here yet. Go pull some cards, chat.*"
+  else
+    lines = page_items.map do |name, data|
+      count = data['count']
+      asc = data['ascended']
+      asc_text = asc > 0 ? " #{EMOJI_STRINGS['neonsparkle']}Ascended x#{asc}" : ""
+      "#{theme[:bullet]}#{theme[:prefix]}#{name}#{theme[:suffix]} (x#{count})#{asc_text}"
+    end
+    desc = lines.join("\n")
   end
 
-  embed.description = desc.empty? ? "*Nothing here yet. Go pull some cards, chat.*" : desc
+  embed.description = desc
   embed.footer = Discordrb::Webhooks::EmbedFooter.new(
     text: "Page #{page}/#{total_pages} • Total #{current_rarity.capitalize}: #{items_in_rarity.size}"
   )

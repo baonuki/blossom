@@ -21,6 +21,14 @@ POST_PLATFORMS    = ['Twitter/X', 'TikTok', 'Instagram', 'YouTube Shorts', 'Blue
 
 COLLAB_REWARD   = 150
 COLLAB_COOLDOWN = 30 * 60
+COLLAB_WINDOW         = 180  # 3 minutes for free users
+COLLAB_WINDOW_PREMIUM = 300  # 5 minutes for premium users
+
+FISH_COOLDOWN         = 5 * 60  # 5 minutes
+FISH_COOLDOWN_PREMIUM = (2.5 * 60).to_i  # 2.5 minutes for premium
+
+TRADE_WINDOW         = 120  # 2 minutes for free users
+TRADE_WINDOW_PREMIUM = 600  # 10 minutes for premium users
 
 # --- GACHA & SHOP ---
 SUMMON_COST = 150
@@ -30,6 +38,7 @@ SHOP_PRICES = { 'common' => 1_000, 'rare' => 5_000, 'legendary' => 25_000 }.free
 GODDESS_PRISMA_PRICE = 100
 CUSTOM_BANNER_COST = 20
 SELL_PRICES = { 'common' => 50, 'rare' => 250, 'legendary' => 1_000, 'goddess' => 5_000 }.freeze
+SELL_UNDO_WINDOW = 5 * 60 # 5 minutes for premium undo
 
 BLACK_MARKET_ITEMS = {
   'headset'         => { name: '🎧 Cheap Headset',           price: 500,   type: 'upgrade',    desc: 'Better audio! Grants +25% to !post payouts.' },

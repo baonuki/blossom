@@ -36,17 +36,21 @@ def execute_summon(event)
     end
   end
 
-  # 3. Validation: Economy Check
-  if DB.get_coins(uid) < SUMMON_COST
+  # 3. Shiny Mode: Double cost if active
+  shiny_mode = is_sub && DB.get_shiny_mode(uid)
+  summon_cost = shiny_mode ? SUMMON_COST * 2 : SUMMON_COST
+
+  # 4. Validation: Economy Check
+  if DB.get_coins(uid) < summon_cost
     return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
       { type: 10, content: "## #{EMOJI_STRINGS['info']} Summon" },
       { type: 14, spacing: 1 },
-      { type: 10, content: "You need **#{SUMMON_COST}** #{EMOJI_STRINGS['s_coin']} to open the portal. You've got **#{DB.get_coins(uid)}**. Go grind, broke boy." }
+      { type: 10, content: "You need **#{summon_cost}** #{EMOJI_STRINGS['s_coin']} to open the portal#{shiny_mode ? ' *(Shiny Mode 2x)*' : ''}. You've got **#{DB.get_coins(uid)}**. Go grind, broke boy." }
     ]}])
   end
 
-  # 4. Transaction: Deduct cost and prepare the banner
-  DB.add_coins(uid, -SUMMON_COST)
+  # 5. Transaction: Deduct cost and prepare the banner
+  DB.add_coins(uid, -summon_cost)
   active_banner = get_user_banner(uid)
   used_manipulator = false
   is_event_pull = false
@@ -106,8 +110,9 @@ def execute_summon(event)
   name = pulled_char[:name]
   gif_url = pulled_char[:gif]
   
-  # 7. Premium Perk: 1% chance for subscribers to pull an instant Shiny Ascended version
-  is_ascended = (is_sub && rand(100) < 1)
+  # 7. Premium Perk: Shiny Ascended chance (1% normal, 2% in Shiny Hunting Mode)
+  shiny_chance = shiny_mode ? 2 : 1
+  is_ascended = (is_sub && rand(100) < shiny_chance)
 
   if is_ascended
     # Instant Ascension grants 5 base copies and triggers the transformation
@@ -117,7 +122,20 @@ def execute_summon(event)
     DB.add_character(uid, name, rarity.to_s, 1)
   end
   
-  # 8. Post-Pull Retrieval: Fetch updated stats for the UI
+  # 8. Auto-Sell Check: Premium users with autosell enabled, commons they own 5+ of
+  autosold = false
+  autosold_coins = 0
+  if !is_ascended && is_sub && DB.get_autosell(uid) && rarity == :common
+    pre_count = DB.get_collection(uid)[name]
+    if pre_count && pre_count['count'] >= 5
+      autosold = true
+      autosold_coins = SELL_PRICES['common']
+      DB.remove_character(uid, name, 1)
+      DB.add_coins(uid, autosold_coins)
+    end
+  end
+
+  # 9. Post-Pull Retrieval: Fetch updated stats for the UI
   user_chars = DB.get_collection(uid)
   new_count = user_chars[name]['count']
   new_asc_count = user_chars[name]['ascended'].to_i
@@ -129,6 +147,8 @@ def execute_summon(event)
   buff_text += "\n\n*#{EMOJI_STRINGS['rng_manipulator']} RNG Manipulator burned! No commons for you this time, chat.*" if used_manipulator
   buff_text += "\n\n🎪 **EVENT PULL!** You pulled a Spring Carnival character straight from the event portal!" if is_event_pull
   buff_text += "\n\n#{EMOJI_STRINGS['neonsparkle']} **PITY ACTIVATED!**\nThe gacha gods took mercy on you after #{PITY_THRESHOLD} pulls. Don't say I never did anything for you." if pity_triggered
+  buff_text += "\n\n♻️ **AUTO-SOLD!** You already had 5+ of this common. Instant **+#{autosold_coins}** #{EMOJI_STRINGS['s_coin']}." if autosold
+  buff_text += "\n\n#{EMOJI_STRINGS['neonsparkle']} *Shiny Hunting Mode active — 2x cost, 2x sparkle chance.*" if shiny_mode
 
   # Rarity-flavored pull messages
   pull_flavor = case rarity
@@ -175,7 +195,7 @@ def execute_summon(event)
     { type: 14, spacing: 1 },
     { type: 10, content: desc },
     { type: 14, spacing: 1 },
-    { type: 10, content: "**Wallet Damage**\n#{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}#{is_sub ? "\n**Pity:** #{DB.get_pity(uid)}/#{PITY_THRESHOLD}" : ''}#{mom_remark(uid, 'gacha')}" },
+    { type: 10, content: "**Wallet Damage** (-#{summon_cost} #{EMOJI_STRINGS['s_coin']}#{shiny_mode ? ' Shiny Mode' : ''})\n#{DB.get_coins(uid)} #{EMOJI_STRINGS['s_coin']}#{is_sub ? "\n**Pity:** #{DB.get_pity(uid)}/#{PITY_THRESHOLD}" : ''}#{mom_remark(uid, 'gacha')}" },
     { type: 14, spacing: 1 },
     { type: 12, items: [{ media: { url: gif_url } }] }
   ]}])

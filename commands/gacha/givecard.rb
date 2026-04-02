@@ -54,8 +54,9 @@ def execute_givecard(event, target, char_name)
     ]}])
   end
 
-  # 5. Database Transaction: Transfer the card
+  # 5. Database Transaction: Transfer the card and log it
   DB.give_card(uid, target.id, proper_name, rarity)
+  DB.log_gift(uid, target.id, proper_name, rarity)
 
   # 6. Achievements
   check_achievement(event.channel, uid, 'first_givecard')

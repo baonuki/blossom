@@ -49,6 +49,7 @@ def execute_cups(event, amount, guess)
   # 7. Result: Handle the win or loss scenarios
   if guess == winning_cup
     # Win: Triple the original bet!
+    track_arcade(uid, true)
     payout_result = arcade_payout(event.bot, uid, amount * 3)
     DB.add_coins(uid, payout_result[:winnings])
     extras = arcade_win_extras(uid, payout_result)
@@ -62,6 +63,7 @@ def execute_cups(event, amount, guess)
     send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
   else
     # Loss: The user picked wrong; reveal where it was
+    track_arcade(uid, false)
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [

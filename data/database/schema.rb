@@ -158,6 +158,37 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS coins_given_total INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS last_pull_rarity VARCHAR(20)"); rescue PG::Error; end
 
+    # Fishing cooldown
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS fish_at TIMESTAMP"); rescue PG::Error; end
+
+    # Arcade win/loss tracking
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS arcade_wins INTEGER DEFAULT 0"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS arcade_losses INTEGER DEFAULT 0"); rescue PG::Error; end
+
+    # Cosmetics: Pet, Title, Theme, Badges
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS pet VARCHAR(50)"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS title VARCHAR(50)"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS collection_theme VARCHAR(30) DEFAULT 'default'"); rescue PG::Error; end
+
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS user_badges (
+        user_id BIGINT,
+        badge_id VARCHAR(50),
+        unlocked_at TIMESTAMP,
+        PRIMARY KEY(user_id, badge_id)
+      );
+    SQL
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS equipped_badge VARCHAR(50)"); rescue PG::Error; end
+
+    # User preferences & toggles
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS ach_notify VARCHAR(10) DEFAULT 'channel'"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS autosell_enabled INTEGER DEFAULT 0"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS shiny_mode INTEGER DEFAULT 0"); rescue PG::Error; end
+
+    # Server activity streaks
+    begin; @db.exec("ALTER TABLE server_xp ADD COLUMN IF NOT EXISTS chat_streak INTEGER DEFAULT 0"); rescue PG::Error; end
+    begin; @db.exec("ALTER TABLE server_xp ADD COLUMN IF NOT EXISTS last_chat_date DATE"); rescue PG::Error; end
+
     # Character name fix: Mirori -> Miori Celesta
     @db.exec("UPDATE collections SET character_name = 'Miori Celesta' WHERE character_name = 'Mirori Celesta'")
     @db.exec("UPDATE global_users SET favorite_card = 'Miori Celesta' WHERE favorite_card = 'Mirori Celesta'")
@@ -178,6 +209,17 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
         emoji VARCHAR(255),
         role_id BIGINT,
         PRIMARY KEY(server_id, message_id, emoji)
+      );
+    SQL
+
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS gift_logs (
+        id SERIAL PRIMARY KEY,
+        giver_id BIGINT NOT NULL,
+        receiver_id BIGINT NOT NULL,
+        character_name VARCHAR(255) NOT NULL,
+        rarity VARCHAR(50) NOT NULL,
+        gifted_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
     SQL
 

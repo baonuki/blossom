@@ -11,22 +11,28 @@ PREMIUM_SERVERS = {
 }
 
 def is_premium?(bot, user_id)
-  return true if DB.is_lifetime_premium?(user_id)
+  CACHE.fetch(:premium, user_id, ttl: CACHE_TTL_PREMIUM) do
+    next true if DB.is_lifetime_premium?(user_id)
 
-  PREMIUM_SERVERS.each do |server_id, role_id|
-    server = bot.servers[server_id]
-    next unless server
+    result = false
+    PREMIUM_SERVERS.each do |server_id, role_id|
+      server = bot.servers[server_id]
+      next unless server
 
-    begin
-      member = server.member(user_id)
-    rescue
-      next
+      begin
+        member = server.member(user_id)
+      rescue
+        next
+      end
+      next unless member
+
+      if member.roles.any? { |role| role.id == role_id }
+        result = true
+        break
+      end
     end
-    next unless member
-
-    return true if member.roles.any? { |role| role.id == role_id }
+    result
   end
-  false
 end
 
 def award_coins(bot, user_id, amount)

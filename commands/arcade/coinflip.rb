@@ -55,6 +55,7 @@ def execute_coinflip(event, amount, choice)
 
   # 6. Result: Handle the Win/Loss scenarios
   if choice == result
+    track_arcade(uid, true)
     payout_result = arcade_payout(event.bot, uid, amount * 2)
     DB.add_coins(uid, payout_result[:winnings])
     extras = arcade_win_extras(uid, payout_result)
@@ -68,6 +69,7 @@ def execute_coinflip(event, amount, choice)
     send_cv2(event, [{ type: 17, accent_color: 0x00FF00, components: inner }])
     check_achievement(event.channel, uid, 'gamble_win')
   else
+    track_arcade(uid, false)
     check_achievement(event.channel, uid, 'gamble_broke') if amount >= 5000
     send_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
