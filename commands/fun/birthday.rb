@@ -78,5 +78,6 @@ $bot.command(:birthday, aliases: [:bday],
 end
 
 $bot.application_command(:birthday) do |event|
-  execute_birthday(event, event.options['action'], event.options['date'])
+  action = event.options['date'] ? 'set' : 'view'
+  execute_birthday(event, action, event.options['date'])
 end
