@@ -395,8 +395,46 @@ $bot.command(:profile,
   nil
 end
 
-$bot.application_command(:profile) do |event|
-  action = event.options['action']
-  value = event.options['value'] || ''
-  execute_profile(event, action, value.split(' '))
+$bot.application_command(:profile).subcommand(:view) do |event|
+  execute_profile(event, nil, [])
+end
+
+$bot.application_command(:profile).subcommand(:color) do |event|
+  execute_profile(event, 'color', [event.options['hex']])
+end
+
+$bot.application_command(:profile).subcommand(:bio) do |event|
+  execute_profile(event, 'bio', [event.options['text']])
+end
+
+$bot.application_command(:profile).subcommand(:fav) do |event|
+  execute_profile(event, 'fav', [event.options['slot'].to_s, *event.options['character'].split(' ')])
+end
+
+$bot.application_command(:profile).subcommand(:unfav) do |event|
+  execute_profile(event, 'unfav', [event.options['slot'].to_s])
+end
+
+$bot.application_command(:profile).subcommand(:pet) do |event|
+  id = event.options['id']
+  execute_profile(event, 'pet', id ? [id] : [])
+end
+
+$bot.application_command(:profile).subcommand(:title) do |event|
+  id = event.options['id']
+  execute_profile(event, 'title', id ? [id] : [])
+end
+
+$bot.application_command(:profile).subcommand(:theme) do |event|
+  id = event.options['id']
+  execute_profile(event, 'theme', id ? [id] : [])
+end
+
+$bot.application_command(:profile).subcommand(:badge) do |event|
+  id = event.options['id']
+  execute_profile(event, 'badge', id ? [id] : [])
+end
+
+$bot.application_command(:profile).subcommand(:reset) do |event|
+  execute_profile(event, 'reset', [])
 end

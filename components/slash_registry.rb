@@ -28,11 +28,33 @@ $bot.register_application_command(:notifications, 'Set how achievement notificat
   cmd.string('mode', 'Notification mode', required: true, choices: { 'Channel' => 'channel', 'DM' => 'dm', 'Silent' => 'silent' })
 end
 $bot.register_application_command(:profile, 'Customize your premium profile') do |cmd|
-  cmd.string('action', 'What to customize', required: false, choices: {
-    'Color' => 'color', 'Bio' => 'bio', 'Favorite' => 'fav', 'Unfavorite' => 'unfav',
-    'Pet' => 'pet', 'Title' => 'title', 'Theme' => 'theme', 'Badge' => 'badge', 'Reset' => 'reset'
-  })
-  cmd.string('value', 'The value to set (hex code, bio text, slot + name, pet/title/theme/badge ID)', required: false)
+  cmd.subcommand(:view, 'View your current profile settings')
+  cmd.subcommand(:color, 'Set your profile color') do |sub|
+    sub.string('hex', 'Hex color code (e.g. FF00AA)', required: true)
+  end
+  cmd.subcommand(:bio, 'Set your profile bio') do |sub|
+    sub.string('text', 'Your bio text (max 100 characters)', required: true)
+  end
+  cmd.subcommand(:fav, 'Set a favorite character on your profile') do |sub|
+    sub.integer('slot', 'Slot number', required: true, choices: { 'Slot 1' => 1, 'Slot 2' => 2, 'Slot 3' => 3 })
+    sub.string('character', 'Name of the character you own', required: true)
+  end
+  cmd.subcommand(:unfav, 'Remove a favorite character from a slot') do |sub|
+    sub.integer('slot', 'Slot number', required: true, choices: { 'Slot 1' => 1, 'Slot 2' => 2, 'Slot 3' => 3 })
+  end
+  cmd.subcommand(:pet, 'Equip or view available pets') do |sub|
+    sub.string('id', 'Pet ID to equip, or "none" to unequip (leave blank to browse)', required: false)
+  end
+  cmd.subcommand(:title, 'Equip or view available titles') do |sub|
+    sub.string('id', 'Title ID to equip, or "none" to unequip (leave blank to browse)', required: false)
+  end
+  cmd.subcommand(:theme, 'Apply a collection theme') do |sub|
+    sub.string('id', 'Theme ID to apply (leave blank to browse)', required: false)
+  end
+  cmd.subcommand(:badge, 'Equip or view badges') do |sub|
+    sub.string('id', 'Badge ID to equip, or "none" to unequip (leave blank to browse)', required: false)
+  end
+  cmd.subcommand(:reset, 'Reset all profile customizations to default')
 end
 
 # =========================
