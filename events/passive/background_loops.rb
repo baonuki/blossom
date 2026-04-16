@@ -277,69 +277,86 @@ $bot.ready do |event|
 
   # --- HOURLY HEIST EVENTS ---
   Thread.new do
+    puts "[HEIST] \u{1F3E6} Heist loop started. Waiting for first trigger..."
     loop do
       now = Time.now.to_i
       # Align to top of each hour (offset by 30 min so it doesn't collide with lottery)
       sleep_time = 3600 - (now % 3600) + 1800
       sleep_time -= 3600 if sleep_time > 3600
       sleep_time = [sleep_time, 60].max
+      puts "[HEIST] Next heist check in #{sleep_time}s (at #{Time.at(Time.now.to_i + sleep_time).strftime('%H:%M:%S')})"
       sleep(sleep_time)
 
       begin
         heist_configs = DB.get_all_heist_channels
+        puts "[HEIST] Tick \u2014 #{heist_configs.size} server(s) with heist channels"
+
         heist_configs.each do |row|
-          sid = row['server_id'].to_i
-          chan_id = row['heist_channel'].to_i
-          next if chan_id == 0
+          begin
+            sid = row['server_id'].to_i
+            chan_id = row['heist_channel'].to_i
 
-          # Skip if a heist is already active for this server
-          next if ACTIVE_HEISTS[sid]
+            if chan_id == 0
+              puts "[HEIST] Server #{sid}: channel ID is 0, skipping"
+              next
+            end
 
-          channel = event.bot.channel(chan_id)
-          next unless channel
+            if ACTIVE_HEISTS[sid]
+              puts "[HEIST] Server #{sid}: heist already active, skipping"
+              next
+            end
 
-          vault_amount = HEIST_BASE_VAULT + (HEIST_PER_PLAYER_VAULT * 5) # Preview with 5 players
+            puts "[HEIST] Server #{sid}: Sending announcement to channel #{chan_id}..."
+            vault_amount = HEIST_BASE_VAULT + (HEIST_PER_PLAYER_VAULT * 5) # Preview with 5 players
 
-          # Send heist announcement with join button
-          body = {
-            content: '', flags: CV2_FLAG,
-            components: [{
-              type: 17, accent_color: 0xFFD700,
-              components: [
-                { type: 10, content: "## \u{1F3E6} HEIST ALERT! #{EMOJI_STRINGS['neonsparkle']}" },
-                { type: 14, spacing: 1 },
-                { type: 10, content: "A vault in the Neon Arcade is vulnerable! Assemble a crew to crack it open!\n\n\u{1F4B0} **Estimated Vault:** #{vault_amount}+ #{EMOJI_STRINGS['s_coin']} (scales with crew size)\n\u{1F465} **Min Crew:** #{HEIST_MIN_PLAYERS} players\n\u23F0 **Join Window:** 5 minutes\n\u{1F451} Premium hackers add +#{HEIST_PREMIUM_BONUS}% success rate!\n\nClick below to join the crew!" },
-                { type: 14, spacing: 1 },
-                { type: 1, components: [
-                  { type: 2, style: 3, label: "\u{1F3AD} Join the Heist!", custom_id: "heist_join_#{sid}" }
-                ]}
-              ]
-            }],
-            allowed_mentions: { parse: [] }
-          }.to_json
+            # Send heist announcement with join button via raw API (no channel cache needed)
+            body = {
+              content: '', flags: CV2_FLAG,
+              components: [{
+                type: 17, accent_color: 0xFFD700,
+                components: [
+                  { type: 10, content: "## \u{1F3E6} HEIST ALERT! #{EMOJI_STRINGS['neonsparkle']}" },
+                  { type: 14, spacing: 1 },
+                  { type: 10, content: "A vault in the Neon Arcade is vulnerable! Assemble a crew to crack it open!\n\n\u{1F4B0} **Estimated Vault:** #{vault_amount}+ #{EMOJI_STRINGS['s_coin']} (scales with crew size)\n\u{1F465} **Min Crew:** #{HEIST_MIN_PLAYERS} players\n\u23F0 **Join Window:** 5 minutes\n\u{1F451} Premium hackers add +#{HEIST_PREMIUM_BONUS}% success rate!\n\nClick below to join the crew!" },
+                  { type: 14, spacing: 1 },
+                  { type: 1, components: [
+                    { type: 2, style: 3, label: "\u{1F3AD} Join the Heist!", custom_id: "heist_join_#{sid}" }
+                  ]}
+                ]
+              }],
+              allowed_mentions: { parse: [] }
+            }.to_json
 
-          response = Discordrb::API.request(
-            :channels_cid_messages_mid, chan_id, :post,
-            "#{Discordrb::API.api_base}/channels/#{chan_id}/messages",
-            body, Authorization: $bot.token, content_type: :json
-          )
-          msg_data = JSON.parse(response.body)
+            response = Discordrb::API.request(
+              :channels_cid_messages_mid, chan_id, :post,
+              "#{Discordrb::API.api_base}/channels/#{chan_id}/messages",
+              body, Authorization: $bot.token, content_type: :json
+            )
+            raw_body = response.respond_to?(:body) ? response.body : response.to_s
+            msg_data = JSON.parse(raw_body)
 
-          ACTIVE_HEISTS[sid] = {
-            message_id: msg_data['id'].to_i,
-            participants: [],
-            started_at: Time.now,
-            channel_id: chan_id
-          }
+            ACTIVE_HEISTS[sid] = {
+              message_id: msg_data['id'].to_i,
+              participants: [],
+              started_at: Time.now,
+              channel_id: chan_id
+            }
 
-          # Schedule heist execution after join window
-          Thread.new do
-            sleep(HEIST_JOIN_WINDOW)
-            execute_heist_result(event.bot, sid)
+            puts "[HEIST] Server #{sid}: \u2705 Announcement sent! (msg #{msg_data['id']})"
+
+            # Schedule heist execution after join window
+            Thread.new do
+              sleep(HEIST_JOIN_WINDOW)
+              execute_heist_result($bot, sid)
+            end
+          rescue => e
+            puts "[HEIST ERROR] Server #{row['server_id']}: #{e.class}: #{e.message}"
+            puts e.backtrace&.first(3)&.map { |l| "  #{l}" }&.join("\n")
           end
         end
       rescue => e
-        puts "[HEIST LOOP ERROR] #{e.message}"
+        puts "[HEIST LOOP ERROR] #{e.class}: #{e.message}"
+        puts e.backtrace&.first(3)&.map { |l| "  #{l}" }&.join("\n")
       end
     end
   end
@@ -349,21 +366,29 @@ end
 # --- HEIST RESULT EXECUTION (called after join window) ---
 def execute_heist_result(bot, sid)
   heist = ACTIVE_HEISTS.delete(sid)
-  return unless heist
+  unless heist
+    puts "[HEIST RESULT] Server #{sid}: No active heist found (already cleaned up?)"
+    return
+  end
 
-  channel = bot.channel(heist[:channel_id])
-  return unless channel
-
+  chan_id = heist[:channel_id]
   players = heist[:participants]
+  puts "[HEIST RESULT] Server #{sid}: Join window closed. #{players.size} player(s) joined."
 
   if players.size < HEIST_MIN_PLAYERS
-    # Not enough players
+    # Not enough players — send via raw API
     begin
-      channel.send_message(
-        "## \u{1F3E6} Heist Cancelled #{EMOJI_STRINGS['nervous']}\n\n" \
-        "Only **#{players.size}** showed up... needed **#{HEIST_MIN_PLAYERS}**. The vault lives another day. Skill issue, chat."
+      body = { content: "## \u{1F3E6} Heist Cancelled #{EMOJI_STRINGS['nervous']}\n\n" \
+        "Only **#{players.size}** showed up... needed **#{HEIST_MIN_PLAYERS}**. The vault lives another day. Skill issue, chat." }.to_json
+      Discordrb::API.request(
+        :channels_cid_messages_mid, chan_id, :post,
+        "#{Discordrb::API.api_base}/channels/#{chan_id}/messages",
+        body, Authorization: bot.token, content_type: :json
       )
-    rescue; end
+      puts "[HEIST RESULT] Server #{sid}: Cancelled (not enough players)"
+    rescue => e
+      puts "[HEIST RESULT ERROR] Cancel message failed: #{e.class}: #{e.message}"
+    end
     return
   end
 
@@ -375,30 +400,33 @@ def execute_heist_result(bot, sid)
 
   success = rand(100) < total_chance
   vault = HEIST_BASE_VAULT + (players.size * HEIST_PER_PLAYER_VAULT)
+  player_mentions = players.map { |uid| "<@#{uid}>" }.join(', ')
 
   if success
     split = (vault.to_f / players.size).round
     players.each { |uid| DB.add_coins(uid, split) }
 
-    player_mentions = players.map { |uid| "<@#{uid}>" }.join(', ')
-    begin
-      channel.send_message(
-        "## \u{1F4B0} HEIST SUCCESSFUL! #{EMOJI_STRINGS['rich']}\n\n" \
-        "The crew cracked the vault! **#{vault}** #{EMOJI_STRINGS['s_coin']} split among **#{players.size}** players!\n\n" \
-        "**Each player earned:** #{split} #{EMOJI_STRINGS['s_coin']}\n" \
-        "**Success rate was:** #{total_chance}%#{premium_count > 0 ? " (#{premium_count} hacker#{premium_count > 1 ? 's' : ''} helped!)" : ""}\n\n" \
-        "\u{1F465} Crew: #{player_mentions}\n\nGG, chat! \u{1F338}"
-      )
-    rescue; end
+    msg = "## \u{1F4B0} HEIST SUCCESSFUL! #{EMOJI_STRINGS['rich']}\n\n" \
+      "The crew cracked the vault! **#{vault}** #{EMOJI_STRINGS['s_coin']} split among **#{players.size}** players!\n\n" \
+      "**Each player earned:** #{split} #{EMOJI_STRINGS['s_coin']}\n" \
+      "**Success rate was:** #{total_chance}%#{premium_count > 0 ? " (#{premium_count} hacker#{premium_count > 1 ? 's' : ''} helped!)" : ""}\n\n" \
+      "\u{1F465} Crew: #{player_mentions}\n\nGG, chat! \u{1F338}"
   else
-    player_mentions = players.map { |uid| "<@#{uid}>" }.join(', ')
-    begin
-      channel.send_message(
-        "## \u{1F6A8} HEIST FAILED! #{EMOJI_STRINGS['error']}\n\n" \
-        "The alarm went off! The crew scattered with NOTHING!\n\n" \
-        "**Success rate was:** #{total_chance}% \u2014 bad luck!\n\n" \
-        "\u{1F465} Crew: #{player_mentions}\n\nBetter luck next hour... \u{1F338}"
-      )
-    rescue; end
+    msg = "## \u{1F6A8} HEIST FAILED! #{EMOJI_STRINGS['error']}\n\n" \
+      "The alarm went off! The crew scattered with NOTHING!\n\n" \
+      "**Success rate was:** #{total_chance}% \u2014 bad luck!\n\n" \
+      "\u{1F465} Crew: #{player_mentions}\n\nBetter luck next hour... \u{1F338}"
+  end
+
+  begin
+    body = { content: msg }.to_json
+    Discordrb::API.request(
+      :channels_cid_messages_mid, chan_id, :post,
+      "#{Discordrb::API.api_base}/channels/#{chan_id}/messages",
+      body, Authorization: bot.token, content_type: :json
+    )
+    puts "[HEIST RESULT] Server #{sid}: #{success ? 'SUCCESS' : 'FAILED'} \u2014 #{players.size} players, #{total_chance}% chance"
+  rescue => e
+    puts "[HEIST RESULT ERROR] Result message failed: #{e.class}: #{e.message}"
   end
 end
