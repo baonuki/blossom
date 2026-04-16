@@ -229,4 +229,113 @@ module DatabaseAdmin
     user_tickets = all_rows.count { |r| r['user_id'].to_i == uid }
     { total_tickets: all_rows.size, user_tickets: user_tickets }
   end
+
+  # --- AUTO-MOD CONFIGURATION ---
+  def get_automod_config(server_id)
+    row = @db.exec_params("SELECT link_filter, spam_filter FROM automod_config WHERE server_id = $1", [server_id]).first
+    return { 'link_filter' => false, 'spam_filter' => false } unless row
+    { 'link_filter' => row['link_filter'].to_i == 1, 'spam_filter' => row['spam_filter'].to_i == 1 }
+  end
+
+  def toggle_automod_setting(server_id, setting)
+    raise ArgumentError unless %w[link_filter spam_filter].include?(setting)
+    @db.exec_params("INSERT INTO automod_config (server_id) VALUES ($1) ON CONFLICT (server_id) DO NOTHING", [server_id])
+    @db.exec_params("UPDATE automod_config SET #{setting} = 1 - COALESCE(#{setting}, 0) WHERE server_id = $1", [server_id])
+    row = @db.exec_params("SELECT #{setting} FROM automod_config WHERE server_id = $1", [server_id]).first
+    row && row[setting].to_i == 1
+  end
+
+  def get_automod_words(server_id)
+    @db.exec_params("SELECT word FROM automod_words WHERE server_id = $1", [server_id]).map { |r| r['word'] }
+  end
+
+  def add_automod_word(server_id, word)
+    @db.exec_params("INSERT INTO automod_words (server_id, word) VALUES ($1, $2) ON CONFLICT DO NOTHING", [server_id, word.downcase])
+  end
+
+  def remove_automod_word(server_id, word)
+    @db.exec_params("DELETE FROM automod_words WHERE server_id = $1 AND word = $2", [server_id, word.downcase])
+  end
+
+  # --- HEIST CONFIGURATION ---
+  def get_heist_channel(server_id)
+    row = @db.exec_params("SELECT heist_channel FROM server_configs WHERE server_id = $1", [server_id]).first
+    row && row['heist_channel'] ? row['heist_channel'].to_i : nil
+  end
+
+  def set_heist_channel(server_id, channel_id)
+    @db.exec_params(
+      "INSERT INTO server_configs (server_id, heist_channel) VALUES ($1, $2) ON CONFLICT (server_id) DO UPDATE SET heist_channel = $2",
+      [server_id, channel_id]
+    )
+  end
+
+  def get_all_heist_channels
+    @db.exec("SELECT server_id, heist_channel FROM server_configs WHERE heist_channel IS NOT NULL").to_a
+  end
+
+  # --- BOSS BATTLES ---
+  def get_current_boss(month, year)
+    row = @db.exec_params(
+      "SELECT * FROM boss_battles WHERE month = $1 AND year = $2 ORDER BY id DESC LIMIT 1",
+      [month, year]
+    ).first
+    return nil unless row
+    {
+      'id' => row['id'].to_i, 'boss_name' => row['boss_name'],
+      'max_hp' => row['max_hp'].to_i, 'current_hp' => row['current_hp'].to_i,
+      'defeated' => row['defeated'].to_i == 1, 'channel_id' => row['channel_id'] ? row['channel_id'].to_i : nil
+    }
+  end
+
+  def create_boss(name, hp, month, year)
+    @db.exec_params(
+      "INSERT INTO boss_battles (boss_name, max_hp, current_hp, month, year) VALUES ($1, $2, $2, $3, $4) RETURNING id",
+      [name, hp, month, year]
+    ).first['id'].to_i
+  end
+
+  def boss_attack(boss_id, uid, damage)
+    # Update boss HP
+    @db.exec_params("UPDATE boss_battles SET current_hp = GREATEST(current_hp - $2, 0) WHERE id = $1", [boss_id, damage])
+    # Track participant
+    @db.exec_params(
+      "INSERT INTO boss_participants (boss_id, user_id, total_damage, last_attack) VALUES ($1, $2, $3, NOW()) " \
+      "ON CONFLICT (boss_id, user_id) DO UPDATE SET total_damage = boss_participants.total_damage + $3, last_attack = NOW()",
+      [boss_id, uid, damage]
+    )
+    # Return new HP
+    row = @db.exec_params("SELECT current_hp FROM boss_battles WHERE id = $1", [boss_id]).first
+    row['current_hp'].to_i
+  end
+
+  def boss_defeat(boss_id)
+    @db.exec_params("UPDATE boss_battles SET defeated = 1 WHERE id = $1", [boss_id])
+  end
+
+  def get_boss_participants(boss_id)
+    @db.exec_params(
+      "SELECT user_id, total_damage FROM boss_participants WHERE boss_id = $1 ORDER BY total_damage DESC",
+      [boss_id]
+    ).to_a
+  end
+
+  def get_boss_participant(boss_id, uid)
+    @db.exec_params(
+      "SELECT total_damage, last_attack FROM boss_participants WHERE boss_id = $1 AND user_id = $2",
+      [boss_id, uid]
+    ).first
+  end
+
+  def get_boss_channel(server_id)
+    row = @db.exec_params("SELECT boss_channel FROM server_configs WHERE server_id = $1", [server_id]).first
+    row && row['boss_channel'] ? row['boss_channel'].to_i : nil
+  end
+
+  def set_boss_channel(server_id, channel_id)
+    @db.exec_params(
+      "INSERT INTO server_configs (server_id, boss_channel) VALUES ($1, $2) ON CONFLICT (server_id) DO UPDATE SET boss_channel = $2",
+      [server_id, channel_id]
+    )
+  end
 end

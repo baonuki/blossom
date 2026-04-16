@@ -288,4 +288,11 @@ $bot.register_application_command(:syncachievements, 'Retroactively grant achiev
 
 # NOTE: bomb and setxp are registered in ready.rb after deleting old versions
 
+$bot.register_application_command(:dticketsetup, 'Post support ticket panel (Dev Only)') do |cmd|
+  cmd.channel('channel', 'Channel to post the ticket panel in', required: true)
+end
+$bot.register_application_command(:dapplysetup, 'Post mod application panel (Dev Only)') do |cmd|
+  cmd.channel('channel', 'Channel to post the application panel in', required: true)
+end
+
 =end

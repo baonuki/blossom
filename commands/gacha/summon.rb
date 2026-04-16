@@ -189,6 +189,7 @@ def execute_summon(event)
   DB.set_last_pull_rarity(uid, rarity.to_s)
 
   DB.set_cooldown(uid, 'summon', now)
+  track_challenge(uid, 'cards_pulled', 1)
 
   send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
     { type: 10, content: "## #{EMOJI_STRINGS['neonsparkle']} Summon Result" },

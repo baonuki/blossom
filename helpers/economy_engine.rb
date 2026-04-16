@@ -35,12 +35,64 @@ def is_premium?(bot, user_id)
   end
 end
 
+def happy_hour_active?
+  $happy_hour && Time.now < $happy_hour[:ends_at]
+end
+
 def award_coins(bot, user_id, amount)
   final_amount = amount
-  final_amount = (amount * 1.10).round if is_premium?(bot, user_id)
-  
+
+  if happy_hour_active?
+    # Happy hour: 2x free, 3x premium (replaces normal premium bonus)
+    multiplier = is_premium?(bot, user_id) ? 3 : HAPPY_HOUR_MULTIPLIER
+    final_amount = (amount * multiplier).round
+  elsif is_premium?(bot, user_id)
+    final_amount = (amount * 1.10).round
+  end
+
+  # Crew bonus: +5% for crew members
+  begin
+    crew = DB.get_user_crew(user_id)
+    if crew
+      final_amount = (final_amount * (1 + CREW_COIN_BONUS)).round
+      crew_xp_gain = [final_amount / 50, 1].max
+      award_crew_xp(crew['id'], crew_xp_gain)
+    end
+  rescue => e
+    puts "[CREW BONUS ERROR] #{e.message}"
+  end
+
   DB.add_coins(user_id, final_amount)
-  final_amount 
+  final_amount
+end
+
+# Award XP to a crew and handle level-up
+def award_crew_xp(crew_id, amount)
+  DB.add_crew_xp(crew_id, amount)
+  crew = DB.get_crew(crew_id)
+  return unless crew
+
+  # Check for level-up (XP threshold scales per level)
+  xp_needed = crew['crew_level'] * CREW_XP_PER_LEVEL
+  if crew['crew_xp'] >= xp_needed
+    new_level = crew['crew_level'] + 1
+    DB.set_crew_level(crew_id, new_level)
+    # Reset XP overflow (keep remainder)
+    overflow = crew['crew_xp'] - xp_needed
+    DB.add_crew_xp(crew_id, -xp_needed) if overflow >= 0
+  end
+rescue => e
+  puts "[CREW XP ERROR] #{e.message}"
+end
+
+def calculate_investment_value(principal, invested_at)
+  hours_elapsed = (Time.now - invested_at) / 3600.0
+  return { principal: principal, profit: 0, total: principal, hours: 0 } if hours_elapsed < 0
+
+  raw_profit = (principal * ((1 + INVEST_RATE_PER_HOUR) ** hours_elapsed) - principal).round
+  max_profit = (principal * INVEST_PROFIT_CAP).round
+  profit = [raw_profit, max_profit].min
+  { principal: principal, profit: profit, total: principal + profit, hours: hours_elapsed }
 end
 
 def roll_rarity(premium = false)

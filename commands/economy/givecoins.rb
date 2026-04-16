@@ -75,6 +75,14 @@ def execute_givecoins(event, target, amount_str)
   check_wealth_achievements(event.channel, uid)
   check_wealth_achievements(event.channel, target.id)
 
+  # Challenge & friendship tracking
+  begin
+    track_challenge(uid, 'coins_given', amount)
+    DB.add_affinity(uid, target.id, AFFINITY_GIFT)
+  rescue => e
+    puts "[GIVECOINS TRACKING ERROR] #{e.message}"
+  end
+
   # 7. UI: Confirm the successful transfer via CV2
   components = [
     {

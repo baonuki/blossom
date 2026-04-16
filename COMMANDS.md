@@ -1,6 +1,6 @@
 # Blossom Bot - Command Reference
 
-> **Version:** 1.0 &bull; **Prefix:** `b!` &bull; **Slash Commands:** Supported
+> **Version:** 1.3 &bull; **Prefix:** `b!` &bull; **Slash Commands:** Supported
 > All commands can be used with either the `b!` prefix or as Discord slash commands (`/`).
 
 ---
@@ -27,7 +27,7 @@
 Commands for earning, managing, and spending coins.
 
 ### `/daily`
-Claim your daily coin reward. Consecutive claims build a streak that increases your payout.
+Claim your daily coin reward with a visual monthly login calendar. Consecutive claims build a streak that increases your payout. The calendar shows your claimed days each month with milestone bonuses.
 
 | Detail | Value |
 |--------|-------|
@@ -35,13 +35,55 @@ Claim your daily coin reward. Consecutive claims build a streak that increases y
 | **Cooldown** | 24 hours |
 | **Base Reward** | 350 coins + (streak &times; 30) |
 | **Streak Reset** | Resets if more than 48 hours pass between claims |
+| **14-Day Milestone** | 1,000 coins (2,000 for Premium) |
+| **28-Day Milestone** | 5,000 coins (10,000 coins + 10 Prisma for Premium) |
+
+**Calendar Grid:** Shows a visual monthly grid with claimed days (&#9608;), missed days (&middot;), today (&#9654;), and future days (-).
 
 **Bonuses:**
 - **Holographic Neon Sign** (item): Doubles payout
 - **Marriage bonus:** +50 coins
 - **Premium:** +10% coins and 1-3 Prisma (scales with streak)
+- **Happy Hour:** 2x coins (3x for Premium) when active
 
 **Streak Achievements:** 7 days, 30 days, 69 days, 100 days, 365 days
+
+---
+
+### `/invest`
+Invest coins into a passive income portfolio that earns compound interest over time. Premium only.
+
+| Detail | Value |
+|--------|-------|
+| **Usage** | `/invest <amount>` |
+| **Min Investment** | 1,000 coins |
+| **Rate** | 0.5% per hour (compounding) |
+| **Max Return** | 2x your principal (100% profit cap) |
+| **Requirement** | Premium |
+
+Use `/portfolio` to check your current investment value and `/withdraw` to cash out at any time.
+
+---
+
+### `/portfolio`
+View your current investment status, profit earned, and progress toward max return. Premium only.
+
+---
+
+### `/withdraw`
+Cash out your active investment, receiving your principal plus all earned profit. Premium only.
+
+---
+
+### `/autoclaim`
+Toggle automatic daily reward claiming. When enabled, Blossom will automatically claim your daily reward whenever it's ready and DM you with the results. Premium only.
+
+| Detail | Value |
+|--------|-------|
+| **Requirement** | Premium |
+| **Behavior** | Auto-claims daily when cooldown expires |
+| **Notification** | DM with reward summary |
+| **Streak Protection** | Prevents streak loss from forgetting to claim |
 
 ---
 
@@ -216,13 +258,13 @@ Opens an interactive menu to browse and participate in the current seasonal even
 ---
 
 ### `/remindme`
-Toggle daily reward reminder notifications. **Premium only.**
+Toggle daily reward reminder notifications. Available to all users.
 
 | Detail | Value |
 |--------|-------|
 | **Aliases** | `remind` |
 
-When enabled, Blossom will DM you when your daily reward is ready to claim.
+When enabled, Blossom will ping you in the channel when your daily reward is ready to claim.
 
 ---
 
@@ -419,6 +461,59 @@ While active, all your `/summon` pulls draw exclusively from this banner.
 
 ---
 
+### `/craft`
+Craft exclusive cosmetics (badges, titles, themes, pets) from materials.
+
+| Detail | Value |
+|--------|-------|
+| **Usage** | `/craft` (view recipes) or `/craft recipe:craftsman` |
+
+**Materials:**
+- **Scrap** ⚙️ — Obtained from salvaging Common cards
+- **Essence** 💎 — Obtained from salvaging Rare+ cards
+
+**Craftable Items:**
+
+| Recipe | Type | Materials | Coin Cost |
+|--------|------|-----------|-----------|
+| Craftsman | Badge | 10 Scrap | 500 |
+| Forgemaster | Badge | 5 Essence | 2,000 |
+| Scrap King | Badge | 50 Scrap | 1,000 |
+| Tinkerer | Title | 15 Scrap | 500 |
+| Engineer | Title | 10 Essence | 3,000 |
+| Scrapyard Boss | Title | 30 Scrap + 3 Essence | 1,500 |
+| Forge | Theme | 20 Scrap + 5 Essence | 2,000 |
+| Circuit | Theme | 30 Scrap | 3,000 |
+| Scrap Golem | Pet | 25 Scrap + 10 Essence | 5,000 |
+| Spark Wisp | Pet | 15 Essence | 3,000 |
+
+These items are **craft-exclusive** and cannot be purchased in the shop.
+
+---
+
+### `/salvage`
+Break down duplicate VTuber cards into crafting materials.
+
+| Detail | Value |
+|--------|-------|
+| **Usage** | `/salvage amount:5 rarity:common` |
+| **Default** | Salvages 1 common card |
+
+**Salvage Rates:**
+
+| Rarity | Material | Per Card |
+|--------|----------|----------|
+| Common | Scrap | 1 |
+| Rare | Essence | 2 |
+| Legendary | Essence | 5 |
+| Goddess | Essence | 10 |
+
+**Notes:**
+- Always keeps at least 1 copy of each card
+- Only salvages duplicates (count > 1)
+
+---
+
 ## Arcade
 
 Casino and minigame commands. All gambling commands deduct your bet upfront.
@@ -609,6 +704,41 @@ Premium users also receive a +10% coin bonus on all catches.
 
 ---
 
+### `/trivia`
+Answer VTuber-themed trivia questions for coins. Questions are generated from the character pool data and general VTuber knowledge.
+
+| Detail | Value |
+|--------|-------|
+| **Cooldown** | 2 minutes |
+| **Reward** | 50-100 coins (100-200 for Premium) |
+| **Time Limit** | 15 seconds to answer |
+
+**Question Types:**
+- Rarity tier identification
+- "Which VTuber is rarer?"
+- "Which is NOT in the collection?" (odd one out)
+- General VTuber and Blossom knowledge
+- Character pool membership
+
+Four multiple-choice answer buttons (A/B/C/D). Answer before time runs out!
+
+---
+
+### `/boss`
+View and attack the monthly boss. Each month a new boss spawns with 100,000 HP. All players can attack once per hour. When defeated, all participants earn 50 Prisma.
+
+| Detail | Value |
+|--------|-------|
+| **Boss HP** | 100,000 |
+| **Damage** | 50-200 (100-400 for Premium) |
+| **Attack Cooldown** | 1 hour |
+| **Defeat Reward** | 50 Prisma to ALL participants |
+| **Reset** | New boss each month |
+
+**Boss Names Rotate:** Glitch Hydra, The Lag Beast, Corrupted Firewall, Neon Phantom, Data Leviathan, and more.
+
+---
+
 ## Fun & Social
 
 Social interactions, profiles, and community features.
@@ -753,6 +883,61 @@ Start a giveaway in a channel. **Admin only.**
 **Time Formats:** `10m` (minutes), `2h` (hours), `1d` (days)
 
 Creates an embed with a participation button in the specified channel. A winner is randomly selected when the timer expires.
+
+---
+
+### `/crew`
+Create, manage, and compete in global crews. Crew members get a +5% coin bonus on all earnings.
+
+| Detail | Value |
+|--------|-------|
+| **Usage** | `/crew` (view your crew) |
+| **Create Cost** | 5,000 coins |
+| **Max Members** | 15 |
+| **Crew Bonus** | +5% coins for all members |
+
+**Subcommands:**
+- `crew create <name> <tag>` — Create a crew (name 3-30 chars, tag 2-5 chars)
+- `crew invite @user` — Invite a player (leaders/officers only)
+- `crew leave` — Leave your current crew
+- `crew kick @user` — Remove a member (leaders/officers only)
+- `crew promote @user` — Transfer leadership (leader only)
+- `crew disband` — Delete the crew (leader only)
+- `crew leaderboard` — View top 10 crews by XP
+
+**Crew XP:** Earned passively when members earn coins (1 XP per 50 coins earned). Crews level up as they accumulate XP.
+
+---
+
+### `/friends`
+View your friendship levels and affinity with other players.
+
+| Detail | Value |
+|--------|-------|
+| **Aliases** | `friendship` |
+| **Usage** | `/friends` (list) or `/friends user:@player` (specific) |
+
+**Affinity Sources:**
+
+| Action | Affinity Gained |
+|--------|----------------|
+| Collab | +5 |
+| Gift Card | +5 |
+| Give Coins | +5 |
+| Trade | +3 |
+| Hug | +1 |
+| Pat | +1 |
+| Slap | +1 |
+
+**Friendship Tiers:**
+
+| Affinity | Tier | Collab Bonus |
+|----------|------|-------------|
+| 0 | Stranger | — |
+| 10 | Acquaintance | — |
+| 25 | Friend | +5% |
+| 50 | Close Friend | +10% |
+| 100 | Best Friend | +15% |
 
 ---
 
@@ -966,6 +1151,54 @@ Create and manage reaction role panels. **Prefix only.**
 
 ---
 
+### `/heist`
+Configure hourly heist events for your server. Admin only.
+
+| Detail | Value |
+|--------|-------|
+| **Permission** | Administrator |
+| **Usage** | `/heist setup #channel` or `/heist disable` |
+
+When enabled, a heist opportunity spawns every hour in the designated channel. Players have 5 minutes to join by clicking the button. Minimum 3 players needed.
+
+**Mechanics:**
+- Base success: 30% + 5% per player (max 85%)
+- Premium "hacker bonus": +3% per premium player
+- Vault: 2,000 + 500 per player coins, split among crew
+- On failure: no penalty, better luck next hour
+
+---
+
+### `/automod`
+Configure basic auto-moderation for your server. Admin only.
+
+| Detail | Value |
+|--------|-------|
+| **Permission** | Administrator |
+| **Usage** | `/automod` (view status) |
+
+**Sub-commands:**
+
+| Command | Description |
+|---------|-------------|
+| `b!automod links` | Toggle link filter (deletes links from non-admins) |
+| `b!automod spam` | Toggle spam filter (5 msgs in 5s = 1 min timeout) |
+| `b!automod words add <word>` | Add a word to the banned list |
+| `b!automod words remove <word>` | Remove a word from the banned list |
+| `b!automod words list` | View all banned words |
+
+---
+
+### `/bosssetup`
+Set the channel for boss defeat announcements. Admin only.
+
+| Detail | Value |
+|--------|-------|
+| **Permission** | Administrator |
+| **Usage** | `/bosssetup #channel` |
+
+---
+
 ## Voice
 
 Commands for voice channel interaction.
@@ -1110,6 +1343,27 @@ You must own the character to set it as a favorite. Re-equipping the same cosmet
 
 ---
 
+### `/challenges`
+View and claim your weekly challenge progress.
+
+| Detail | Value |
+|--------|-------|
+| **Aliases** | `weekly`, `challenge` |
+| **Reset** | Every Monday |
+| **Challenges** | 3 per week (4 for Premium) |
+
+**Challenge Types:** Daily claims, arcade wins, cards pulled, coins earned, coins given, trivia correct answers, boss attacks, trades completed, social interactions sent, cards salvaged, cards gifted, collabs completed.
+
+**Rewards:**
+- Each challenge has an individual coin reward (150-500 coins)
+- Completing ALL challenges gives a **bonus** of 500 coins + 5 Prisma
+- A "Claim Bonus" button appears when all challenges are done
+
+**How Progress is Tracked:**
+Challenges track automatically as you play. Every command you use that matches a challenge type increments your progress.
+
+---
+
 ## Premium Perks
 
 Premium subscribers unlock the following benefits across all systems:
@@ -1118,19 +1372,25 @@ Premium subscribers unlock the following benefits across all systems:
 |------|---------|
 | **Cooldown Reduction** | 50% shorter cooldowns on work, stream, post, and fish |
 | **Coin Bonus** | +10% coins on all earning commands |
+| **Happy Hour Boost** | 3x coins during happy hours (vs 2x for free users) |
 | **Prisma Currency** | Earn 1-3 Prisma per daily claim (scales with streak) |
+| **Calendar Milestones** | Enhanced milestone rewards (2,000 at 14 days, 10,000 + 10 Prisma at 28 days) |
+| **Auto-Claim Daily** | Automatic daily claiming with DM notifications — never break streaks |
+| **Passive Income** | Invest coins for 0.5%/hr compounding returns (up to 2x principal) |
 | **Pity System** | Guaranteed Legendary/Goddess after 30 pulls |
 | **Shiny Hunting Mode** | Toggle 2&times; summon cost for 2&times; shiny chance |
 | **Auto-Sell** | Automatically sell common duplicates during summon |
 | **Custom Banner** | Create a custom 1-hour summon banner (20 Prisma) |
 | **Sell Undo** | 5-minute undo window after mass-selling cards |
-| **Daily Reminder** | DM notification when daily reward is ready |
 | **Extended Windows** | Longer trade (180s vs 60s) and collab (300s vs 180s) windows |
 | **Spin Reroll** | One free reroll on the daily wheel |
 | **Reputation** | 3 reps per day instead of 1 |
 | **Profile Customization** | Color, bio, favorites, pets, titles, themes, badges |
 | **Gold Fishing Rod** | Access to 3 premium-only fish catches |
 | **Favorite Cards** | Display up to 3 favorite VTubers on your profile |
+| **Weekly Challenge** | 4th weekly challenge slot (vs 3 for free users) |
+
+**Note:** The +5% crew bonus stacks with Premium bonuses. A Premium crew member gets +10% (Premium) + 5% (Crew) = +15% total bonus.
 
 ---
 

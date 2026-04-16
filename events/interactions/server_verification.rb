@@ -39,6 +39,13 @@ $bot.button(custom_id: /^verify_pass_/) do |event|
   if role
     begin
       event.user.add_role(role)
+
+      # Remove unverified role if this is the designated server
+      if event.server.id == UNVERIFIED_SERVER_ID
+        unverified_role = event.server.role(UNVERIFIED_ROLE_ID)
+        event.user.remove_role(unverified_role) if unverified_role
+      end
+
       event.update_message(content: "✅ **Verification successful!** Welcome to the server! 🌸", components: [])
     rescue => e
       event.update_message(content: "#{EMOJI_STRINGS['x_']} I don't have permission to give you the role! Please tell an Admin to move my bot role higher up in the settings.", components: [])

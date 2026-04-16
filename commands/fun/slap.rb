@@ -29,7 +29,10 @@ def execute_slap(event, target)
     uid = event.user.id
     target_id = target.id
 
-    # --- STEP B: Achievement Progression ---
+    # --- STEP B: Challenge Tracking ---
+    track_challenge(uid, 'social_sent', 1)
+
+    # --- STEP C: Achievement Progression ---
     # Check milestones for the user sending the slap
     check_achievement(event.channel, uid, 'first_slap')
     stats = DB.get_interactions(uid)['slap']

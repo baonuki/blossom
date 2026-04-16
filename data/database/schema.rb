@@ -189,6 +189,9 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
     begin; @db.exec("ALTER TABLE server_xp ADD COLUMN IF NOT EXISTS chat_streak INTEGER DEFAULT 0"); rescue PG::Error; end
     begin; @db.exec("ALTER TABLE server_xp ADD COLUMN IF NOT EXISTS last_chat_date DATE"); rescue PG::Error; end
 
+    # Auto-claim daily (premium feature)
+    begin; @db.exec("ALTER TABLE global_users ADD COLUMN IF NOT EXISTS autoclaim_daily INTEGER DEFAULT 0"); rescue PG::Error; end
+
     # Character name fix: Mirori -> Miori Celesta
     @db.exec("UPDATE collections SET character_name = 'Miori Celesta' WHERE character_name = 'Mirori Celesta'")
     @db.exec("UPDATE global_users SET favorite_card = 'Miori Celesta' WHERE favorite_card = 'Mirori Celesta'")
@@ -221,6 +224,18 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
         rarity VARCHAR(50) NOT NULL,
         gifted_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS daily_calendar (
+        user_id BIGINT,
+        claim_date DATE NOT NULL,
+        PRIMARY KEY(user_id, claim_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS investments (
+        user_id BIGINT PRIMARY KEY,
+        principal INTEGER NOT NULL,
+        invested_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
     SQL
 
     @db.exec(<<-SQL)
@@ -235,6 +250,110 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
         user_id BIGINT PRIMARY KEY,
         characters_json TEXT NOT NULL,
         expires_at TIMESTAMP NOT NULL
+      );
+    SQL
+
+    # --- Auto-Mod System ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS automod_config (
+        server_id BIGINT PRIMARY KEY,
+        link_filter INTEGER DEFAULT 0,
+        spam_filter INTEGER DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS automod_words (
+        server_id BIGINT,
+        word VARCHAR(100),
+        PRIMARY KEY(server_id, word)
+      );
+    SQL
+
+    # --- Boss Battles ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS boss_battles (
+        id SERIAL PRIMARY KEY,
+        boss_name VARCHAR(100) NOT NULL,
+        max_hp INTEGER NOT NULL,
+        current_hp INTEGER NOT NULL,
+        month INTEGER NOT NULL,
+        year INTEGER NOT NULL,
+        defeated INTEGER DEFAULT 0,
+        channel_id BIGINT
+      );
+
+      CREATE TABLE IF NOT EXISTS boss_participants (
+        boss_id INTEGER,
+        user_id BIGINT,
+        total_damage INTEGER DEFAULT 0,
+        last_attack TIMESTAMP,
+        PRIMARY KEY(boss_id, user_id)
+      );
+    SQL
+
+    # Heist channel config
+    begin; @db.exec("ALTER TABLE server_configs ADD COLUMN IF NOT EXISTS heist_channel BIGINT"); rescue PG::Error; end
+
+    # Boss announcement channel
+    begin; @db.exec("ALTER TABLE server_configs ADD COLUMN IF NOT EXISTS boss_channel BIGINT"); rescue PG::Error; end
+
+    # Daily tip channel
+    begin; @db.exec("ALTER TABLE server_configs ADD COLUMN IF NOT EXISTS tip_channel BIGINT"); rescue PG::Error; end
+
+    # --- Crews (Global) ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS crews (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(30) NOT NULL UNIQUE,
+        tag VARCHAR(5) NOT NULL UNIQUE,
+        leader_id BIGINT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        crew_xp INTEGER DEFAULT 0,
+        crew_level INTEGER DEFAULT 1
+      );
+
+      CREATE TABLE IF NOT EXISTS crew_members (
+        crew_id INTEGER,
+        user_id BIGINT UNIQUE,
+        joined_at TIMESTAMP DEFAULT NOW(),
+        role VARCHAR(20) DEFAULT 'member',
+        PRIMARY KEY(crew_id, user_id)
+      );
+    SQL
+
+    # --- Crafting Materials ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS user_materials (
+        user_id BIGINT,
+        material VARCHAR(50),
+        count INTEGER DEFAULT 0,
+        PRIMARY KEY(user_id, material)
+      );
+    SQL
+
+    # --- Friendships ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS friendships (
+        user_a BIGINT,
+        user_b BIGINT,
+        affinity INTEGER DEFAULT 0,
+        last_interaction TIMESTAMP,
+        PRIMARY KEY(user_a, user_b)
+      );
+    SQL
+
+    # --- Weekly Challenges ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS weekly_challenges (
+        week_start DATE PRIMARY KEY,
+        challenges_json TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS user_challenge_progress (
+        user_id BIGINT,
+        week_start DATE,
+        progress_json TEXT NOT NULL DEFAULT '{}',
+        claimed INTEGER DEFAULT 0,
+        PRIMARY KEY(user_id, week_start)
       );
     SQL
   end # Closes 'def setup_schema'

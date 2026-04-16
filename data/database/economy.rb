@@ -163,6 +163,24 @@ module DatabaseEconomy
     get_shiny_mode(uid)
   end
 
+  # --- INVESTMENTS (Premium Passive Income) ---
+  def get_investment(uid)
+    row = @db.exec_params("SELECT principal, invested_at FROM investments WHERE user_id = $1", [uid]).first
+    return nil unless row
+    { 'principal' => row['principal'].to_i, 'invested_at' => Time.parse(row['invested_at']) }
+  end
+
+  def create_investment(uid, amount)
+    @db.exec_params(
+      "INSERT INTO investments (user_id, principal, invested_at) VALUES ($1, $2, NOW()) ON CONFLICT (user_id) DO UPDATE SET principal = $2, invested_at = NOW()",
+      [uid, amount]
+    )
+  end
+
+  def delete_investment(uid)
+    @db.exec_params("DELETE FROM investments WHERE user_id = $1", [uid])
+  end
+
   # --- FULL STATS (for /stats dashboard) ---
   def get_full_stats(uid)
     row = @db.exec_params(

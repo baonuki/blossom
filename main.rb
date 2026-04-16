@@ -39,6 +39,10 @@ require_relative 'data/cosmetics'     # Pets, Titles, Themes, Badges
 require_relative 'data/characters'    # VTuber Rarity Pools
 require_relative 'data/interactions'  # Hug/Slap
 require_relative 'data/events'        # Seasonal Event Configs
+require_relative 'data/trivia'        # Trivia Question Bank
+require_relative 'data/crafting'      # Crafting Recipes & Materials
+require_relative 'data/challenges'    # Weekly Challenge Pool
+require_relative 'data/tips'          # Daily Tips & Fun Facts
 
 # 3. Database Engine
 require_relative 'data/database/base' # DB Connection & Query Methods

@@ -194,6 +194,15 @@ def interaction_embed(event, action_name, gifs, target)
   DB.add_interaction(actor_id, action_name, 'sent')
   DB.add_interaction(target_id, action_name, 'received')
 
+  # Friendship & challenge tracking
+  begin
+    affinity_map = { 'hug' => AFFINITY_HUG, 'slap' => AFFINITY_SLAP, 'pat' => AFFINITY_PAT }
+    DB.add_affinity(actor_id, target_id, affinity_map[action_name] || 1) if actor_id != target_id
+    track_challenge(actor_id, 'social_sent', 1)
+  rescue => e
+    puts "[SOCIAL TRACKING ERROR] #{e.message}"
+  end
+
   actor_stats  = DB.get_interactions(actor_id)[action_name]
   target_stats = DB.get_interactions(target_id)[action_name]
 

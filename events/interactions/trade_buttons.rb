@@ -81,6 +81,15 @@ $bot.button(custom_id: /^trade_\d+_\d+_(accept|decline)$/) do |event|
   check_achievement(event.channel, uid_a, 'trade_10') if trades_a >= 10
   check_achievement(event.channel, uid_b, 'trade_10') if trades_b >= 10
 
+  # Friendship & challenge tracking
+  begin
+    DB.add_affinity(uid_a, uid_b, AFFINITY_TRADE)
+    track_challenge(uid_a, 'trades_completed', 1)
+    track_challenge(uid_b, 'trades_completed', 1)
+  rescue => e
+    puts "[TRADE TRACKING ERROR] #{e.message}"
+  end
+
   # Easter eggs
   envvy_comment = ""
   envvy_comment = "\n\n*...you're trading away my MOM?? I'm watching you. She better be going to a good home.*" if char_a == 'Envvy' || char_b == 'Envvy'

@@ -25,6 +25,7 @@ def execute_pat(event, target)
     DB.add_interaction(event.user.id, 'pat', 'received')
 
     uid = event.user.id
+    track_challenge(uid, 'social_sent', 1)
     check_achievement(event.channel, uid, 'first_pat')
     stats = DB.get_interactions(uid)['pat']
     check_achievement(event.channel, uid, 'pat_sent_10') if stats['sent'].to_i >= 10

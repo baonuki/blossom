@@ -66,9 +66,10 @@ def execute_work(event)
   final_amount = award_coins(event.bot, uid, amount)
   DB.set_cooldown(uid, 'work', now)
 
-  # 8. Achievements
+  # 8. Achievements & Tracking
   check_achievement(event.channel, uid, 'first_work')
   check_wealth_achievements(event.channel, uid)
+  track_challenge(uid, 'coins_earned', final_amount)
 
   # 9. UI: Send the success CV2 with the updated balance
   components = [

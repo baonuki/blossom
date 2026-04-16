@@ -13,9 +13,22 @@ WELCOME_MESSAGES = [
   "has arrived! Someone roll out the neon carpet!"
 ].freeze
 
+UNVERIFIED_ROLE_ID  = 1472510193299361802
+UNVERIFIED_SERVER_ID = 1472509438010065070
+
 $bot.member_join do |event|
   user = event.member
   server = event.server
+
+  # --- AUTO-ASSIGN UNVERIFIED ROLE ---
+  if server.id == UNVERIFIED_SERVER_ID
+    begin
+      unverified_role = server.role(UNVERIFIED_ROLE_ID)
+      user.add_role(unverified_role) if unverified_role
+    rescue => e
+      puts "[UNVERIFIED ROLE ERROR] #{e.message}"
+    end
+  end
 
   # --- WELCOMER ---
   begin

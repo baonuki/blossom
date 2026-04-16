@@ -58,10 +58,18 @@ def execute_givecard(event, target, char_name)
   DB.give_card(uid, target.id, proper_name, rarity)
   DB.log_gift(uid, target.id, proper_name, rarity)
 
-  # 6. Achievements
+  # 6. Achievements & Tracking
   check_achievement(event.channel, uid, 'first_givecard')
   total_given = DB.increment_givecard_count(uid)
   check_achievement(event.channel, uid, 'givecard_10') if total_given >= 10
+
+  # Friendship & challenge tracking
+  begin
+    DB.add_affinity(uid, target.id, AFFINITY_GIFT)
+    track_challenge(uid, 'cards_gifted', 1)
+  rescue => e
+    puts "[GIFT TRACKING ERROR] #{e.message}"
+  end
 
   # 6. UI: Select the rarity emoji for the announcement
   emoji = case rarity

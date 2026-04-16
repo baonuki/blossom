@@ -67,7 +67,7 @@ module DatabaseCooldowns
 
   def toggle_daily_reminder(uid, channel_id)
     row = @db.exec_params("SELECT reminder_channel FROM global_users WHERE user_id = $1", [uid]).first
-    
+
     if row && row['reminder_channel'] && channel_id.nil?
       @db.exec_params("UPDATE global_users SET reminder_channel = NULL, reminder_sent = 0 WHERE user_id = $1", [uid])
       return false
@@ -76,5 +76,47 @@ module DatabaseCooldowns
       @db.exec_params("UPDATE global_users SET reminder_channel = $2, reminder_sent = 0 WHERE user_id = $1", [uid, channel_id])
       return true
     end
+  end
+
+  # --- DAILY CALENDAR ---
+  def add_calendar_claim(uid, date)
+    date_str = date.is_a?(String) ? date : date.strftime('%Y-%m-%d')
+    @db.exec_params(
+      "INSERT INTO daily_calendar (user_id, claim_date) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+      [uid, date_str]
+    )
+  end
+
+  def get_calendar_claims(uid, year, month)
+    rows = @db.exec_params(
+      "SELECT EXTRACT(DAY FROM claim_date)::int AS day FROM daily_calendar WHERE user_id = $1 AND EXTRACT(YEAR FROM claim_date) = $2 AND EXTRACT(MONTH FROM claim_date) = $3",
+      [uid, year, month]
+    )
+    rows.map { |r| r['day'].to_i }
+  end
+
+  def get_monthly_claim_count(uid, year, month)
+    row = @db.exec_params(
+      "SELECT COUNT(*) AS cnt FROM daily_calendar WHERE user_id = $1 AND EXTRACT(YEAR FROM claim_date) = $2 AND EXTRACT(MONTH FROM claim_date) = $3",
+      [uid, year, month]
+    ).first
+    row ? row['cnt'].to_i : 0
+  end
+
+  # --- AUTO-CLAIM DAILY ---
+  def get_autoclaim(uid)
+    row = @db.exec_params("SELECT autoclaim_daily FROM global_users WHERE user_id = $1", [uid]).first
+    row ? row['autoclaim_daily'].to_i == 1 : false
+  end
+
+  def toggle_autoclaim(uid)
+    @db.exec_params("INSERT INTO global_users (user_id, autoclaim_daily) VALUES ($1, 1) ON CONFLICT (user_id) DO UPDATE SET autoclaim_daily = CASE WHEN global_users.autoclaim_daily = 1 THEN 0 ELSE 1 END", [uid])
+    get_autoclaim(uid)
+  end
+
+  def get_autoclaim_users
+    @db.exec(
+      "SELECT user_id FROM global_users WHERE autoclaim_daily = 1 AND (daily_at IS NULL OR daily_at <= NOW() - INTERVAL '24 hours')"
+    ).to_a
   end
 end

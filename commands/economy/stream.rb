@@ -69,6 +69,7 @@ def execute_stream(event)
   DB.set_cooldown(uid, 'stream', now)
   check_achievement(event.channel, event.user.id, 'first_stream')
   check_wealth_achievements(event.channel, uid)
+  track_challenge(uid, 'coins_earned', final_reward)
 
   # 8. UI: Send the success CV2 with the final tally
   components = [

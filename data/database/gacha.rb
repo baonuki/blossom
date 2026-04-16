@@ -29,7 +29,8 @@ module DatabaseGacha
 
   def remove_character(uid, name, amount = 1)
     @db.exec_params("UPDATE collections SET count = count - $3 WHERE user_id = $1 AND character_name = $2 AND count >= $3", [uid, name, amount])
-    @db.exec_params("DELETE FROM collections WHERE user_id = $1 AND character_name = $2 AND count <= 0", [uid, name])
+    # Only delete the row if BOTH count and ascended are 0 (preserve ascension data)
+    @db.exec_params("DELETE FROM collections WHERE user_id = $1 AND character_name = $2 AND count <= 0 AND ascended <= 0", [uid, name])
   end
 
   def set_card_count(uid, name, count)

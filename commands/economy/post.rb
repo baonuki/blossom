@@ -67,9 +67,10 @@ def execute_post(event)
   final_reward = award_coins(event.bot, uid, reward)
   DB.set_cooldown(uid, 'post', now)
 
-  # 8. Achievements
+  # 8. Achievements & Tracking
   check_achievement(event.channel, uid, 'first_post')
   check_wealth_achievements(event.channel, uid)
+  track_challenge(uid, 'coins_earned', final_reward)
 
   # 9. UI: Construct the success CV2 with the new balance
   components = [

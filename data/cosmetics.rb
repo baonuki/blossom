@@ -38,10 +38,23 @@ PETS = {
     sad: '*The Ghost Flame dims to barely an ember...*'
   },
   'star_jellyfish' => {
-    name: 'Star Jellyfish', emoji: '🪼', price: 35,
+    name: 'Star Jellyfish', emoji: "\u{1FABC}", price: 35,
     idle: '*A translucent jellyfish drifts serenely beside you, trailing stardust.*',
     happy: '*The Star Jellyfish pulses with radiant light!*',
     sad: '*The Star Jellyfish dims and sinks lower...*'
+  },
+  # Craftable-exclusive pets
+  'scrap_golem' => {
+    name: 'Scrap Golem', emoji: "\u{1F916}", price: 0, craftable: true,
+    idle: '*A clunky golem made of scrap metal clanks beside you, gears whirring.*',
+    happy: '*The Scrap Golem pumps a rusty fist in celebration!*',
+    sad: '*The Scrap Golem\u2019s gears grind to a slow, sad halt...*'
+  },
+  'spark_wisp' => {
+    name: 'Spark Wisp', emoji: "\u2728", price: 0, craftable: true,
+    idle: '*A tiny wisp of crackling energy orbits your head, leaving sparkle trails.*',
+    happy: '*The Spark Wisp flares into a brilliant burst of light!*',
+    sad: '*The Spark Wisp flickers and dims to a faint glow...*'
   }
 }.freeze
 
@@ -58,7 +71,11 @@ TITLES = {
   'shadow_broker' => { name: 'Shadow Broker', price: 15 },
   'content_machine' => { name: 'Content Machine', price: 10 },
   'lucky_charm' => { name: 'Lucky Charm', price: 15 },
-  'chaos_gremlin' => { name: 'Chaos Gremlin', price: 20 }
+  'chaos_gremlin' => { name: 'Chaos Gremlin', price: 20 },
+  # Craftable-exclusive titles
+  'tinkerer'       => { name: 'Tinkerer', price: 0, craftable: true },
+  'engineer'       => { name: 'Engineer', price: 0, craftable: true },
+  'scrapyard_boss' => { name: 'Scrapyard Boss', price: 0, craftable: true }
 }.freeze
 
 # --- COLLECTION THEMES ---
@@ -70,7 +87,10 @@ COLLECTION_THEMES = {
   'pastel'  => { name: 'Pastel Dream', color: 0xFFB7C5, prefix: '*', suffix: '*', bullet: '🌸 ', price: 10 },
   'retro'   => { name: 'Retro Arcade', color: 0xFF6600, prefix: '`', suffix: '`', bullet: '▶ ', price: 15 },
   'galaxy'  => { name: 'Galaxy', color: 0x2B0057, prefix: '', suffix: '', bullet: '✦ ', price: 15 },
-  'void'    => { name: 'Void', color: 0x0D0D0D, prefix: '', suffix: '', bullet: '░ ', price: 20 }
+  'void'    => { name: 'Void', color: 0x0D0D0D, prefix: '', suffix: '', bullet: "\u{2591} ", price: 20 },
+  # Craftable-exclusive themes
+  'forge'   => { name: 'Forge', color: 0xFF4500, prefix: '**', suffix: '**', bullet: "\u{1F525} ", price: 0, craftable: true },
+  'circuit' => { name: 'Circuit', color: 0x00FF41, prefix: '`', suffix: '`', bullet: "\u{25B8} ", price: 0, craftable: true }
 }.freeze
 
 # --- BADGES ---
@@ -93,7 +113,11 @@ BADGES = {
   'star'          => { name: 'Star', emoji: '⭐', desc: 'Born to shine.', price: 15, earnable: false },
   'heart'         => { name: 'Heart', emoji: '❤️', desc: 'Love is power.', price: 15, earnable: false },
   'lightning'     => { name: 'Lightning', emoji: '⚡', desc: 'Speed demon.', price: 20, earnable: false },
-  'ghost'         => { name: 'Ghost', emoji: '👻', desc: 'Now you see me...', price: 25, earnable: false }
+  'ghost'         => { name: 'Ghost', emoji: "\u{1F47B}", desc: 'Now you see me...', price: 25, earnable: false },
+  # Craftable-exclusive badges
+  'craftsman'     => { name: 'Craftsman', emoji: "\u{2699}\u{FE0F}", desc: 'Forged their own path.', price: 0, earnable: false, craftable: true },
+  'forgemaster'   => { name: 'Forgemaster', emoji: "\u{1F525}", desc: 'Master of the forge.', price: 0, earnable: false, craftable: true },
+  'scrap_king'    => { name: 'Scrap King', emoji: "\u{1F451}", desc: 'Built an empire from scraps.', price: 0, earnable: false, craftable: true }
 }.freeze
 
 # Helper to get pet flavor text based on context

@@ -12,15 +12,6 @@ def execute_remindme(event)
   uid = event.user.id
   channel_id = event.channel.id
 
-  # 1b. Premium Gate
-  unless is_premium?(event.bot, uid)
-    return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
-      { type: 10, content: "## #{EMOJI_STRINGS['prisma']} Premium Perk" },
-      { type: 14, spacing: 1 },
-      { type: 10, content: "Daily reminders are a **Blossom Premium** feature! I'm not everyone's personal alarm clock, chat — only the VIPs get that treatment.\n\nCheck out `/premium` to see what you're missing." }
-    ]}])
-  end
-
   # 2. Data Retrieval: Check if the user already has a reminder channel set
   daily_info = DB.get_daily_info(uid)
   is_currently_on = !daily_info['channel'].nil?

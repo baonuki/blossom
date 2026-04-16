@@ -15,6 +15,8 @@ def execute_devhelp(event)
     "`#{PREFIX}card <add/remove/giveascended/takeascended> @user <name>` — Manage user cards",
     "`#{PREFIX}dbomb` — Plant a manual bomb",
     "`#{PREFIX}syncachievements` — Retroactively grant missing achievements",
+    "`#{PREFIX}dticketsetup #channel` — Post support ticket panel",
+    "`#{PREFIX}dapplysetup #channel` — Post mod application panel",
     "`#{PREFIX}devhelp` — This list"
   ].join("\n")
 

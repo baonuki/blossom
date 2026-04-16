@@ -37,7 +37,7 @@ def execute_about(event)
         { type: 14, spacing: 1 },
         {
           type: 10,
-          content: "#{EMOJI_STRINGS['developer']} Built by **Kyvrixon Dev.** — coded by **en.vvy** in **.rb** (Ruby). Yeah, I'm handcrafted. You're welcome.#{mom_remark(event.user.id, 'general')}"
+          content: "#{EMOJI_STRINGS['developer']} Built by **Kyvrixon Dev.** — coded by **baonuki** in **.rb** (Ruby). Yeah, I'm handcrafted. You're welcome.#{mom_remark(event.user.id, 'general')}"
         }
       ]
     }

@@ -25,8 +25,19 @@ $bot.button(custom_id: /^collab_/) do |event|
     user_final = award_coins(event.bot, event.user.id, COLLAB_REWARD)
     
     # Trigger achievements for both users
-    check_achievement(event.channel, author_id, 'first_collab') # Fixed from host_id
+    check_achievement(event.channel, author_id, 'first_collab')
     check_achievement(event.channel, event.user.id, 'first_collab')
+
+    # Friendship & challenge tracking
+    begin
+      DB.add_affinity(author_id, event.user.id, AFFINITY_COLLAB)
+      track_challenge(author_id, 'collab_completed', 1)
+      track_challenge(event.user.id, 'collab_completed', 1)
+      track_challenge(author_id, 'coins_earned', COLLAB_REWARD)
+      track_challenge(event.user.id, 'coins_earned', COLLAB_REWARD)
+    rescue => e
+      puts "[COLLAB TRACKING ERROR] #{e.message}"
+    end
 
     author_user = event.bot.user(author_id)
     author_mention = author_user ? author_user.mention : "<@#{author_id}>"
