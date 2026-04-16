@@ -6,9 +6,7 @@
 # the =begin/=end block only for a full re-register.
 # ==========================================
 
-puts "🌸 Slash registry loaded (all commands registered)."
-
-=begin
+puts "🌸 Slash registry loaded — re-registering all commands..."
 
 # =========================
 # CORE & UTILITY
@@ -294,5 +292,3 @@ end
 $bot.register_application_command(:dapplysetup, 'Post mod application panel (Dev Only)') do |cmd|
   cmd.channel('channel', 'Channel to post the application panel in', required: true)
 end
-
-=end

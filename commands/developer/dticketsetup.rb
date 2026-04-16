@@ -9,11 +9,13 @@ TICKET_SERVER_ID   = 1472509438010065070
 TICKET_STAFF_ROLE  = 1472692333588779143
 
 SUPPORT_TICKET_OPTIONS = [
-  { value: 'general',  label: 'General Support',  emoji: '💬', desc: 'General questions or help with the bot' },
-  { value: 'bug',      label: 'Bug Report',       emoji: '🐛', desc: 'Report a bug or unexpected behavior' },
-  { value: 'account',  label: 'Account Issue',    emoji: '👤', desc: 'Issues with your account, data, or progress' },
-  { value: 'feedback', label: 'Feedback',         emoji: '💡', desc: 'Suggestions, ideas, or feedback' },
-  { value: 'other',    label: 'Other',            emoji: '📋', desc: 'Anything else not listed above' }
+  { value: 'general',    label: 'General Support',    emoji: '💬', desc: 'General questions or help with the server' },
+  { value: 'report',     label: 'Report a User',      emoji: '🚨', desc: 'Report someone breaking server rules' },
+  { value: 'role',       label: 'Role Request',        emoji: '🏷️', desc: 'Request a role or report role issues' },
+  { value: 'collab',     label: 'Collaboration',       emoji: '🤝', desc: 'Inquire about collabs or partnerships' },
+  { value: 'bot',        label: 'Bot Issue',           emoji: '🤖', desc: 'Report a Blossom bug or bot-related issue' },
+  { value: 'feedback',   label: 'Feedback',            emoji: '💡', desc: 'Suggestions, ideas, or server feedback' },
+  { value: 'other',      label: 'Other',               emoji: '📋', desc: 'Anything else not listed above' }
 ].freeze
 
 def execute_dticketsetup(event, channel_id)
@@ -40,7 +42,7 @@ def execute_dticketsetup(event, channel_id)
       components: [
         { type: 10, content: "## 🎫 Support Tickets" },
         { type: 14, spacing: 1 },
-        { type: 10, content: "Need help? Have a question? Found a bug?\n\nSelect a category below to open a support ticket. A staff member will be with you shortly!\n\n**Please don't open duplicate tickets** — one at a time, chat." },
+        { type: 10, content: "Need help? Have a question? Want to report something?\n\nSelect a category below to open a support ticket. A staff member will be with you shortly!\n\n**Please don't open duplicate tickets** — one at a time, chat." },
         { type: 14, spacing: 1 },
         { type: 1, components: [
           { type: 3, custom_id: "ticket_support_open", placeholder: "Select a ticket category...", options: select_options }
