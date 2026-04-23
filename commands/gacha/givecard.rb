@@ -80,7 +80,7 @@ def execute_givecard(event, target, char_name)
           end
 
   # Easter egg: baonuki is Blossom's creator (mom)
-  envvy_comment = proper_name == 'baonuki' ? "\n\n*Excuse me?? You're just GIVING my mom's past life away?! #{target.mention}, you better take good care of her or we're gonna have problems.*" : ""
+  envvy_comment = proper_name == 'Envvy' ? "\n\n*Excuse me?? You're just GIVING my mom's past life away?! #{target.mention}, you better take good care of her or we're gonna have problems.*" : ""
   # Easter egg: baonuki is mom's current VTuber persona
   envvy_comment = "\n\n*You're gifting baonuki?! That's mama's current form. #{target.mention}, keep her safe or we're throwing hands.*" if proper_name.downcase == 'baonuki'
   # Easter egg: Blossom is self-aware

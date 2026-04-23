@@ -158,7 +158,7 @@ def execute_summon(event)
                 when :goddess   then "NO WAY. ACTUAL GODDESS PULL?! CHAT IS THIS REAL?!"
                 end
   # Easter egg: baonuki is Blossom's creator (mom)
-  pull_flavor += "\n\n*...wait, MOM'S PAST LIFE?! You pulled the legend herself. Treat her well or I'm rigging your next 50 pulls to commons.*" if name == 'baonuki'
+  pull_flavor += "\n\n*...wait, MOM'S PAST LIFE?! You pulled the legend herself. Treat her well or I'm rigging your next 50 pulls to commons.*" if name == 'Envvy'
   # Easter egg: baonuki is mom's current VTuber persona
   pull_flavor += "\n\n*BAONUKI?! That's my mama's current form, chat. Handle that card with respect or I'll personally curse your RNG.*" if name.downcase == 'baonuki'
   # Easter egg: Blossom is self-aware
