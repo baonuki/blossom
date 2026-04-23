@@ -16,6 +16,8 @@ MAX_CACHE_SIZE = 1000
 $bot.message do |event|
   next unless event.server
 
+  # Ignore bots so they never enter the cache
+  next if event.message.author.bot_account?
   # Save the message details to Blossom's short-term memory
   BLOSSOM_CACHE[event.message.id] = {
     content: event.message.content,
@@ -35,6 +37,10 @@ end
 # ------------------------------------------
 $bot.message_delete do |event|
   next unless event.server
+
+  # If message isn't in the cache, don't log it
+  cached_msg = BLOSSOM_CACHE[event.id]
+  next unless cached_msg
   
   # Check if the server actually has logging enabled
   config = DB.get_log_config(event.server.id)
