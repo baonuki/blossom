@@ -3,7 +3,7 @@
 # DESCRIPTION: Basic formatting, embed generation, and logging.
 # ==========================================
 
-# Blossom's special remarks when her mom (Envvy) uses a command
+# Blossom's special remarks when her mom (baonuki) uses a command
 MAMA_ID = 1398450651297747065
 
 MOM_REMARKS = {

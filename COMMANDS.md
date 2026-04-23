@@ -291,6 +291,7 @@ Spend coins to pull a random VTuber card from the gacha.
 - **RNG Manipulator** (consumable): Guarantees Rare+ on the next pull
 - **Stamina Pill** (consumable): Bypasses summon cooldown
 - **Custom Banner:** If active, pulls only from your selected characters
+- **Roster Update:** Expanded Common/Rare/Legendary pools with new indie VTubers, plus new Goddess cards including `baonuki`, `Katoh Eli`, and `Megrocks.exe`
 
 ---
 
@@ -1343,6 +1344,15 @@ You must own the character to set it as a favorite. Re-equipping the same cosmet
 
 ---
 
+### `b!derase`
+Developer-only emergency command that removes `Kyvrixon` from all user collections and refunds Prisma.
+
+| Detail | Value |
+|--------|-------|
+| **Permission** | Developer ID only |
+| **Refund** | 100 Prisma per removed copy (base + ascended) |
+| **Scope** | Global (all users) |
+
 ### `/challenges`
 View and claim your weekly challenge progress.
 
@@ -1630,4 +1640,4 @@ Consumables can be purchased in bulk. View your inventory from the `/balance` dr
 
 ---
 
-*Blossom Bot is developed by [Kyvrixon Development](https://github.com/Kyvrixon). For support, use `/support` to join the official server or `/suggest` to send feedback directly to the developer.*
+*Blossom Bot is developed by baonuki. For support, use `/support` to join the official server or `/suggest` to send feedback directly to the developer.*

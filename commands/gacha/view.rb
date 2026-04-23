@@ -86,8 +86,10 @@ def execute_view(event, search_name)
                  end
     desc += "\n*#{commentary.sample}*"
 
-    # Easter egg: Envvy is Blossom's creator (mom)
-    desc += "\n\n*That's my mom, by the way. Yeah, THE Envvy. She literally made me. So like... be normal about it.*" if char_name == 'Envvy'
+    # Easter egg: baonuki is Blossom's creator (mom)
+    desc += "\n\n*That's my mom's past life, by the way. Yeah, THE baonuki card. Be normal about it, chat.*" if char_name == 'baonuki'
+    # Easter egg: baonuki is mom's current VTuber persona
+    desc += "\n\n*And baonuki? That's my mama's current VTuber persona. Absolute icon behavior.*" if char_name.downcase == 'baonuki'
     # Easter egg: Blossom is self-aware
     desc += "\n\n*Oh, you're looking at ME? Yeah I know I'm Goddess-tier, thanks for noticing. You're literally staring at the person running this entire arcade. Put some respect on it.*" if char_name == 'Blossom'
   else
@@ -184,7 +186,7 @@ $bot.command(:view, aliases: [:v],
     send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
       { type: 10, content: "## #{EMOJI_STRINGS['confused']} View Who??" },
       { type: 14, spacing: 1 },
-      { type: 10, content: "Tell me which character you wanna see, chat.\n\n**Usage:** `#{PREFIX}view <character name>`\n*Example:* `#{PREFIX}view Envvy`" }
+      { type: 10, content: "Tell me which character you wanna see, chat.\n\n**Usage:** `#{PREFIX}view <character name>`\n*Example:* `#{PREFIX}view baonuki`" }
     ]}])
     next
   end

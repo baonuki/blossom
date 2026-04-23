@@ -157,8 +157,10 @@ def execute_summon(event)
                 when :legendary then "YO?? W PULL CHAT, LET'S GO!"
                 when :goddess   then "NO WAY. ACTUAL GODDESS PULL?! CHAT IS THIS REAL?!"
                 end
-  # Easter egg: Envvy is Blossom's creator (mom)
-  pull_flavor += "\n\n*...wait, MOM?! You pulled my creator?? Treat her well or I'm rigging your next 50 pulls to commons.*" if name == 'Envvy'
+  # Easter egg: baonuki is Blossom's creator (mom)
+  pull_flavor += "\n\n*...wait, MOM'S PAST LIFE?! You pulled the legend herself. Treat her well or I'm rigging your next 50 pulls to commons.*" if name == 'baonuki'
+  # Easter egg: baonuki is mom's current VTuber persona
+  pull_flavor += "\n\n*BAONUKI?! That's my mama's current form, chat. Handle that card with respect or I'll personally curse your RNG.*" if name.downcase == 'baonuki'
   # Easter egg: Blossom is self-aware
   pull_flavor += "\n\n*WAIT— YOU PULLED ME?? A card of ME?? Okay that's actually kinda flattering... don't let it go to your head though. I'm still YOUR manager, not the other way around.*" if name == 'Blossom'
   desc = "#{emoji} You summoned **#{name}** (#{rarity.to_s.capitalize})!\n#{pull_flavor}\n"

@@ -129,7 +129,8 @@ def execute_buy(event, search_name, qty_override = nil)
     check_achievement(event.channel, uid, 'first_goddess_buy')
 
     blossom_remark = name == 'Blossom' ? "\n\n*You just BOUGHT me?? With Prisma?? I mean... I'm flattered you think I'm worth it. Because I absolutely am. But this is weird, chat.*" : ""
-    blossom_remark = "\n\n*You bought my mom with Prisma. She's not a product, she's a PERSON. ...Okay fine she's a card. But STILL.*" if name == 'Envvy'
+    blossom_remark = "\n\n*You bought my mom's past life with Prisma. She's not a product, she's a PERSON. ...Okay fine she's a card. But STILL.*" if name == 'baonuki'
+    blossom_remark = "\n\n*You bought baonuki?? That's my mama's CURRENT VTuber persona. Respect the drip and protect that card at all costs.*" if name.downcase == 'baonuki'
 
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
       { type: 10, content: "## #{EMOJI_STRINGS['prisma']} Goddess Acquired!" },
@@ -167,6 +168,8 @@ def execute_buy(event, search_name, qty_override = nil)
   emoji = { 'goddess' => EMOJI_STRINGS['goddess'], 'legendary' => EMOJI_STRINGS['legendary'], 'rare' => EMOJI_STRINGS['rare'] }.fetch(rarity, EMOJI_STRINGS['common'])
 
   buy_remark = name == 'Blossom' ? "\n\n*You just bought a card of ME from the shop like I'm merch. I mean... I AM merch, technically. But still. Treat that card right.*" : ""
+  buy_remark = "\n\n*You just bought my mom's past life card. Yeah, that's a certified collector move right there.*" if name == 'baonuki'
+  buy_remark = "\n\n*You bought baonuki?! That's my mama's current form, so yeah, that's a premium pull even from the shop.*" if name.downcase == 'baonuki'
 
   send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
     { type: 10, content: "## #{EMOJI_STRINGS['s_coin']} Bag Secured!" },

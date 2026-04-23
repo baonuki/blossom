@@ -181,4 +181,41 @@ module DatabaseGacha
   def clear_custom_banner(uid)
     @db.exec_params("DELETE FROM custom_banners WHERE user_id = $1", [uid])
   end
+
+  # Removes a specific character from every user and refunds Prisma per copy removed.
+  # Copies include both base and ascended counts.
+  # Returns summary hash: { users:, copies_removed:, prisma_refunded: }
+  def erase_character_globally(character_name, prisma_per_copy = 100)
+    rows = @db.exec_params(
+      "SELECT user_id, count, ascended FROM collections WHERE character_name = $1",
+      [character_name]
+    ).to_a
+
+    return { users: 0, copies_removed: 0, prisma_refunded: 0 } if rows.empty?
+
+    refunded_users = 0
+    total_copies = 0
+    total_refund = 0
+
+    rows.each do |row|
+      uid = row['user_id'].to_i
+      base = row['count'].to_i
+      asc = row['ascended'].to_i
+      copies = base + asc
+      next if copies <= 0
+
+      refund = copies * prisma_per_copy
+      add_prisma(uid, refund)
+      refunded_users += 1
+      total_copies += copies
+      total_refund += refund
+    end
+
+    @db.exec_params("DELETE FROM collections WHERE character_name = $1", [character_name])
+    @db.exec_params("UPDATE global_users SET favorite_card = NULL WHERE favorite_card = $1", [character_name])
+    @db.exec_params("UPDATE global_users SET favorite_card_2 = NULL WHERE favorite_card_2 = $1", [character_name])
+    @db.exec_params("UPDATE global_users SET favorite_card_3 = NULL WHERE favorite_card_3 = $1", [character_name])
+
+    { users: refunded_users, copies_removed: total_copies, prisma_refunded: total_refund }
+  end
 end

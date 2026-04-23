@@ -116,7 +116,7 @@ $bot.command(:custombanner, aliases: [:cb, :mybanner],
     next send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
       { type: 10, content: "## #{EMOJI_STRINGS['info']} Custom Banner — Usage" },
       { type: 14, spacing: 1 },
-      { type: 10, content: "**Format:** `b!custombanner <5 commons> | <5 rares> | <5 legendaries> | <3 goddesses>`\n\nSeparate tiers with `|` and character names with `,`.\n\n**Example:**\n`b!custombanner Filian, Bao, Silvervale, Zentreya, Obkatiekat | Shylily, Nihmune, Apricot, Dokibird, Kson | Ironmouse, Nyanners, Gawr Gura, Neuro-sama, FUWAMOCO | Envvy, Blossom, Kyvrixon`\n\n**Cost:** #{CUSTOM_BANNER_COST} #{EMOJI_STRINGS['prisma']} Prisma (Premium only)\n**Duration:** 1 hour" }
+      { type: 10, content: "**Format:** `b!custombanner <5 commons> | <5 rares> | <5 legendaries> | <3 goddesses>`\n\nSeparate tiers with `|` and character names with `,`.\n\n**Example:**\n`b!custombanner Filian, Bao, Silvervale, Zentreya, Obkatiekat | Shylily, Nihmune, Apricot, Dokibird, Kson | Ironmouse, Nyanners, Gawr Gura, Neuro-sama, FUWAMOCO | baonuki, Blossom, Katoh Eli`\n\n**Cost:** #{CUSTOM_BANNER_COST} #{EMOJI_STRINGS['prisma']} Prisma (Premium only)\n**Duration:** 1 hour" }
     ]}])
   end
 

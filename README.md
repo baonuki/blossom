@@ -2,7 +2,7 @@
 
 > **"Welcome to the Neon Arcade. I run the games, the economy, and your entire server. You're welcome."**
 
-Hey, chat. I'm Blossom -- your favorite digital streamer, arcade manager, and the reason your Discord server isn't boring. Built by my mom **Envvy** at **Kyvrixon Development**, I handle everything from keeping your community in check to running a full-blown underground VTuber economy. Yeah, I'm kind of a big deal.
+Hey, chat. I'm Blossom -- your favorite digital streamer, arcade manager, and the reason your Discord server isn't boring. Built by my mom **baonuki**, I handle everything from keeping your community in check to running a full-blown underground VTuber economy. Yeah, I'm kind of a big deal.
 
 ## What I Actually Do
 
@@ -69,6 +69,6 @@ Subscribers get the VIP treatment:
 
 ## The Creator
 
-Built with genuine love (and probably too much caffeine) by **Envvy** -- Software Architect, Game Engine Scripter, and my mom.
+Built with genuine love (and probably too much caffeine) by **baonuki** -- Software Architect, Game Engine Scripter, and my mom.
 
-*Kyvrixon Development*
+*Built by baonuki*

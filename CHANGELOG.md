@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [Unreleased]
+
+### Changed
+- Replaced `Hexchu` Goddess art URL across all banner goddess pools.
+- Expanded the VTuber roster by adding a large batch of new characters distributed across Common, Rare, and Legendary tiers.
+- Added new Goddess-tier cards across all banners: `baonuki`, `Katoh Eli`, and `Megrocks.exe`.
+- Updated Blossom's baonuki card flavor text in gacha/trade/view flows to refer to baonuki as "mom's past life."
+- Added mama-focused Blossom flavor lines for interactions involving `baonuki` (summon, buy, givecard, view, and trades).
+- Added developer command `b!derase` to globally remove `Kyvrixon` and refund 100 Prisma per removed copy.
+
+---
+
 ## [v1.3.0] - 2026-04-15
 
 ### Summary
@@ -519,4 +531,4 @@ Initial documented release of Blossom Bot — a full-featured Discord bot built 
 
 ---
 
-*Blossom Bot is developed by [Kyvrixon Development](https://github.com/Kyvrixon).*
+*Blossom Bot is developed by baonuki.*

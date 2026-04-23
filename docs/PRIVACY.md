@@ -17,4 +17,4 @@ To function properly, Blossom stores the following data in a secure, local SQLit
 Your data is strictly used to power Blossom's gameplay mechanics (saving your coins, storing your character collection, and tracking your levels). Your data is completely private to the bot and is never shared, sold, or distributed to third parties.
 
 ### 4. Data Deletion
-You have the right to request a complete wipe of your data at any time. If you want your economy balance, gacha collection, and XP permanently deleted from Blossom's database, please join the official Support Server or contact the developer directly (**@Envvy.VT**).
+You have the right to request a complete wipe of your data at any time. If you want your economy balance, gacha collection, and XP permanently deleted from Blossom's database, please join the official Support Server or contact the developer directly (**@baonuki**).

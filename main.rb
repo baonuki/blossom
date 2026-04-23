@@ -1,6 +1,6 @@
 # ==========================================
 # MAIN ENTRY POINT: Blossom Bot
-# AUTHOR: Envvy / Kyvrixon Development
+# AUTHOR: baonuki
 # ==========================================
 
 require 'discordrb'
