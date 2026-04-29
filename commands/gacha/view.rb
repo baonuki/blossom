@@ -86,8 +86,8 @@ def execute_view(event, search_name)
                  end
     desc += "\n*#{commentary.sample}*"
 
-    # Easter egg: baonuki is Blossom's creator (mom)
-    desc += "\n\n*That's my mom's past life, by the way. Yeah, THE baonuki card. Be normal about it, chat.*" if char_name == 'baonuki'
+    # Easter egg: Envvy is Blossom's creator (mom)
+    desc += "\n\n*That's my mom's past life, by the way. Yeah, THE baonuki card. Be normal about it, chat.*" if char_name == 'Envvy'
     # Easter egg: baonuki is mom's current VTuber persona
     desc += "\n\n*And baonuki? That's my mama's current VTuber persona. Absolute icon behavior.*" if char_name.downcase == 'baonuki'
     # Easter egg: Blossom is self-aware

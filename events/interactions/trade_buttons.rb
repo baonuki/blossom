@@ -92,7 +92,7 @@ $bot.button(custom_id: /^trade_\d+_\d+_(accept|decline)$/) do |event|
 
   # Easter eggs
   envvy_comment = ""
-  envvy_comment = "\n\n*...you're trading away my MOM'S PAST LIFE?? I'm watching you. She better be going to a good home.*" if char_a == 'baonuki' || char_b == 'baonuki'
+  envvy_comment = "\n\n*...you're trading away my MOM'S PAST LIFE?? I'm watching you. She better be going to a good home.*" if char_a == 'Envvy' || char_b == 'Envvy'
   envvy_comment = "\n\n*You're trading baonuki?! That's my mama's current VTuber persona. This better be the safest trade in history.*" if char_a.downcase == 'baonuki' || char_b.downcase == 'baonuki'
   envvy_comment = "\n\n*Hold up— I'M being traded?? Like a Pokémon card at recess?? This is so dehumanizing. ...Debot-izing? Whatever. I hope whoever got me knows they're holding ROYALTY.*" if char_a == 'Blossom' || char_b == 'Blossom'
 

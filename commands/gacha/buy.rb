@@ -129,7 +129,7 @@ def execute_buy(event, search_name, qty_override = nil)
     check_achievement(event.channel, uid, 'first_goddess_buy')
 
     blossom_remark = name == 'Blossom' ? "\n\n*You just BOUGHT me?? With Prisma?? I mean... I'm flattered you think I'm worth it. Because I absolutely am. But this is weird, chat.*" : ""
-    blossom_remark = "\n\n*You bought my mom's past life with Prisma. She's not a product, she's a PERSON. ...Okay fine she's a card. But STILL.*" if name == 'baonuki'
+    blossom_remark = "\n\n*You bought my mom's past life with Prisma. She's not a product, she's a PERSON. ...Okay fine she's a card. But STILL.*" if name == 'Envvy'
     blossom_remark = "\n\n*You bought baonuki?? That's my mama's CURRENT VTuber persona. Respect the drip and protect that card at all costs.*" if name.downcase == 'baonuki'
 
     return send_cv2(event, [{ type: 17, accent_color: NEON_COLORS.sample, components: [
