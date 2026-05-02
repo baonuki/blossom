@@ -28,6 +28,7 @@ $bot.ready do |event|
   # end
 
   puts "#{EMOJI_STRINGS['stream']} Syncing server names to database..."
+  active_server_ids = event.bot.servers.keys
   event.bot.servers.each do |id, server|
     # Fetch current XP/Level so we don't reset them to 0
     stats = DB.get_community_level(id)
@@ -35,6 +36,19 @@ $bot.ready do |event|
     DB.update_community_level(id, server.name, stats['xp'], stats['level'])
   end
   puts "✅ Sync complete!"
+
+  # Prune any servers Blossom is no longer in from the global leaderboard
+  # and per-server XP tables. Skipped entirely if the connected-server cache
+  # is empty so a bad gateway handshake can't accidentally wipe the DB.
+  if active_server_ids.empty?
+    puts "[PRUNE] Skipping orphan cleanup — connected-server cache is empty."
+  else
+    pruned = DB.prune_orphan_servers(active_server_ids)
+    if pruned
+      puts "🧹 Pruned #{pruned[:leaderboard]} stale leaderboard entr#{pruned[:leaderboard] == 1 ? 'y' : 'ies'} " \
+           "and #{pruned[:user_xp]} orphaned user XP row#{pruned[:user_xp] == 1 ? '' : 's'}."
+    end
+  end
 
   # ---------------------------------
 

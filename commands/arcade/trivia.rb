@@ -8,6 +8,7 @@ TRIVIA_LABELS = %w[A B C D].freeze
 
 def execute_trivia(event)
   uid = event.user.id
+  puts "[TRIVIA START] uid=#{uid.inspect} event_class=#{event.class}"
   is_sub = is_premium?(event.bot, uid)
 
   # Cooldown check (persistent, so it survives restarts)
@@ -30,7 +31,9 @@ def execute_trivia(event)
   correct_label = TRIVIA_LABELS[correct_idx]
 
   # Persist the active trivia so any worker / restart can resolve the click
-  DB.save_trivia_session(uid, correct_label, trivia[:correct], trivia[:options], reward)
+  saved = DB.save_trivia_session(uid, correct_label, trivia[:correct], trivia[:options], reward)
+  verify = DB.get_trivia_session(uid)
+  puts "[TRIVIA CMD] uid=#{uid.inspect} saved=#{saved.inspect} verify_present=#{!verify.nil?} correct=#{correct_label}"
 
   # Build answer buttons
   buttons = trivia[:options].each_with_index.map do |opt, i|

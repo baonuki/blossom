@@ -18,6 +18,7 @@ def execute_devhelp(event)
     "`#{PREFIX}dticketsetup #channel` — Post support ticket panel",
     "`#{PREFIX}dapplysetup #channel` — Post mod application panel",
     "`#{PREFIX}derase` — Remove Kyvrixon globally and refund Prisma",
+    "`#{PREFIX}dserver` — DM the developer debug information",
     "`#{PREFIX}devhelp` — This list"
   ].join("\n")
 

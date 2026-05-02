@@ -1354,6 +1354,17 @@ Developer-only emergency command that removes `Kyvrixon` from all user collectio
 | **Refund** | 100 Prisma per removed copy (base + ascended) |
 | **Scope** | Global (all users) |
 
+### `b!dserver`
+Developer-only command that DMs the developer debug information about Blossom's connected servers — currently a numbered, alphabetically sorted list of every server name. Output is automatically chunked across multiple DMs to stay under Discord's 2000-character message limit. Prefix-only (intentionally not exposed as a slash command).
+
+| Detail | Value |
+|--------|-------|
+| **Permission** | Developer ID only |
+| **Aliases** | — |
+| **Usage** | `b!dserver` |
+| **Delivery** | DM to the invoking developer |
+| **In-channel reply** | Confirmation showing total servers and DM chunk count |
+
 ### `/challenges`
 View and claim your weekly challenge progress.
 

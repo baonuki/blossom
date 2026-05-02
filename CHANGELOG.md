@@ -11,10 +11,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 - **`b!setxp` no longer silently reverts.** The passive chat-XP handler used to fire on the command message itself, race the admin write, and overwrite it with `old_xp + chat_gain`. Command messages (anything starting with `PREFIX`) are now skipped by the leveling event entirely.
 - **Trivia buttons no longer report "expired" on every click.** Trivia sessions are now persisted in a new `trivia_sessions` table instead of an in-memory hash, so clicks survive worker restarts and any process state loss. Cooldown checks read from the same table.
+- **Trivia DB layer hardened against silent failures and timezone weirdness.** `get_trivia_session` now reads `asked_at` as an epoch (`EXTRACT(EPOCH FROM asked_at)::bigint`) and rebuilds it with `Time.at`, eliminating any naive-timestamp / local-vs-UTC drift. All trivia DB methods explicitly cast `uid.to_i`, log exceptions with `[TRIVIA DB ERROR]` instead of swallowing them, and `save_trivia_session` returns true/false so callers can verify the row actually landed. The button handler also logs every click and the trivia command logs the post-save verification round-trip, so the next time something says "expired" we can see exactly where it broke.
+- **Blacklisted users can no longer bypass the block via slash commands or button clicks.** discordrb's `ignore_user` only filters message events; slash commands, buttons, selects, and modals slipped past it. A new interaction guard checks the bot's ignore set and short-circuits with an ephemeral notice in Blossom's voice.
+- **Stale servers no longer linger on the global leaderboard or in the per-server XP table.** On every boot, after the existing server-name sync, Blossom now diffs her connected-server list against the DB and prunes any `community_levels` and `server_xp` rows for guilds she's no longer in. Includes a hard safety guard: if the connected-server cache is empty (e.g., a flaky gateway handshake), the prune is skipped entirely so a transient blip can't wipe the database. Counts of pruned rows are logged.
 
 ### Added
 - New DB module `DatabaseTrivia` with `get_trivia_session`, `save_trivia_session`, `mark_trivia_answered`, and `clear_trivia_session`.
 - New `trivia_sessions` table (one row per user, upserted on each new question).
+- New `helpers/blacklist_guard.rb` that monkey-patches `ApplicationCommandEventHandler#call` and `ComponentEventHandler#call` to enforce the blacklist on all interaction types.
+- New `DB.prune_orphan_servers(active_ids)` method on `DatabaseLeveling` that cleans the global leaderboard and per-server XP tables of any server IDs not in the supplied active list (with empty-list safety guard).
+- New developer command `b!dserver` (prefix-only, no slash variant by design) that DMs the invoking developer an alphabetically sorted, numbered list of every server Blossom is currently connected to. Output is chunked across multiple DMs to respect Discord's 2000-char limit; in-channel reply confirms the total count and number of DM chunks sent. The command is listed in `b!devhelp`.
 
 ### Changed
 - Giveaway scheduler sleeps until the next scheduled end time (with a short cap so newly posted giveaways are picked up) instead of polling Postgres every 10 seconds.

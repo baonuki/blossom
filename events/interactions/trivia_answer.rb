@@ -7,6 +7,7 @@ $bot.button(custom_id: /^trivia_[ABCD]_\d+$/) do |event|
   parts = event.custom_id.split('_')
   answer = parts[1]
   owner_id = parts[2]
+  puts "[TRIVIA CLICK] custom_id=#{event.custom_id.inspect} clicker_uid=#{event.user.id.inspect} owner_id=#{owner_id.inspect}"
 
   # Only the question owner can answer
   if event.user.id.to_s != owner_id
@@ -18,6 +19,7 @@ $bot.button(custom_id: /^trivia_[ABCD]_\d+$/) do |event|
   trivia = DB.get_trivia_session(uid)
 
   unless trivia
+    puts "[TRIVIA CLICK] no session found for uid=#{uid.inspect}"
     event.respond(content: "This trivia has expired! Run `#{PREFIX}trivia` for a fresh one.", ephemeral: true)
     next
   end

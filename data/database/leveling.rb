@@ -101,4 +101,34 @@ module DatabaseLeveling
   def get_global_server_leaderboard(limit = 10)
     @db.exec_params("SELECT server_id, server_name, xp, level FROM community_levels ORDER BY xp DESC, level DESC LIMIT $1", [limit]).to_a
   end
+
+  # --- ORPHAN SERVER CLEANUP ---
+  # Removes any community_levels (global leaderboard) and server_xp (per-server
+  # user levels) rows for servers Blossom is no longer in. Called from the
+  # ready hook so a stale leaderboard doesn't keep ghost servers around forever.
+  #
+  # SAFETY: refuses to run with an empty active_ids list — if Discord hands us
+  # a half-initialized server cache during boot, we are NOT going to nuke the
+  # entire database to "clean it up." Returns nil in that case.
+  def prune_orphan_servers(active_ids)
+    ids = Array(active_ids).map(&:to_i).uniq
+    return nil if ids.empty?
+
+    placeholders = ids.each_with_index.map { |_, i| "$#{i + 1}" }.join(', ')
+
+    leaderboard_deleted = @db.exec_params(
+      "DELETE FROM community_levels WHERE server_id NOT IN (#{placeholders})",
+      ids
+    ).cmd_tuples
+
+    user_xp_deleted = @db.exec_params(
+      "DELETE FROM server_xp WHERE server_id NOT IN (#{placeholders})",
+      ids
+    ).cmd_tuples
+
+    { leaderboard: leaderboard_deleted.to_i, user_xp: user_xp_deleted.to_i }
+  rescue => e
+    puts "[PRUNE] orphan server cleanup failed: #{e.class}: #{e.message}"
+    nil
+  end
 end
