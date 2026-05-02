@@ -8,7 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+- **`b!setxp` no longer silently reverts.** The passive chat-XP handler used to fire on the command message itself, race the admin write, and overwrite it with `old_xp + chat_gain`. Command messages (anything starting with `PREFIX`) are now skipped by the leveling event entirely.
+- **Trivia buttons no longer report "expired" on every click.** Trivia sessions are now persisted in a new `trivia_sessions` table instead of an in-memory hash, so clicks survive worker restarts and any process state loss. Cooldown checks read from the same table.
+
+### Added
+- New DB module `DatabaseTrivia` with `get_trivia_session`, `save_trivia_session`, `mark_trivia_answered`, and `clear_trivia_session`.
+- New `trivia_sessions` table (one row per user, upserted on each new question).
+
 ### Changed
+- Giveaway scheduler sleeps until the next scheduled end time (with a short cap so newly posted giveaways are picked up) instead of polling Postgres every 10 seconds.
+- Premium auto-claim batches per-user daily context into one query and runs daily/calendar/Prisma writes in a single transaction.
 - Replaced `Hexchu` Goddess art URL across all banner goddess pools.
 - Expanded the VTuber roster by adding a large batch of new characters distributed across Common, Rare, and Legendary tiers.
 - Added new Goddess-tier cards across all banners: `baonuki`, `Katoh Eli`, and `Megrocks.exe`.
@@ -16,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Added mama-focused Blossom flavor lines for interactions involving `baonuki` (summon, buy, givecard, view, and trades).
 - Added developer command `b!derase` to globally remove `Kyvrixon` and refund 100 Prisma per removed copy.
 - Fixed auto-claim daily so it also increments weekly `daily_claims` challenge progress.
+- Removed the now-unused `ACTIVE_TRIVIA` in-memory hash from `data/constants.rb`.
 
 ---
 

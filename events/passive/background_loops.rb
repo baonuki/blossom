@@ -141,10 +141,10 @@ $bot.ready do |event|
           now = Time.now
           today = Date.today
 
-          # Fetch daily info for streak calculation
-          daily_info = DB.get_daily_info(uid)
-          last_used = daily_info['at'] ? Time.parse(daily_info['at'].to_s) : nil
-          current_streak = daily_info['streak'].to_i
+          ctx = DB.fetch_autoclaim_context(uid)
+
+          last_used = ctx['at']
+          current_streak = ctx['streak'].to_i
 
           # Verify cooldown is actually up
           next if last_used && (now - last_used) < DAILY_COOLDOWN
@@ -160,24 +160,20 @@ $bot.ready do |event|
           reward = DAILY_REWARD + (new_streak * DAILY_STREAK_BONUS)
 
           # Marriage bonus
-          marriage = DB.get_marriage(uid)
-          reward += MARRIAGE_DAILY_BONUS if marriage
+          reward += MARRIAGE_DAILY_BONUS if ctx['married']
 
           # Neon sign boost
-          inv_array = DB.get_inventory(uid)
-          inv = inv_array.each_with_object({}) { |item, h| h[item['item_id']] = item['quantity'] }
-          reward *= 2 if inv['neon sign'] && inv['neon sign'] > 0
+          reward *= 2 if ctx['neon_sign_count'].positive?
 
           # Award coins (handles premium +10% and happy hour)
           final_reward = award_coins(event.bot, uid, reward)
-          DB.update_daily_claim(uid, new_streak, now)
-          DB.add_calendar_claim(uid, today)
 
-          # Prisma reward
+          # Prisma reward (premium autoclaim users only)
           base_prisma = rand(1..3)
           streak_multiplier = 1 + (new_streak / 7)
           prisma_reward = base_prisma * streak_multiplier
-          DB.add_prisma(uid, prisma_reward)
+
+          DB.autoclaim_commit_claim(uid, new_streak, now, today, prisma_reward)
 
           # Calendar milestone checks
           claim_count = DB.get_monthly_claim_count(uid, today.year, today.month)

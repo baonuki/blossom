@@ -61,53 +61,55 @@ $bot.ready do |event|
   # ------------------------------------------
   Thread.new do
     loop do
-      sleep 10 # Check the database every 10 seconds for ended giveaways
+      sleep_seconds = DB.giveaway_scheduler_sleep_seconds
+      sleep(sleep_seconds) if sleep_seconds.positive?
+
       now = Time.now.to_i
-      active_gws = DB.get_active_giveaways
-      active_gws.each do |gw|
-        if now >= gw['end_time'].to_i
-          gw_id = gw['id']
-          begin
-            channel = event.bot.channel(gw['channel_id'].to_i)
-            next unless channel
-
-            entrants = DB.get_giveaway_entrants(gw_id)
-
-            # Try to fetch the original giveaway message to edit it
-            begin
-              msg = channel.message(gw['message_id'].to_i)
-            rescue
-              msg = nil
-            end
-
-            ended_embed = Discordrb::Webhooks::Embed.new(
-              title: "#{EMOJI_STRINGS['surprise']} **GIVEAWAY ENDED: #{gw['prize']}** #{EMOJI_STRINGS['surprise']}",
-              color: 0x808080 # Gray out the embed so people know it's over
-            )
-
-            if entrants.empty?
-              ended_embed.description = "Hosted by: <@#{gw['host_id']}>\n\nNobody entered the giveaway! 😢"
-              msg.edit(nil, ended_embed, Discordrb::Components::View.new) if msg
-              channel.send_message("The giveaway for **#{gw['prize']}** ended, but nobody entered!")
-            else
-              winner_id = entrants.sample
-              winner_mention = "<@#{winner_id}>"
-
-              # FIXED: Actually fetch the user object before checking it!
-              winner_user = event.bot.user(winner_id)
-              check_achievement(channel, winner_id, 'giveaway_win', silent: true) if winner_user
-
-              ended_embed.description = "Hosted by: <@#{gw['host_id']}>\nWinner: #{winner_mention}\nTotal Entrants: **#{entrants.size}**"
-              msg.edit(nil, ended_embed, Discordrb::Components::View.new) if msg
-              channel.send_message("Congratulations #{winner_mention}! You won the **#{gw['prize']}**! #{EMOJI_STRINGS['surprise']}")
-            end
-
-            # Wipe it from the active database
+      DB.get_giveaways_due(now).each do |gw|
+        gw_id = gw['id']
+        begin
+          channel = event.bot.channel(gw['channel_id'].to_i)
+          unless channel
             DB.delete_giveaway(gw_id)
-          rescue StandardError => e
-            puts "#{EMOJI_STRINGS['error']} Cleaned up broken giveaway #{gw_id} - #{e.message}"
-            DB.delete_giveaway(gw_id) # Delete broken ones so they don't loop forever
+            next
           end
+
+          entrants = DB.get_giveaway_entrants(gw_id)
+
+          # Try to fetch the original giveaway message to edit it
+          begin
+            msg = channel.message(gw['message_id'].to_i)
+          rescue
+            msg = nil
+          end
+
+          ended_embed = Discordrb::Webhooks::Embed.new(
+            title: "#{EMOJI_STRINGS['surprise']} **GIVEAWAY ENDED: #{gw['prize']}** #{EMOJI_STRINGS['surprise']}",
+            color: 0x808080 # Gray out the embed so people know it's over
+          )
+
+          if entrants.empty?
+            ended_embed.description = "Hosted by: <@#{gw['host_id']}>\n\nNobody entered the giveaway! 😢"
+            msg&.edit(nil, ended_embed, Discordrb::Components::View.new)
+            channel.send_message("The giveaway for **#{gw['prize']}** ended, but nobody entered!")
+          else
+            winner_id = entrants.sample
+            winner_mention = "<@#{winner_id}>"
+
+            # FIXED: Actually fetch the user object before checking it!
+            winner_user = event.bot.user(winner_id)
+            check_achievement(channel, winner_id, 'giveaway_win', silent: true) if winner_user
+
+            ended_embed.description = "Hosted by: <@#{gw['host_id']}>\nWinner: #{winner_mention}\nTotal Entrants: **#{entrants.size}**"
+            msg&.edit(nil, ended_embed, Discordrb::Components::View.new)
+            channel.send_message("Congratulations #{winner_mention}! You won the **#{gw['prize']}**! #{EMOJI_STRINGS['surprise']}")
+          end
+
+          # Wipe it from the active database
+          DB.delete_giveaway(gw_id)
+        rescue StandardError => e
+          puts "#{EMOJI_STRINGS['error']} Cleaned up broken giveaway #{gw_id} - #{e.message}"
+          DB.delete_giveaway(gw_id) # Delete broken ones so they don't loop forever
         end
       end
     end

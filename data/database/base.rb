@@ -16,6 +16,7 @@ require_relative 'cooldowns'
 require_relative 'social'
 require_relative 'admin'
 require_relative 'crews'
+require_relative 'trivia'
 
 class PGPoolWrapper
   def initialize(url)
@@ -29,6 +30,18 @@ class PGPoolWrapper
 
   def exec_params(*args)
     with_retry { |conn| conn.exec_params(*args) }
+  end
+
+  # Single pooled connection for BEGIN/COMMIT (pool checkout must stay pinned across statements).
+  def transaction
+    @pool.with do |conn|
+      conn.exec('BEGIN')
+      yield conn
+      conn.exec('COMMIT')
+    rescue StandardError => e
+      conn.exec('ROLLBACK')
+      raise e
+    end
   end
 
   private
@@ -61,6 +74,7 @@ class BotDatabase
   include DatabaseSocial
   include DatabaseAdmin
   include DatabaseCrews
+  include DatabaseTrivia
 
   def initialize
     @db = PGPoolWrapper.new(ENV['DATABASE_URL'])

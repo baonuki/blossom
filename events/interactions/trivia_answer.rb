@@ -15,10 +15,10 @@ $bot.button(custom_id: /^trivia_[ABCD]_\d+$/) do |event|
   end
 
   uid = event.user.id
-  trivia = ACTIVE_TRIVIA[uid]
+  trivia = DB.get_trivia_session(uid)
 
   unless trivia
-    event.respond(content: "This trivia has expired!", ephemeral: true)
+    event.respond(content: "This trivia has expired! Run `#{PREFIX}trivia` for a fresh one.", ephemeral: true)
     next
   end
 
@@ -30,8 +30,7 @@ $bot.button(custom_id: /^trivia_[ABCD]_\d+$/) do |event|
   # Check time limit
   elapsed = Time.now - trivia[:asked_at]
   if elapsed > TRIVIA_TIME_LIMIT
-    ACTIVE_TRIVIA[uid][:answered] = true
-    ACTIVE_TRIVIA[uid][:asked_at] = Time.now # Reset for cooldown
+    DB.mark_trivia_answered(uid)
 
     update_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
@@ -44,11 +43,9 @@ $bot.button(custom_id: /^trivia_[ABCD]_\d+$/) do |event|
     next
   end
 
-  ACTIVE_TRIVIA[uid][:answered] = true
-  ACTIVE_TRIVIA[uid][:asked_at] = Time.now # Reset for cooldown
+  DB.mark_trivia_answered(uid)
 
   if answer == trivia[:correct]
-    # Correct!
     final_reward = award_coins(event.bot, uid, trivia[:reward])
     check_wealth_achievements(nil, uid)
     track_challenge(uid, 'trivia_correct', 1)
@@ -62,7 +59,6 @@ $bot.button(custom_id: /^trivia_[ABCD]_\d+$/) do |event|
       ]
     }])
   else
-    # Wrong!
     update_cv2(event, [{
       type: 17, accent_color: 0xFF0000,
       components: [

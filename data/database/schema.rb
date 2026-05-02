@@ -111,6 +111,8 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
         UNIQUE(giveaway_id, user_id)
       );
 
+      CREATE INDEX IF NOT EXISTS idx_giveaways_end_time ON giveaways (end_time);
+
       CREATE TABLE IF NOT EXISTS lottery (
         id SERIAL PRIMARY KEY,
         user_id BIGINT
@@ -354,6 +356,19 @@ module DatabaseSchema # <--- Changed from 'class' to 'module'
         progress_json TEXT NOT NULL DEFAULT '{}',
         claimed INTEGER DEFAULT 0,
         PRIMARY KEY(user_id, week_start)
+      );
+    SQL
+
+    # --- Trivia Sessions (persistent so button clicks survive restarts) ---
+    @db.exec(<<-SQL)
+      CREATE TABLE IF NOT EXISTS trivia_sessions (
+        user_id BIGINT PRIMARY KEY,
+        correct_label VARCHAR(1) NOT NULL,
+        correct_text TEXT NOT NULL,
+        options_json TEXT NOT NULL,
+        reward INTEGER NOT NULL,
+        answered INTEGER DEFAULT 0,
+        asked_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
     SQL
   end # Closes 'def setup_schema'

@@ -13,6 +13,23 @@ module DatabaseAdmin
     @db.exec("SELECT * FROM giveaways").to_a
   end
 
+  # Giveaways that should be finalized now (end_time <= now_epoch).
+  def get_giveaways_due(now_epoch)
+    @db.exec_params('SELECT * FROM giveaways WHERE end_time <= $1 ORDER BY end_time', [now_epoch]).to_a
+  end
+
+  # Seconds to sleep before the next due giveaway, capped so newly created giveaways are noticed promptly.
+  def giveaway_scheduler_sleep_seconds(now_epoch = Time.now.to_i, max_idle_when_empty: 120, max_cap: 120)
+    row = @db.exec('SELECT MIN(end_time) AS m FROM giveaways').first
+    return max_idle_when_empty if row.nil? || row['m'].nil?
+
+    min_end = row['m'].to_i
+    wait = min_end - now_epoch
+    return 0 if wait <= 0
+
+    [wait, max_cap].min
+  end
+
   def add_giveaway_entrant(gw_id, user_id)
     result = @db.exec_params(
       "INSERT INTO giveaway_entrants (giveaway_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",

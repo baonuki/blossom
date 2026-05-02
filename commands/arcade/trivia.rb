@@ -10,9 +10,9 @@ def execute_trivia(event)
   uid = event.user.id
   is_sub = is_premium?(event.bot, uid)
 
-  # Cooldown check
-  last_trivia = ACTIVE_TRIVIA[uid]
-  if last_trivia && (Time.now - last_trivia[:asked_at]) < TRIVIA_COOLDOWN && last_trivia[:answered]
+  # Cooldown check (persistent, so it survives restarts)
+  last_trivia = DB.get_trivia_session(uid)
+  if last_trivia && last_trivia[:answered] && (Time.now - last_trivia[:asked_at]) < TRIVIA_COOLDOWN
     remaining = TRIVIA_COOLDOWN - (Time.now - last_trivia[:asked_at])
     return send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
       { type: 10, content: "## #{EMOJI_STRINGS['confuse']} Trivia Cooldown" },
@@ -26,18 +26,11 @@ def execute_trivia(event)
   reward = is_sub ? rand(TRIVIA_PREMIUM_RANGE) : rand(TRIVIA_REWARD_RANGE)
 
   # Find correct answer index
-  correct_idx = trivia[:options].index(trivia[:correct])
+  correct_idx = trivia[:options].index(trivia[:correct]) || 0
   correct_label = TRIVIA_LABELS[correct_idx]
 
-  # Store active trivia
-  ACTIVE_TRIVIA[uid] = {
-    correct: correct_label,
-    correct_text: trivia[:correct],
-    asked_at: Time.now,
-    reward: reward,
-    answered: false,
-    options: trivia[:options]
-  }
+  # Persist the active trivia so any worker / restart can resolve the click
+  DB.save_trivia_session(uid, correct_label, trivia[:correct], trivia[:options], reward)
 
   # Build answer buttons
   buttons = trivia[:options].each_with_index.map do |opt, i|

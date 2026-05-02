@@ -10,7 +10,6 @@ ACTIVE_TRADES      = {}
 ACTIVE_PROPOSALS   = {}
 ACTIVE_SELLS       = {}
 ACTIVE_RPS         = {}
-ACTIVE_TRIVIA      = {} # uid => { correct: 'B', asked_at: Time, reward: 75 }
 ACTIVE_HEISTS      = {} # server_id => { message_id:, participants: [], started_at:, channel_id: }
 ACTIVE_CREW_INVITES = {} # "crew_id_target_uid" => { crew_id:, inviter_id:, expires_at: }
 ACTIVE_TICKETS      = {} # user_id => channel_id (prevents duplicate open tickets)

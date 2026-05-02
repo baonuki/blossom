@@ -7,7 +7,11 @@
 
 $bot.message do |event|
   next if event.user.bot_account?
-  next unless event.server 
+  next unless event.server
+
+  # Skip command invocations so admin commands like b!setxp / b!dcoin
+  # don't race with this passive write-back and clobber DB updates.
+  next if event.message.content.to_s.start_with?(PREFIX)
 
   sid  = event.server.id
   uid  = event.user.id
@@ -61,7 +65,7 @@ $bot.message do |event|
 
     # --- CUSTOM SERVER ROLE REWARDS ---
     # This block only executes if the message was sent in your specific main server
-    if sid == 1472509438010065070
+    if sid == 1499998845873033316
       member = event.server.member(uid)
       
       if member
