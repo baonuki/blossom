@@ -22,7 +22,6 @@ module DatabaseTrivia
     }
   rescue => e
     puts "[TRIVIA DB ERROR] get_trivia_session(#{uid}) failed: #{e.class}: #{e.message}"
-    puts e.backtrace.first(3).join("\n")
     nil
   end
 
@@ -42,7 +41,6 @@ module DatabaseTrivia
     true
   rescue => e
     puts "[TRIVIA DB ERROR] save_trivia_session(#{uid}) failed: #{e.class}: #{e.message}"
-    puts e.backtrace.first(3).join("\n")
     false
   end
 

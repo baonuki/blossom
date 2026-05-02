@@ -2,13 +2,27 @@
 # COMMAND: trivia
 # DESCRIPTION: VTuber-themed trivia questions for coins.
 # CATEGORY: Arcade
+#
+# State model:
+#   The button custom_id is the SOURCE OF TRUTH for the answer state. We bake
+#   the user id, this option's label, the correct label, the reward, and the
+#   asked-at epoch directly into the custom_id. That means the click handler
+#   never has to consult the database to decide whether a click is correct or
+#   when the question expires — eliminating the entire "expired" failure mode
+#   caused by missing/stale DB rows.
+#
+#   The trivia_sessions DB row is kept around for two things only:
+#     1. Per-user cooldown tracking (Was your last trivia answered recently?)
+#     2. Pretty display text on the result screen (the full correct-answer
+#        text so we can show "B: Hololive" instead of just "B"). If the row
+#        is missing for any reason, the click handler degrades gracefully
+#        instead of telling the user it expired.
 # ==========================================
 
 TRIVIA_LABELS = %w[A B C D].freeze
 
 def execute_trivia(event)
   uid = event.user.id
-  puts "[TRIVIA START] uid=#{uid.inspect} event_class=#{event.class}"
   is_sub = is_premium?(event.bot, uid)
 
   # Cooldown check (persistent, so it survives restarts)
@@ -22,22 +36,27 @@ def execute_trivia(event)
     ]}])
   end
 
-  # Generate question
   trivia = generate_trivia_question
   reward = is_sub ? rand(TRIVIA_PREMIUM_RANGE) : rand(TRIVIA_REWARD_RANGE)
 
-  # Find correct answer index
   correct_idx = trivia[:options].index(trivia[:correct]) || 0
   correct_label = TRIVIA_LABELS[correct_idx]
+  asked_epoch = Time.now.to_i
 
-  # Persist the active trivia so any worker / restart can resolve the click
-  saved = DB.save_trivia_session(uid, correct_label, trivia[:correct], trivia[:options], reward)
-  verify = DB.get_trivia_session(uid)
-  puts "[TRIVIA CMD] uid=#{uid.inspect} saved=#{saved.inspect} verify_present=#{!verify.nil?} correct=#{correct_label}"
+  # Best-effort DB save for cooldown + display text. The buttons remain fully
+  # playable even if this fails, because the answer state lives in the
+  # custom_id (see comment in events/interactions/trivia_answer.rb).
+  DB.save_trivia_session(uid, correct_label, trivia[:correct], trivia[:options], reward)
 
-  # Build answer buttons
+  # Stateless buttons: every piece of info needed to resolve a click lives in
+  # the custom_id itself. Format: tv2_<uid>_<this_label>_<correct>_<reward>_<epoch>
   buttons = trivia[:options].each_with_index.map do |opt, i|
-    { type: 2, style: 1, label: "#{TRIVIA_LABELS[i]}: #{opt}", custom_id: "trivia_#{TRIVIA_LABELS[i]}_#{uid}" }
+    label = TRIVIA_LABELS[i]
+    {
+      type: 2, style: 1,
+      label: "#{label}: #{opt}",
+      custom_id: "tv2_#{uid}_#{label}_#{correct_label}_#{reward}_#{asked_epoch}"
+    }
   end
 
   components = [{
