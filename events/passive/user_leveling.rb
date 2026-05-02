@@ -13,8 +13,16 @@ $bot.message do |event|
   # don't race with this passive write-back and clobber DB updates.
   next if event.message.content.to_s.start_with?(PREFIX)
 
-  sid  = event.server.id
-  uid  = event.user.id
+  sid = event.server.id
+  uid = event.user.id
+
+  # Blacklisted users earn nothing — no XP, no levels, no chat coins, no
+  # streak progress. discordrb already filters most events from ignored
+  # users at the gateway, but check explicitly here so a freshly-blacklisted
+  # user (added via DB before the in-memory ignore set syncs) still can't
+  # accumulate anything.
+  next if event.bot.ignored?(uid)
+
   user = DB.get_user_xp(sid, uid)
 
   now = Time.now

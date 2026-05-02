@@ -206,6 +206,84 @@ module DatabaseAdmin
     end
   end
 
+  # Wipes a user's entire footprint from the bot's database — coins, prisma,
+  # collections, inventory, achievements, badges, materials, challenges, daily
+  # calendar, investments, social interactions, premium status, custom banners,
+  # trivia state, lottery entries, boss participation, crew memberships,
+  # giveaway entries, per-server XP, and any relational rows that involve them
+  # (marriages, friendships, gifts, rep cooldowns).
+  #
+  # Used when a user is added to the blacklist (and re-applied on every boot
+  # to any user already on the blacklist) so blacklisted users have nothing
+  # left to come back to.
+  #
+  # Wrapped in a single transaction so a partial failure never leaves the
+  # user half-deleted. Returns a hash of { table_name => deleted_row_count }
+  # so the caller can log a meaningful summary.
+  def purge_user_data(uid)
+    user_id = uid.to_i
+    return {} if user_id.zero?
+
+    # Tables keyed by user_id (the simple case).
+    user_id_tables = %w[
+      global_users
+      user_prisma
+      inventory
+      collections
+      user_achievements
+      user_badges
+      user_materials
+      user_challenge_progress
+      daily_calendar
+      investments
+      interactions
+      lifetime_premium
+      custom_banners
+      trivia_sessions
+      lottery
+      boss_participants
+      crew_members
+      giveaway_entrants
+      server_xp
+    ].freeze
+
+    # Tables that store a relationship between two users.
+    pairwise_tables = {
+      'marriages'     => %w[user_a user_b],
+      'friendships'   => %w[user_a user_b],
+      'gift_logs'     => %w[giver_id receiver_id],
+      'rep_cooldowns' => %w[giver_id receiver_id]
+    }.freeze
+
+    counts = {}
+
+    @db.transaction do |conn|
+      user_id_tables.each do |table|
+        result = conn.exec_params("DELETE FROM #{table} WHERE user_id = $1", [user_id])
+        counts[table] = result.cmd_tuples.to_i
+      rescue PG::Error => e
+        # Table or column might not exist on older schemas — log and continue
+        # rather than poisoning the whole transaction.
+        puts "[PURGE] skipping #{table}: #{e.class}: #{e.message}"
+        counts[table] = 0
+      end
+
+      pairwise_tables.each do |table, columns|
+        clause = columns.map { |c| "#{c} = $1" }.join(' OR ')
+        result = conn.exec_params("DELETE FROM #{table} WHERE #{clause}", [user_id])
+        counts[table] = result.cmd_tuples.to_i
+      rescue PG::Error => e
+        puts "[PURGE] skipping #{table}: #{e.class}: #{e.message}"
+        counts[table] = 0
+      end
+    end
+
+    counts
+  rescue => e
+    puts "[PURGE] purge_user_data(#{user_id}) transaction failed: #{e.class}: #{e.message}"
+    {}
+  end
+
   def is_lifetime_premium?(uid)
     row = @db.exec_params("SELECT user_id FROM lifetime_premium WHERE user_id = $1", [uid]).first
     !row.nil?

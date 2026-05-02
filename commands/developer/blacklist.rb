@@ -63,11 +63,23 @@ def execute_blacklist(event, target_input)
   if is_now_blacklisted
     # Tell the discordrb client to stop processing any events from this user ID
     event.bot.ignore_user(uid)
-    
+
+    # Wipe their entire footprint — coins, prisma, collection, achievements,
+    # crew membership, marriages, the lot. Counts come back per-table so we
+    # can show a summary in the embed.
+    purge_counts = DB.purge_user_data(uid) || {}
+    total_purged = purge_counts.values.sum
+    purge_summary = if total_purged.positive?
+                      tables_hit = purge_counts.count { |_, n| n.positive? }
+                      "\n\n**Wiped from the database:** #{total_purged} row#{total_purged == 1 ? '' : 's'} across #{tables_hit} table#{tables_hit == 1 ? '' : 's'}."
+                    else
+                      "\n\n*(No existing data found to wipe.)*"
+                    end
+
     send_cv2(event, [{ type: 17, accent_color: 0xFF0000, components: [
       { type: 10, content: "## 🚫 User Blacklisted" },
       { type: 14, spacing: 1 },
-      { type: 10, content: "#{mention_tag} has been added to the blacklist. I will now ignore all messages and commands from them.#{mom_remark(event.user.id, 'dev')}" }
+      { type: 10, content: "#{mention_tag} has been added to the blacklist. I will now ignore all messages and commands from them.#{purge_summary}#{mom_remark(event.user.id, 'dev')}" }
     ]}])
   else
     # Remove the user ID from the bot's internal ignore list

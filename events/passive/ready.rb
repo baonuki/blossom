@@ -130,9 +130,21 @@ $bot.ready do |event|
   end
 
   # ------------------------------------------
-  # 3. APPLY GLOBAL BLACKLIST
+  # 3. APPLY GLOBAL BLACKLIST + PURGE BLACKLISTED USER DATA
   # ------------------------------------------
-  DB.get_blacklist.each do |uid|
+  # Every blacklisted user gets re-purged on every boot. The purge is
+  # idempotent — if there's nothing left to delete it just no-ops — so this
+  # is safe to run unconditionally and acts as a self-healing safety net in
+  # case data ever leaks back in for someone on the list.
+  blacklist_ids = DB.get_blacklist
+  blacklist_total_rows = 0
+  blacklist_ids.each do |uid|
     event.bot.ignore_user(uid)
+    counts = DB.purge_user_data(uid) || {}
+    blacklist_total_rows += counts.values.sum
+  end
+  if blacklist_ids.any?
+    puts "🚫 Re-applied blacklist for #{blacklist_ids.size} user#{blacklist_ids.size == 1 ? '' : 's'} " \
+         "(purged #{blacklist_total_rows} stale row#{blacklist_total_rows == 1 ? '' : 's'})."
   end
 end
