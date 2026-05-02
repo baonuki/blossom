@@ -3,8 +3,8 @@
 # DESCRIPTION: Basic formatting, embed generation, and logging.
 # ==========================================
 
-# Blossom's special remarks when her mom (baonuki) uses a command
-MAMA_ID = 1398450651297747065
+# Blossom's special remarks when her mom uses a command (same account as primary dev)
+MAMA_ID = DEV_ID
 
 MOM_REMARKS = {
   'economy' => [
